@@ -1,4 +1,4 @@
-require("../src/simjulia.jl")
+require("../src/SimJulia.jl")
 using SimJulia
 
 function hello_task(process::Process, n::Uint64)
