@@ -14,6 +14,9 @@ function reactivate_task(process::Process, hello::Process)
 		reactivate(hello, now(process)+5.0)
 		produce(hold(process, 30.0))
 	end
+	if terminated(hello)
+		println("$(now(process)): Hello is terminated.")
+	end
 end
 
 simulation = Simulation(uint(16))
