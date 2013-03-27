@@ -4,7 +4,9 @@ type Event
 	priority::Int64
 	canceled::Bool
 	function Event()
-		return new()
+		event = new()
+		event.time = -1.0
+		return event
 	end
 end
 

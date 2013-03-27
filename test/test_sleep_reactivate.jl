@@ -9,7 +9,7 @@ function hello_task(process::Process, n::Uint64)
 end
 
 function reactivate_task(process::Process, hello::Process)
-	while ! done(hello)
+	while passive(hello)
 		println("$(now(process)): Hello is sleeping. Reactivate in 5s!")
 		reactivate(hello, now(process)+5.0)
 		produce(hold(process, 30.0))
