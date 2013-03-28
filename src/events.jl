@@ -36,7 +36,7 @@ type EventList
 end
 
 function show(io::IO, event_list::EventList)
-	print(io, "EventList: $event_list.count")
+	print(io, "EventList: $(event_list.count)")
 end
 
 function percolate_up(event_list::EventList)
