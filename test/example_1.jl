@@ -3,7 +3,7 @@ using SimJulia
 
 function go(process::Process)
 	println("$(now(process)) $process Starting")
-	produce(hold(process,100.0))
+	hold(process,100.0)
 	println("$(now(process)) $process Arrived")
 end
 

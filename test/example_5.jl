@@ -4,13 +4,13 @@ using SimJulia
 function operate(bus::Process, repairduration::Float64, triplength::Float64, br::Process)
 	tripleft = triplength
 	while tripleft > 0.0
-		produce(hold(bus, tripleft))
+		hold(bus, tripleft)
 		if interrupted(bus)
 			println("$(interrupt_cause(bus)) at $(now(bus))")
 			tripleft = interrupt_left(bus)
 			interrupt_reset(bus)
 			reactivate(br, now(bus)+repairduration)
-			produce(hold(bus, repairduration))
+			hold(bus, repairduration)
 			println("Bus repaired at $(now(bus))")
 		else
 			break
@@ -21,12 +21,12 @@ end
 
 function break_bus(br::Process, interval::Float64, bus::Process)
 	while true
-		produce(hold(br, interval))
+		hold(br, interval)
 		if terminated(bus)
 			break
 		end
 		interrupt(bus, br)
-		produce(sleep(br))
+		sleep(br)
 	end
 end
 

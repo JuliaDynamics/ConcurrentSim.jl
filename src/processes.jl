@@ -93,8 +93,10 @@ end
 
 function sleep(process::Process)
 	process.next_event = Event()
+	produce(true)
 end
 
 function hold(process::Process, delay::Float64)
 	post(process.simulation, process, now(process)+delay, false)
+	produce(true)
 end

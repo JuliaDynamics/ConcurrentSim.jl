@@ -8,7 +8,7 @@ function buy(customer::Process, budget::Float64)
 		if budget < 10.0
 			break
 		end
-		produce(hold(customer, t))
+		hold(customer, t)
 		println("$(now(customer)) $customer: I just bought something")
 		budget -= 10.0
 	end
@@ -20,7 +20,7 @@ function execute(source::Process, finish::Float64)
 	while now(source) < finish
 		c = Process(source.simulation, "Customer$(i)")
 		activate(c, now(source), buy, round(100.0*rand()))
-		produce(hold(source, 10.0))
+		hold(source, 10.0)
 		i = i+1
 	end
 end

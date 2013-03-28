@@ -5,7 +5,7 @@ function buy(customer::Process, budget::Float64)
 	println("$customer: Here I am at the shops")
 	t = 5.0
 	for i = 1:4
-		produce(hold(customer, t))
+		hold(customer, t)
 		println("$customer: I just bought something")
 		budget -= 10.0
 	end
