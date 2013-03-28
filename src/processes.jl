@@ -79,6 +79,14 @@ function interrupt(victim::Process, cause::Process)
 	end
 end
 
+function interrupt_left(process::Process)
+	return copy(process.interrupt_left)
+end
+
+function interrupt_cause(process::Process)
+	return process.interrupt_cause
+end
+
 function interrupt_reset(process::Process)
 	process.interrupt_left = -1.0
 end

@@ -6,8 +6,8 @@ function operate(bus::Process, repairduration::Float64, triplength::Float64, br:
 	while tripleft > 0.0
 		produce(hold(bus, tripleft))
 		if interrupted(bus)
-			println("$(bus.interrupt_cause) at $(now(bus))")
-			tripleft = bus.interrupt_left
+			println("$(interrupt_cause(bus)) at $(now(bus))")
+			tripleft = interrupt_left(bus)
 			interrupt_reset(bus)
 			reactivate(br, now(bus)+repairduration)
 			produce(hold(bus, repairduration))

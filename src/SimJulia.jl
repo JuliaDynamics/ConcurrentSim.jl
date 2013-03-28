@@ -4,7 +4,8 @@ module SimJulia
 	export run
 	export observe, trace, mean
 	export now, terminated, active, passive, interrupted
-	export activate, reactivate, interrupt, interrupt_reset, sleep, hold
+	export activate, reactivate, interrupt, interrupt_reset, interrupt_left, interrupt_cause
+	export sleep, hold
 	export request, release, wait_monitor, activity_monitor
 	include("events.jl")
 	include("monitors.jl")
