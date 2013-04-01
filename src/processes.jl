@@ -66,16 +66,16 @@ function activate(process::Process, at::Float64, run::Function, args...)
 	post(process.simulation, process, at, false)
 end
 
-function reactivate(process::Process, at::Float64)
+function reactivate(process::Process, delay::Float64)
 	process.next_event.canceled = true
-	post(process.simulation, process, at, false)
+	post(process.simulation, process, now(process)+delay, false)
 end
 
 function interrupt(victim::Process, cause::Process)
 	if active(victim)
 		victim.interrupt_left = victim.next_event.time - now(victim)
 		victim.interrupt_cause = cause
-		reactivate(victim, now(victim))
+		reactivate(victim, 0.0)
 	end
 end
 

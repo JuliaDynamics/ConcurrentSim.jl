@@ -41,6 +41,7 @@ function request(process::Process, resource::Resource)
 		end
 		post(process.simulation, process, now(process), true)
 	end
+	produce(true)
 end
 
 function release(process::Process, resource::Resource)
@@ -60,6 +61,7 @@ function release(process::Process, resource::Resource)
 		end
 		post(new_process.simulation, new_process, now(new_process), true)
 	end
+	produce(true)
 end
 
 function wait_monitor(resource::Resource)
