@@ -1,10 +1,12 @@
 type Signal
 	name::ASCIIString
+	occured::Bool
 	wait_list::Set{Process}
 	queue_list::Vector{Process}
 	function Signal(name::ASCIIString)
 		signal = new()
 		signal.name = name
+		signal.occured = false
 		signal.wait_list = Set{Process}()
 		signal.queue_list = Process[]
 		return signal
@@ -21,15 +23,23 @@ function wait(process::Process, signals::Set{Signal})
 	end
 	process.next_event = Event()
 	produce(true)
+	occured_signals = Set{Signal}()
 	for signal in signals
+		if signal.occured
+			add!(occured_signals, signal)
+		end
 		delete!(signal.wait_list, process)
+		if isempty(signal.wait_list) 
+			signal.occured = false
+		end
 	end
+	return occured_signals
 end
 
 function wait(process::Process, signal::Signal)
 	signals = Set{Signal}()
 	add!(signals, signal)
-	wait(process, signals)
+	return wait(process, signals)
 end
 
 function queue(process::Process, signals::Set{Signal})
@@ -38,18 +48,27 @@ function queue(process::Process, signals::Set{Signal})
 	end
 	process.next_event = Event()
 	produce(true)
+	occured_signals = Set{Signal}()
 	for signal in signals
+		if signal.occured
+			add!(occured_signals, signal)
+		end
 		delete!(signal.queue_list, findin(signal.queue_list, [process])[1])
+		if isempty(signal.wait_list)
+			signal.occured = false
+		end
 	end
+	return occured_signals
 end
 
 function queue(process::Process, signal::Signal)
 	signals = Set{Signal}()
 	add!(signals, signal)
-	queue(process, signals)
+	return queue(process, signals)
 end
 
 function fire(signal::Signal)
+	signal.occured = true
 	for process in signal.wait_list
 		post(process.simulation, process, now(process), true)
 	end
