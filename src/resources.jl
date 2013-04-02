@@ -8,7 +8,7 @@ type Resource
 	monitored::Bool
 	wait_monitor::Monitor{Int64}
 	activity_monitor::Monitor{Int64}
-	function Resource(simulation::Simulation, name::ASCIIString, capacity::Uint64, monitored::Bool)
+	function Resource(simulation::Simulation, name::ASCIIString, capacity::Uint, monitored::Bool)
 		resource = new()
 		resource.simulation = simulation
 		resource.name = name
