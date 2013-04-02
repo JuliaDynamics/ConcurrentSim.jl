@@ -1,4 +1,3 @@
-require("../src/SimJulia.jl")
 using SimJulia
 
 function generate(process::Process, lambda::Float64)

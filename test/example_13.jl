@@ -1,4 +1,3 @@
-require("../src/SimJulia.jl")
 using SimJulia
 
 function get_served(client::Process, serv_time::Float64, my_server::Resource)

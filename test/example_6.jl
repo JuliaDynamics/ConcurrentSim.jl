@@ -1,4 +1,3 @@
-require("../src/SimJulia.jl")
 using SimJulia
 
 function waitup(process::Process, signals)

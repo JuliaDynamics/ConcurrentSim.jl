@@ -1,4 +1,3 @@
-require("../src/SimJulia.jl")
 using SimJulia
 
 function buy(customer::Process, budget::Float64)
