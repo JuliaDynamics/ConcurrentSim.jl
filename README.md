@@ -12,10 +12,15 @@ Tests are identical to the examples in the SimPy documentation.
 - example_4.jl: A source creates and activates a series of customers who arrive at regular intervals of 10.0 units of time.
 - example_5.jl: A simulation with interrupts. A bus is subject to breakdowns that are modelled as interrupts caused by a Process "breakdown".
 - example_6.jl: Asynchronous signalling using wait or queue and fire.
-- example_7.jl: waituntil is not yet implemented.
+- example_7.jl: waituntil not yet implemented.
 - example_8.jl: The Resource "server" is given two resource units. Six clients arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
-- example_9.jl: Priority requests for a Resource unit are not yet implemented.
-- example_10.jl: Preemptive requests for a Resource unit are not yet implemented.
-- example_11.jl: Reneging after a timelimit before acquiring a Resource is not yet implemented.
-- example_12.jl: Reneging when an event has happened before acquiring a Resource is not yet implemented.
+- example_9.jl: Priority requests for a Resource unit not yet implemented.
+- example_10.jl: Preemptive requests for a Resource unit not yet implemented.
+- example_11.jl: Reneging after a timelimit before acquiring a Resource not yet implemented.
+- example_12.jl: Reneging when an event has happened before acquiring a Resource not yet implemented.
 - example_13.jl: A Monitor is used to record the Resource queues. After the simulation, some basic statistics for each queue and their complete time series are displayed.
+- example_14.jl: Level not yet implemented.
+- example_15.jl: Store not yet implemented.
+- example_16.jl: Master/slave modelling with a store not yet implemented.
+- example_17.jl: Printing a histogram from a Monitor.
+- example_18.jl: A Monitor is used to observe exponential random variates.
