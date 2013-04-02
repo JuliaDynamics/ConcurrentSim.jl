@@ -25,8 +25,22 @@ function run(simulation::Simulation, until::Float64)
 			break
 		end
 	end
+	stop_monitors(simulation)
 end
 
 function register(simulation::Simulation, monitor::Monitor)
 	add!(simulation.monitors, monitor)
+	start(monitor, 0.0)
+end
+
+function start_monitors(simulation::Simulation)
+	for monitor in simulation.monitors
+		start(monitor, simulation.time)
+	end
+end
+
+function stop_monitors(simulation::Simulation)
+	for monitor in simulation.monitors
+		stop(monitor, simulation.time)
+	end
 end

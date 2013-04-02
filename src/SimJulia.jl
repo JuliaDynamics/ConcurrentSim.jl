@@ -2,7 +2,7 @@ module SimJulia
 	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.mean
 	export Simulation, Process, Signal, Resource, Monitor
 	export run
-	export observe, trace, mean
+	export observe, trace, mean, var, time_average
 	export now, terminated, active, passive, interrupted
 	export activate, reactivate, interrupt, interrupt_reset, interrupt_left, interrupt_cause
 	export sleep, hold
