@@ -7,7 +7,7 @@ A process is implemented as a type containing a Task (co-routine). The produce f
 
 Tests are identical to the examples in the SimPy documentation.
 - example_1.jl: Basic simulation. A Process "message" is defined with an associated Task "go".
-- example_2.jl: A Process "custimer is defined and the associated Task "buy" has an extra argument "budget".
+- example_2.jl: A Process "customer" is defined and the associated Task "buy" has an extra argument "budget".
 - example_3.jl: This simulates a firework with a time fuse.
 - example_4.jl: A source creates and activates a series of customers who arrive at regular intervals of 10.0 units of time.
 - example_5.jl: A simulation with interrupts. A bus is subject to breakdowns that are modelled as interrupts caused by a Process "breakdown".
