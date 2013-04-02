@@ -1,4 +1,4 @@
 require("../src/SimJulia.jl")
 using SimJulia
 
-println("waituntil is not yet implemented")
+println("levels are not yet implemented")

@@ -1,4 +1,4 @@
 require("../src/SimJulia.jl")
 using SimJulia
 
-println("waituntil is not yet implemented")
+println("stores are not yet implemented")
