@@ -3,8 +3,9 @@ using SimJulia
 
 function generate(process::Process)
 	for i = 1:10000
-		observe(monitor, now(process), rand())
-		hold(process, 1.0)
+		wait = rand()
+		observe(monitor, now(process), wait)
+		hold(process, wait)
 	end
 end
 
