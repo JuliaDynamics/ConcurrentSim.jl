@@ -1,7 +1,7 @@
 type Monitor{V<:Real}
 	name::ASCIIString
 	times::Vector{Float64}
-	observations::Vector{Float64}
+	observations::Vector{V}
 	function Monitor(name::ASCIIString)
 		monitor = new()
 		monitor.name = name
@@ -24,13 +24,11 @@ function start{V<:Real}(monitor::Monitor{V}, time::Float64)
 	monitor.observations = V[]
 	push!(monitor.times, time)
 	push!(monitor.observations, zero(V))
-	
 end
 
 function stop{V<:Real}(monitor::Monitor{V}, time::Float64)
 	push!(monitor.times, time)
 	push!(monitor.observations, zero(V))
-	
 end
 
 function observe{V<:Real}(monitor::Monitor{V}, time::Float64, value::V)
@@ -48,6 +46,11 @@ function trace{V<:Real}(monitor::Monitor{V})
 	for i = 1:len-1
 		println("$(monitor.times[i]): $(monitor.observations[i])")
 	end
+end
+
+function count{V<:Real}(monitor::Monitor{V})
+	len = length(monitor.times)
+	return len-1
 end
 
 function mean{V<:Real}(monitor::Monitor{V})
@@ -76,6 +79,33 @@ function time_average{V<:Real}(monitor::Monitor{V})
 		result = result + (monitor.times[i+1] - monitor.times[i]) * monitor.observations[i]
 	end
 	return result / (monitor.times[len] - monitor.times[1])
+end
+
+function histogram{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
+	histogram = zeros(Int64, nbins+2)
+	len = length(monitor.observations)
+	for i = 1:len-1
+		y = monitor.observations[i]
+		if y < low
+			histogram[1] = histogram[1] + 1
+		elseif y >= high
+			histogram[nbins+2] = histogram[nbins+2] + 1
+		else
+			n = floor(nbins * (y - low) / (high - low)) + 2
+			histogram[n] =  histogram[n] + 1
+		end
+	end
+	return histogram
+end
+
+function tseries{V<:Real}(monitor::Monitor{V})
+	len = length(monitor.observations)
+	return monitor.times[1:len-1]
+end
+
+function yseries{V<:Real}(monitor::Monitor{V})
+	len = length(monitor.observations)
+	return monitor.observations[1:len-1]
 end
 
 function start{V<:Real}(monitor::Monitor{V})
