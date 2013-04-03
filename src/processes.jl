@@ -27,6 +27,10 @@ function post(simulation::Simulation, process::Process, at::Float64, priority::B
 	end
 end
 
+function cancel(process::Process)
+	process.next_event.canceled = true
+end
+
 function now(process::Process)
 	return copy(process.simulation.time)
 end

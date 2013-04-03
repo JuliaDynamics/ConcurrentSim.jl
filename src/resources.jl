@@ -27,12 +27,25 @@ type Resource
 	end
 end
 
-function request(process::Process, resource::Resource)
+function acquired(process::Process, resource::Resource)
+	result = true
+	if ! contains(resource.active_set, process)
+		delete!(resource.wait_queue, findin(resource.wait_queue, [process])[1])
+		if resource.monitored
+			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
+		end
+		result = false
+	end
+	return result
+end
+
+function request(process::Process, resource::Resource, waittime::Float64)
 	if resource.uncommitted == 0
 		push!(resource.wait_queue, process)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 		end
+		post(process.simulation, process, now(process)+waittime, true)
 	else
 		resource.uncommitted -= 1
 		add!(resource.active_set, process)
@@ -44,13 +57,16 @@ function request(process::Process, resource::Resource)
 	produce(true)
 end
 
+function request(process::Process, resource::Resource)
+	request(process, resource, 0.0)
+end
+
 function release(process::Process, resource::Resource)
 	resource.uncommitted += 1
 	delete!(resource.active_set, process)
 	if resource.monitored
 		observe(resource.activity_monitor, now(process), length(resource.active_set))
 	end
-	post(process.simulation, process, now(process), true)
 	if length(resource.wait_queue) > 0
 		new_process = shift!(resource.wait_queue)
 		resource.uncommitted -= 1
@@ -59,8 +75,10 @@ function release(process::Process, resource::Resource)
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
+		cancel(new_process)
 		post(new_process.simulation, new_process, now(new_process), true)
 	end
+	post(process.simulation, process, now(process), true)
 	produce(true)
 end
 

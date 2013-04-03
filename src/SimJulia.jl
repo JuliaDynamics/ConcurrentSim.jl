@@ -7,7 +7,7 @@ module SimJulia
 	export activate, reactivate, interrupt, interrupt_reset, interrupt_left, interrupt_cause
 	export sleep, hold
 	export fire, wait, queue
-	export request, release, wait_monitor, activity_monitor
+	export request, release, acquired, wait_monitor, activity_monitor
 	include("events.jl")
 	include("monitors.jl")
 	include("simulations.jl")
