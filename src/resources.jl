@@ -3,18 +3,19 @@ type Resource
 	name::ASCIIString
 	capacity::Uint64
 	uncommitted::Uint64
-	wait_queue::Vector{Process}
+	wait_queue::PriorityQueue{Process,Int64}
 	active_set::Set{Process}
 	monitored::Bool
 	wait_monitor::Monitor{Int64}
 	activity_monitor::Monitor{Int64}
+	priority::Int64
 	function Resource(simulation::Simulation, name::ASCIIString, capacity::Uint, monitored::Bool)
 		resource = new()
 		resource.simulation = simulation
 		resource.name = name
 		resource.capacity = capacity
 		resource.uncommitted = capacity
-		resource.wait_queue = Process[]
+		resource.wait_queue = PriorityQueue{Process,Int64}()
 		resource.active_set = Set{Process}()
 		resource.monitored = monitored
 		if monitored
@@ -23,6 +24,7 @@ type Resource
 			resource.activity_monitor = Monitor{Int64}("Activity monitor of $name")
 			register(simulation, resource.activity_monitor)
 		end
+		resource.priority = 0
 		return resource
 	end
 end
@@ -30,7 +32,7 @@ end
 function acquired(process::Process, resource::Resource)
 	result = true
 	if ! contains(resource.active_set, process)
-		delete!(resource.wait_queue, findin(resource.wait_queue, [process])[1])
+		delete!(resource.wait_queue, process)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 		end
@@ -39,9 +41,9 @@ function acquired(process::Process, resource::Resource)
 	return result
 end
 
-function request(process::Process, resource::Resource, waittime::Float64)
+function request(process::Process, resource::Resource, priority::Int64, waittime::Float64)
 	if resource.uncommitted == 0
-		push!(resource.wait_queue, process)
+		element = push!(resource.wait_queue, process, priority)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 		end
@@ -57,8 +59,18 @@ function request(process::Process, resource::Resource, waittime::Float64)
 	produce(true)
 end
 
+function request(process::Process, resource::Resource, priority::Int64)
+	request(process, resource, priority, Inf)
+end
+
+function request(process::Process, resource::Resource, waittime::Float64)
+	resource.priority -= 1
+	request(process, resource, resource.priority, waittime)
+end
+
 function request(process::Process, resource::Resource)
-	request(process, resource, 0.0)
+	resource.priority -= 1
+	request(process, resource, resource.priority, Inf)
 end
 
 function release(process::Process, resource::Resource)
@@ -68,14 +80,13 @@ function release(process::Process, resource::Resource)
 		observe(resource.activity_monitor, now(process), length(resource.active_set))
 	end
 	if length(resource.wait_queue) > 0
-		new_process = shift!(resource.wait_queue)
+		new_process, priority = pop!(resource.wait_queue)
 		resource.uncommitted -= 1
 		add!(resource.active_set, new_process)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
-		cancel(new_process)
 		post(new_process.simulation, new_process, now(new_process), true)
 	end
 	post(process.simulation, process, now(process), true)

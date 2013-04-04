@@ -9,6 +9,7 @@ type Process
 		process = new()
 		process.simulation = simulation
 		process.name = name
+		process.next_event = Event()
 		process.interrupt_left = -1.0
 		return process
 	end
@@ -19,6 +20,7 @@ function show(io::IO, process::Process)
 end
 
 function post(simulation::Simulation, process::Process, at::Float64, priority::Bool)
+	cancel(process)
 	simulation.sort_priority += 1
 	if priority
 		process.next_event = push!(simulation.event_list, process.task, at, -simulation.sort_priority)

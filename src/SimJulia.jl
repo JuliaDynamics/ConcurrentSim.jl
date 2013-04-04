@@ -1,5 +1,5 @@
 module SimJulia
-	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.mean
+	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.pop!, Base.delete!, Base.mean, Base.length
 	export Simulation, Process, Signal, Resource, Monitor
 	export run, register
 	export observe, trace, count, mean, var, time_average, tseries, yseries, histogram
@@ -13,5 +13,6 @@ module SimJulia
 	include("simulations.jl")
 	include("processes.jl")
 	include("signals.jl")
+	include("priority_queue.jl")
 	include("resources.jl")
 end

@@ -78,22 +78,17 @@ function push!(event_list::EventList, task::Task, time::Float64, priority::Int64
 end
 
 function pop!(event_list::EventList)
-	if event_list.count == 0
-		throw("Heap underflow!")
-	end
-	result = event_list.heap[1]
-	while true
+	while event_list.count > 0
+		result = event_list.heap[1]
 		event_list.heap[1] = event_list.heap[event_list.count]
 		event_list.heap[event_list.count] = Event()
 		event_list.count -= 1
 		percolate_down(event_list)
-		if result.canceled
-			result = event_list.heap[1]
-		else
-			break
+		if ! result.canceled
+			return result.task, result.time
 		end
 	end
-	return result.task, result.time
+	return Task(()->print("")), Inf
 end
 
 function start(event_list::EventList)
