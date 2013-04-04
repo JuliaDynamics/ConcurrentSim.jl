@@ -44,14 +44,14 @@ function observe{V<:Real}(monitor::Monitor{V}, time::Float64, value::V)
 	end
 end
 
-function trace{V<:Real}(monitor::Monitor{V})
+function trace(monitor::Monitor)
 	len = length(monitor.times)
 	for i = 1:len-1
 		println("$(monitor.times[i]): $(monitor.observations[i])")
 	end
 end
 
-function count{V<:Real}(monitor::Monitor{V})
+function count(monitor::Monitor)
 	len = length(monitor.times)
 	return len-1
 end
@@ -75,7 +75,7 @@ function var{V<:Real}(monitor::Monitor{V})
 	return result / (len-1) - mean(monitor)^2
 end
 
-function time_average{V<:Real}(monitor::Monitor{V})
+function time_average(monitor::Monitor)
 	result = 0.0
 	len = length(monitor.observations)
 	for i = 1:len-1
@@ -101,24 +101,24 @@ function histogram{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
 	return histogram
 end
 
-function tseries{V<:Real}(monitor::Monitor{V})
+function tseries(monitor::Monitor)
 	len = length(monitor.observations)
 	return monitor.times[1:len-1]
 end
 
-function yseries{V<:Real}(monitor::Monitor{V})
+function yseries(monitor::Monitor)
 	len = length(monitor.observations)
 	return monitor.observations[1:len-1]
 end
 
-function start{V<:Real}(monitor::Monitor{V})
+function start(monitor::Monitor)
 	return 1
 end
 
-function done{V<:Real}(monitor::Monitor{V}, state::Int64)
+function done(monitor::Monitor, state::Int64)
 	return state == length(monitor.times)
 end
 
-function next{V<:Real}(monitor::Monitor{V}, state::Int64)
+function next(monitor::Monitor, state::Int64)
 	return (monitor.times[state], monitor.observations[state]), state+1
 end
