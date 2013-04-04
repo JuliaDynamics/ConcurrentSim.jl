@@ -143,12 +143,12 @@ function get(process::Process, level::Level, ask::Float64, priority::Int64)
 end
 
 function get(process::Process, level::Level, ask::Float64, waittime::Float64)
-	level.priority += 1
+	level.priority -= 1
 	get(process, level, ask, level.priority, waittime)
 end
 
 function get(process::Process, level::Level, ask::Float64)
-	level.priority += 1
+	level.priority -= 1
 	get(process, level, ask, level.priority, Inf)
 end
 
