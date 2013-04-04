@@ -58,14 +58,16 @@ function acquired(process::Process, level::Level)
 	return result
 end
 
-function put(process::Process, level::Level, give::Float64, priority::Int64, waittime::Float64)
+function put(process::Process, level::Level, give::Float64, priority::Int64, waittime::Float64, renege::Bool)
 	if level.capacity - level.amount < give
 		level.put_amounts[process] = give
 		push!(level.put_queue, process, priority)
 		if level.monitored
 			observe(level.put_monitor, now(process), length(level.put_queue))
 		end
-		post(process.simulation, process, now(process)+waittime, true)
+		if renege
+			post(process.simulation, process, now(process)+waittime, true)
+		end
 	else
 		level.amount += give
 		if level.monitored
@@ -91,28 +93,34 @@ function put(process::Process, level::Level, give::Float64, priority::Int64, wai
 	produce(true)
 end
 
+function put(process::Process, level::Level, give::Float64, priority::Int64, waittime::Float64)
+	put(process, level, give, priority, waittime, true)
+end
+
 function put(process::Process, level::Level, give::Float64, priority::Int64)
-	put(process, level, give, priority, Inf)
+	put(process, level, give, priority, Inf, false)
 end
 	
 function put(process::Process, level::Level, give::Float64, waittime::Float64)
 	level.priority += 1
-	put(process, level, give, level.priority, waittime)
+	put(process, level, give, level.priority, waittime, true)
 end
 
 function put(process::Process, level::Level, give::Float64)
 	level.priority += 1
-	put(process, level, give, level.priority, Inf)
+	put(process, level, give, level.priority, Inf, false)
 end
 
-function get(process::Process, level::Level, ask::Float64, priority::Int64, waittime::Float64)
+function get(process::Process, level::Level, ask::Float64, priority::Int64, waittime::Float64, renege::Bool)
 	if level.amount < ask
 		level.get_amounts[process] = ask
 		push!(level.get_queue, process, priority)
 		if level.monitored
 			observe(level.get_monitor, now(process), length(level.get_queue))
 		end
-		post(process.simulation, process, now(process)+waittime, true)
+		if renege
+			post(process.simulation, process, now(process)+waittime, true)
+		end
 	else
 		level.amount -= ask
 		if level.monitored
@@ -138,18 +146,22 @@ function get(process::Process, level::Level, ask::Float64, priority::Int64, wait
 	produce(true)
 end
 
+function get(process::Process, level::Level, ask::Float64, priority::Int64, waittime::Float64)
+	get(process, level, ask, priority, waittime, true)
+end
+
 function get(process::Process, level::Level, ask::Float64, priority::Int64)
-	get(process, level, ask, priority, Inf)
+	get(process, level, ask, priority, Inf, false)
 end
 
 function get(process::Process, level::Level, ask::Float64, waittime::Float64)
 	level.priority -= 1
-	get(process, level, ask, level.priority, waittime)
+	get(process, level, ask, level.priority, waittime, true)
 end
 
 function get(process::Process, level::Level, ask::Float64)
 	level.priority -= 1
-	get(process, level, ask, level.priority, Inf)
+	get(process, level, ask, level.priority, Inf, false)
 end
 
 function put_monitor(level::Level)

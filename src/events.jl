@@ -6,6 +6,7 @@ type Event
 	function Event()
 		event = new()
 		event.time = -1.0
+		event.canceled = true
 		return event
 	end
 end
@@ -78,6 +79,7 @@ function push!(event_list::EventList, task::Task, time::Float64, priority::Int64
 end
 
 function pop!(event_list::EventList)
+	result = Event()
 	while event_list.count > 0
 		result = event_list.heap[1]
 		event_list.heap[1] = event_list.heap[event_list.count]
@@ -88,7 +90,7 @@ function pop!(event_list::EventList)
 			return result.task, result.time
 		end
 	end
-	return Task(()->print("")), Inf
+	return Task(()->print("")), result.time
 end
 
 function start(event_list::EventList)

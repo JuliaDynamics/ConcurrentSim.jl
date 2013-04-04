@@ -43,13 +43,15 @@ function acquired(process::Process, resource::Resource)
 	return result
 end
 
-function request(process::Process, resource::Resource, priority::Int64, waittime::Float64)
+function request(process::Process, resource::Resource, priority::Int64, waittime::Float64, renege::Bool)
 	if resource.uncommitted == 0
 		element = push!(resource.wait_queue, process, priority)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 		end
-		post(process.simulation, process, now(process)+waittime, true)
+		if renege
+			post(process.simulation, process, now(process)+waittime, true)
+		end
 	else
 		resource.uncommitted -= 1
 		add!(resource.active_set, process)
@@ -61,18 +63,22 @@ function request(process::Process, resource::Resource, priority::Int64, waittime
 	produce(true)
 end
 
+function request(process::Process, resource::Resource, priority::Int64, waittime::Float64)
+	request(process, resource, priority, waittime, true)
+end
+
 function request(process::Process, resource::Resource, priority::Int64)
-	request(process, resource, priority, Inf)
+	request(process, resource, priority, Inf, false)
 end
 
 function request(process::Process, resource::Resource, waittime::Float64)
 	resource.priority -= 1
-	request(process, resource, resource.priority, waittime)
+	request(process, resource, resource.priority, waittime, true)
 end
 
 function request(process::Process, resource::Resource)
 	resource.priority -= 1
-	request(process, resource, resource.priority, Inf)
+	request(process, resource, resource.priority, Inf, false)
 end
 
 function release(process::Process, resource::Resource)

@@ -16,21 +16,16 @@ type Simulation
 end
 
 function run(simulation::Simulation, until::Float64)
-	end_time = 0.0
 	for (task, simulation.time) in simulation.event_list
 		if simulation.time > until
 			simulation.stop = true
 		end
 		consume(task)
 		if simulation.stop
-			if simulation.time < Inf
-				end_time = simulation.time
-			end
 			break
 		end
-		end_time = simulation.time
 	end
-	stop_monitors(simulation, end_time)
+	stop_monitors(simulation)
 end
 
 function register(simulation::Simulation, monitor::Monitor)
@@ -44,8 +39,8 @@ function reset(simulation::Simulation)
 	end
 end
 
-function stop_monitors(simulation::Simulation, end_time::Float64)
+function stop_monitors(simulation::Simulation)
 	for monitor in simulation.monitors
-		stop(monitor, end_time)
+		stop(monitor, simulation.time)
 	end
 end

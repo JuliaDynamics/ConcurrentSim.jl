@@ -21,7 +21,7 @@ function wait(process::Process, signals::Set{Signal})
 	for signal in signals
 		add!(signal.wait_list, process)
 	end
-	process.next_event = Event()
+	cancel(process)
 	produce(true)
 	occured_signals = Set{Signal}()
 	for signal in signals
@@ -46,7 +46,7 @@ function queue(process::Process, signals::Set{Signal})
 	for signal in signals
 		push!(signal.queue_list, process)
 	end
-	process.next_event = Event()
+	cancel(process)
 	produce(true)
 	occured_signals = Set{Signal}()
 	for signal in signals

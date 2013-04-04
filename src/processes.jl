@@ -3,6 +3,7 @@ type Process
 	simulation::Simulation
 	task::Task
 	next_event::Event
+	interrupted::Bool
 	interrupt_left::Float64
 	interrupt_cause::Process
 	function Process(simulation::Simulation, name::ASCIIString)
@@ -10,7 +11,8 @@ type Process
 		process.simulation = simulation
 		process.name = name
 		process.next_event = Event()
-		process.interrupt_left = -1.0
+		process.interrupted = false
+		process.interrupt_left = 0.0
 		return process
 	end
 end
@@ -42,15 +44,15 @@ function terminated(process::Process)
 end
 
 function interrupted(process::Process)
-	return ! terminated(process) && process.interrupt_left >= 0.0
+	return ! terminated(process) && process.interrupted
 end
 
 function active(process::Process)
-	return process.interrupt_left < 0.0 && process.next_event.time >= 0.0
+	return ! process.interrupted && ! process.next_event.canceled
 end
 
 function passive(process::Process)
-	return ! terminated(process) && process.next_event.time < 0.0
+	return ! terminated(process) && process.next_event.canceled
 end
 
 function activate(process::Process, at::Float64, run::Function, args...)
@@ -79,6 +81,7 @@ end
 
 function interrupt(victim::Process, cause::Process)
 	if active(victim)
+		victim.interrupted = true
 		victim.interrupt_left = victim.next_event.time - now(victim)
 		victim.interrupt_cause = cause
 		reactivate(victim, 0.0)
@@ -94,11 +97,11 @@ function interrupt_cause(process::Process)
 end
 
 function interrupt_reset(process::Process)
-	process.interrupt_left = -1.0
+	process.interrupted = false
 end
 
 function sleep(process::Process)
-	process.next_event = Event()
+	cancel(process)
 	produce(true)
 end
 

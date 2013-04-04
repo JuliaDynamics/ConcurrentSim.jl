@@ -15,7 +15,7 @@ function show(io::IO, element::Element)
 	print(io, "Element: $(element.value), $(element.priority)")
 end
 
-function isless{V,P<:Real}(element1::Element{V,P}, element2::Element{V,P})
+function isless(element1::Element, element2::Element)
 	return element1.priority < element2.priority
 end
 
@@ -30,7 +30,7 @@ function show(io::IO, priority_queue::PriorityQueue)
 	print(io, "PriorityQueue: $(length(priority_queue.elements))")
 end
 
-function length{V,P<:Real}(priority_queue::PriorityQueue{V,P})
+function length(priority_queue::PriorityQueue)
 	return length(priority_queue.elements)
 end
 
@@ -40,9 +40,9 @@ function push!{V,P<:Real}(priority_queue::PriorityQueue{V,P}, value::V, priority
 	return element
 end
 
-function pop!{V,P<:Real}(priority_queue::PriorityQueue{V,P})
+function pop!(priority_queue::PriorityQueue)
 	if length(priority_queue.elements) == 0
-		throw("Heap underflow!")
+		throw("PriorityQueue underflow!")
 	end
 	result, idx = findmax(priority_queue.elements)
 	delete!(priority_queue.elements, idx)
@@ -58,14 +58,14 @@ function delete!{V,P<:Real}(priority_queue::PriorityQueue{V,P}, value::V)
 	end
 end
 
-function start{V,P<:Real}(priority_queue::PriorityQueue{V,P})
+function start(priority_queue::PriorityQueue)
 	return priority_queue.count
 end
 
-function done{V,P<:Real}(priority_queue::PriorityQueue{V,P}, state::Uint64)
+function done(priority_queue::PriorityQueue, state::Uint64)
 	return priority_queue.count == 0
 end
 
-function next{V,P<:Real}(priority_queue::PriorityQueue{V,P}, state::Uint64)
+function next(priority_queue::PriorityQueue, state::Uint64)
 	return pop!(priority_queue), priority_queue.count
 end
