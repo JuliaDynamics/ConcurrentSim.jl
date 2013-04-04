@@ -14,7 +14,7 @@ Tests are identical to the examples in the SimPy documentation.
 - example_6.jl: Asynchronous signalling using wait or queue and fire.
 - example_7.jl: waituntil not yet implemented.
 - example_8.jl: The Resource "server" is given two resource units. Six clients arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
-- example_9.jl: Priority requests for a Resource unit not yet implemented.
+- example_9.jl: The Resource "server" is given two resource units. Six clients having a priority arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
 - example_10.jl: Preemptive requests for a Resource unit not yet implemented.
 - example_11.jl: Reneging after a timelimit before acquiring a Resource is demonstrated by cars seaching a parking space in a parking lot.
 - example_12.jl: Reneging when an event has happened before acquiring a Resource not yet implemented.
