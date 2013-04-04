@@ -30,12 +30,12 @@ end
 
 function register(simulation::Simulation, monitor::Monitor)
 	add!(simulation.monitors, monitor)
-	start(monitor, 0.0)
+	reset(monitor, 0.0)
 end
 
-function start_monitors(simulation::Simulation)
+function reset(simulation::Simulation)
 	for monitor in simulation.monitors
-		start(monitor, simulation.time)
+		reset(monitor, simulation.time)
 	end
 end
 

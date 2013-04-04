@@ -3,27 +3,30 @@ type Monitor{V<:Real}
 	times::Vector{Float64}
 	observations::Vector{V}
 	function Monitor(name::ASCIIString)
-		monitor = new()
-		monitor.name = name
-		monitor.times = Float64[]
-		monitor.observations = V[]
-		return monitor
+		new(name, Float64[], V[])
 	end
 end
 
-function Monitor{V<:Real}(name::ASCIIString)
-	return Monitor(name)
+function Monitor{V<:Real}(name::ASCIIString, initial_value::V)
+	monitor = Monitor{V}(name)
+	push!(monitor.times, 0.0)
+	push!(monitor.observations, initial_value)
+	return monitor
 end
 
 function show(io::IO, monitor::Monitor)
 	print(io, monitor.name)
 end
 
-function start{V<:Real}(monitor::Monitor{V}, time::Float64)
+function reset{V<:Real}(monitor::Monitor{V}, time::Float64)
+	value = zero(V)
+	if ! isempty(monitor.observations)
+		value = monitor.observations[length(monitor.observations)]
+	end
 	monitor.times = Float64[]
 	monitor.observations = V[]
 	push!(monitor.times, time)
-	push!(monitor.observations, zero(V))
+	push!(monitor.observations, value)
 end
 
 function stop{V<:Real}(monitor::Monitor{V}, time::Float64)

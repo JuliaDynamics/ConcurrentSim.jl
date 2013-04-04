@@ -1,5 +1,4 @@
 type Resource
-	simulation::Simulation
 	name::ASCIIString
 	capacity::Uint64
 	uncommitted::Uint64
@@ -11,7 +10,6 @@ type Resource
 	priority::Int64
 	function Resource(simulation::Simulation, name::ASCIIString, capacity::Uint, monitored::Bool)
 		resource = new()
-		resource.simulation = simulation
 		resource.name = name
 		resource.capacity = capacity
 		resource.uncommitted = capacity
@@ -27,6 +25,10 @@ type Resource
 		resource.priority = 0
 		return resource
 	end
+end
+
+function occupied(resource::Resource)
+	return capacity - uncommitted
 end
 
 function acquired(process::Process, resource::Resource)
