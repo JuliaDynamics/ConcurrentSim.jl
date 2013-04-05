@@ -4,7 +4,7 @@ type Simulation
 	sort_priority::Int64
 	event_list::EventList
 	monitors::Set{Monitor}
-	function Simulation(n::Uint)
+	function Simulation(n::Uint64)
 		simulation = new()
 		simulation.stop = false
 		simulation.time = typemin(Float64)

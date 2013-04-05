@@ -1,6 +1,6 @@
 module SimJulia
-	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.pop!, Base.delete!, Base.mean, Base.length
-	export Simulation, Process, Signal, Resource, Monitor, Level
+	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.pop!, Base.shift!, Base.delete!, Base.mean, Base.length
+	export Simulation, Process, Signal, Resource, Monitor, Level, Store
 	export run, register, reset
 	export observe, trace, count, mean, var, time_average, tseries, yseries, histogram
 	export now, terminated, active, passive, interrupted
@@ -17,4 +17,5 @@ module SimJulia
 	include("priority_queue.jl")
 	include("resources.jl")
 	include("levels.jl")
+	include("stores.jl")
 end

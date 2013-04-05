@@ -7,7 +7,6 @@ type Resource
 	monitored::Bool
 	wait_monitor::Monitor{Int64}
 	activity_monitor::Monitor{Int64}
-	priority::Int64
 	function Resource(simulation::Simulation, name::ASCIIString, capacity::Uint, monitored::Bool)
 		resource = new()
 		resource.name = name
@@ -22,7 +21,6 @@ type Resource
 			resource.activity_monitor = Monitor{Int64}("Activity monitor of $name")
 			register(simulation, resource.activity_monitor)
 		end
-		resource.priority = 0
 		return resource
 	end
 end
@@ -72,13 +70,11 @@ function request(process::Process, resource::Resource, priority::Int64)
 end
 
 function request(process::Process, resource::Resource, waittime::Float64)
-	resource.priority -= 1
-	request(process, resource, resource.priority, waittime, true)
+	request(process, resource, 0, waittime, true)
 end
 
 function request(process::Process, resource::Resource)
-	resource.priority -= 1
-	request(process, resource, resource.priority, Inf, false)
+	request(process, resource, 0, Inf, false)
 end
 
 function release(process::Process, resource::Resource)
@@ -88,7 +84,7 @@ function release(process::Process, resource::Resource)
 		observe(resource.activity_monitor, now(process), length(resource.active_set))
 	end
 	if length(resource.wait_queue) > 0
-		new_process, priority = pop!(resource.wait_queue)
+		new_process, new_priority = shift!(resource.wait_queue)
 		resource.uncommitted -= 1
 		add!(resource.active_set, new_process)
 		if resource.monitored

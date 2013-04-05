@@ -10,7 +10,6 @@ type Level
 	put_monitor::Monitor{Int64}
 	get_monitor::Monitor{Int64}
 	buffer_monitor::Monitor{Float64}
-	priority::Int64
 	function Level(simulation::Simulation, name::ASCIIString, capacity::Float64, initial_buffered::Float64, monitored::Bool)
 		level = new()
 		level.name = name
@@ -29,7 +28,6 @@ type Level
 			level.buffer_monitor = Monitor("Buffer monitor of $name", initial_buffered)
 			register(simulation, level.buffer_monitor)
 		end
-		level.priority = 0
 		return level
 	end
 end
@@ -75,7 +73,7 @@ function put(process::Process, level::Level, give::Float64, priority::Int64, wai
 		end
 		post(process.simulation, process, now(process), true)
 		while length(level.get_queue) > 0
-			new_process, new_priority = pop!(level.get_queue)
+			new_process, new_priority = shift!(level.get_queue)
 			ask = level.get_amounts[new_process]
 			if level.amount > ask
 				level.amount -= ask
@@ -102,13 +100,11 @@ function put(process::Process, level::Level, give::Float64, priority::Int64)
 end
 	
 function put(process::Process, level::Level, give::Float64, waittime::Float64)
-	level.priority += 1
-	put(process, level, give, level.priority, waittime, true)
+	put(process, level, give, 0, waittime, true)
 end
 
 function put(process::Process, level::Level, give::Float64)
-	level.priority += 1
-	put(process, level, give, level.priority, Inf, false)
+	put(process, level, give, 0, Inf, false)
 end
 
 function get(process::Process, level::Level, ask::Float64, priority::Int64, waittime::Float64, renege::Bool)
@@ -128,7 +124,7 @@ function get(process::Process, level::Level, ask::Float64, priority::Int64, wait
 		end
 		post(process.simulation, process, now(process), true)
 		while length(level.put_queue) >0
-			new_process, new_priority = pop!(level.put_queue)
+			new_process, new_priority = shift!(level.put_queue)
 			give = level.put_amounts(new_process)
 			if level.capacity - level.amount > give
 				level.amount += give
@@ -155,13 +151,11 @@ function get(process::Process, level::Level, ask::Float64, priority::Int64)
 end
 
 function get(process::Process, level::Level, ask::Float64, waittime::Float64)
-	level.priority -= 1
-	get(process, level, ask, level.priority, waittime, true)
+	get(process, level, ask, 0, waittime, true)
 end
 
 function get(process::Process, level::Level, ask::Float64)
-	level.priority -= 1
-	get(process, level, ask, level.priority, Inf, false)
+	get(process, level, ask, 0, Inf, false)
 end
 
 function put_monitor(level::Level)

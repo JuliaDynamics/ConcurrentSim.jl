@@ -78,7 +78,7 @@ function push!(event_list::EventList, task::Task, time::Float64, priority::Int64
 	return event
 end
 
-function pop!(event_list::EventList)
+function shift!(event_list::EventList)
 	result = Event()
 	while event_list.count > 0
 		result = event_list.heap[1]
@@ -102,5 +102,5 @@ function done(event_list::EventList, state::Uint64)
 end
 
 function next(event_list::EventList, state::Uint64)
-	return pop!(event_list), event_list.count
+	return shift!(event_list), event_list.count
 end
