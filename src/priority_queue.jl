@@ -34,6 +34,12 @@ function length(priority_queue::PriorityQueue)
 	return length(priority_queue.elements)
 end
 
+function unshift!{V,P<:Real}(priority_queue::PriorityQueue{V,P}, value::V, priority::P)
+	element = Element{V,P}(value, priority)
+	unshift!(priority_queue.elements, element)
+	return element
+end
+
 function push!{V,P<:Real}(priority_queue::PriorityQueue{V,P}, value::V, priority::P)
 	element = Element{V,P}(value, priority)
 	push!(priority_queue.elements, element)
