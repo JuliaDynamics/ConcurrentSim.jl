@@ -20,7 +20,7 @@ Tests are identical to the examples in the SimPy documentation.
 - example_12.jl: Reneging when an event has happened before acquiring a Resource not yet implemented.
 - example_13.jl: A Monitor is used to record the Resource queues. After the simulation, some basic statistics for each queue and their complete time series are displayed.
 - example_14.jl: A random demand on an inventory is made each day. The inventory (modelled as an object of the Level class) is refilled by 10 units at fixed intervals of 10 days. There are no back-orders. A trace is to be printed out each day and whenever there is a stock-out.
-- example_15.jl: Store not yet implemented.
+- example_15.jl: A Store is used to model the production and consumption of "widgets". The widgets are distinguished by their weight.
 - example_16.jl: Master/slave modelling with a store not yet implemented.
 - example_17.jl: Printing a histogram from a Monitor.
 - example_18.jl: A Monitor is used to observe exponential random variates.
