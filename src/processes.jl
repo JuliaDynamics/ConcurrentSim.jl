@@ -21,6 +21,10 @@ function show(io::IO, process::Process)
 	print(io, process.name)
 end
 
+function simulation(process::Process)
+	return process.simulation
+end
+
 function post(simulation::Simulation, process::Process, at::Float64, priority::Bool)
 	cancel(process)
 	simulation.sort_priority += 1

@@ -3,6 +3,7 @@ type Signal
 	occured::Bool
 	wait_list::Set{Process}
 	queue_list::Vector{Process}
+	param
 	function Signal(name::ASCIIString)
 		signal = new()
 		signal.name = name
@@ -15,6 +16,10 @@ end
 
 function show(io::IO, signal::Signal)
 	print(io, signal.name)
+end
+
+function param(signal::Signal)
+	return signal.param
 end
 
 function wait(process::Process, signals::Set{Signal})
@@ -69,6 +74,19 @@ end
 
 function fire(signal::Signal)
 	signal.occured = true
+	signal.param = ""
+	for process in signal.wait_list
+		post(process.simulation, process, now(process), true)
+	end
+	if ! isempty(signal.queue_list)
+		process = signal.queue_list[1]
+		post(process.simulation, process, now(process), true)
+	end
+end
+
+function fire(signal::Signal, param)
+	signal.occured = true
+	signal.param = param
 	for process in signal.wait_list
 		post(process.simulation, process, now(process), true)
 	end
