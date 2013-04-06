@@ -1,7 +1,7 @@
 type Store{T}
 	name::ASCIIString
-	capacity::Uint64
-	occupied::Uint64
+	capacity::Int64
+	occupied::Int64
 	elements::Vector{T}
 	put_set::Dict{Process,Vector{T}}
 	get_set::Dict{Process,Function}
@@ -12,7 +12,7 @@ type Store{T}
 	put_monitor::Monitor{Int64}
 	get_monitor::Monitor{Int64}
 	buffer_monitor::Monitor{Int64}
-	function Store(simulation::Simulation, name::ASCIIString, capacity::Uint64, initial_buffered::Vector{T}, monitored::Bool)
+	function Store(simulation::Simulation, name::ASCIIString, capacity::Int64, initial_buffered::Vector{T}, monitored::Bool)
 		store = new()
 		store.name = name
 		store.capacity = capacity
@@ -67,7 +67,7 @@ function acquired(process::Process, store::Store)
 	return result
 end
 
-function put{T}(process::Process, store::Level, elements::Vector{T}, priority::Int64, waittime::Float64, renege::Bool)
+function put{T}(process::Process, store::Store, elements::Vector{T}, priority::Int64, waittime::Float64, renege::Bool)
 	if store.capacity - store.occupied < length(elements) || length(store.put_queue) > 0
 		store.put_set[process] = elements
 		push!(store.put_queue, process, priority)
@@ -89,8 +89,8 @@ function put{T}(process::Process, store::Level, elements::Vector{T}, priority::I
 			filter = store.get_set[new_process]
 			success, new_elements = filter(copy(store.elements))
 			if (success)
-				for index in findin(store.elements, new_elements)
-					delete!(store.elements, index)
+				for element in new_elements
+					delete!(store.elements, findin(store.elements, [element])[1])
 				end
 				store.occupied -= length(new_elements)
 				if store.monitored
@@ -109,9 +109,25 @@ function put{T}(process::Process, store::Level, elements::Vector{T}, priority::I
 	produce(true)
 end
 
-function get(process::Process, store::Level, filter::Function, priority::Int64, waittime::Float64, renege::Bool)
+function put{T}(process::Process, store::Store, elements::Vector{T}, priority::Int64, waittime::Float64)
+	put(process, store, elements, priority, waittime, true)
+end
+
+function put{T}(process::Process, store::Store, elements::Vector{T}, priority::Int64)
+	put(process, store, elements, priority, Inf, false)
+end
+
+function put{T}(process::Process, store::Store, elements::Vector{T}, waittime::Float64)
+	put(process, store, elements, 0, waittime, true)
+end
+
+function put{T}(process::Process, store::Store, elements::Vector{T})
+	put(process, store, elements, 0, Inf, false)
+end
+
+function get(process::Process, store::Store, filter::Function, priority::Int64, waittime::Float64, renege::Bool)
 	success, elements = filter(copy(store.elements))
-	if ! succes || length(store.get_queue) > 0
+	if ! success || length(store.get_queue) > 0
 		store.get_set[process] =  filter
 		push!(store.get_queue, process, priority)
 		if store.monitored
@@ -121,20 +137,20 @@ function get(process::Process, store::Level, filter::Function, priority::Int64, 
 			post(process.simulation, process, now(process)+waittime, true)
 		end
 	else
-		for index in findin(store.elements, elements)
-			delete!(store.elements, index)
+		for element in elements
+			delete!(store.elements, findin(store.elements, [element])[1])
 		end
 		store.occupied -= length(elements)
 		if store.monitored
 			observe(store.buffer_monitor, now(process), store.occupied)
 		end
 		store.getted_set[process] = elements
-		delete!(store.get_set, process)
 		post(process.simulation, process, now(process), true)
-		while length(put_queue) > 0
+		while length(store.put_queue) > 0
 			new_process, new_priority = shift!(store.put_queue)
-			new_elements = put_set[new_process]
+			new_elements = store.put_set[new_process]
 			if store.capacity - store.occupied >= length(new_elements)
+				append!(store.elements, new_elements)
 				store.occupied += length(new_elements)
 				if store.monitored
 					observe(store.buffer_monitor, now(new_process), store.occupied)
@@ -149,4 +165,46 @@ function get(process::Process, store::Level, filter::Function, priority::Int64, 
 		end
 	end
 	produce(true)
+end
+
+function get(process::Process, store::Store, filter::Function, priority::Int64, waittime::Float64)
+	get(process, store, filter, priority, waittime, true)
+end
+
+function get(process::Process, store::Store, filter::Function, priority::Int64)
+	get(process, store, filter, priority, Inf, false)
+end
+
+function get(process::Process, store::Store, filter::Function, waittime::Float64)
+	get(process, store, filter, 0, waittime, true)
+end
+
+function get(process::Process, store::Store, filter::Function)
+	get(process, store, filter, 0, Inf, false)
+end
+
+function filter_number{T}(elements::Vector{T}, number::Uint64)
+	success = false
+	selection = T[]
+	if length(elements) > number
+		success = true
+		append!(selection, elements[1:3])
+	end
+	return success, selection
+end
+
+function get{T}(process::Process, store::Store{T}, number::Uint64)
+	get(process, store, (elements::Vector{T})->filter_number(elements, number), 0, Inf, false)
+end
+
+function put_monitor(store::Store)
+	return store.put_monitor
+end
+
+function get_monitor(store::Store)
+	return store.get_monitor
+end
+
+function buffer_monitor(store::Store)
+	return store.buffer_monitor
 end

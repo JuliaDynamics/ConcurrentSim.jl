@@ -15,7 +15,11 @@ function Monitor{V<:Real}(name::ASCIIString, initial_value::V)
 end
 
 function show(io::IO, monitor::Monitor)
-	print(io, monitor.name)
+	print(io, "$(monitor.name) [ ")
+	for i = 1:length(monitor.observations)-1
+		print(io, "[$(monitor.times[i]), $(monitor.observations[i])] ")
+	end
+	print(io, "]")
 end
 
 function reset{V<:Real}(monitor::Monitor{V}, time::Float64)
