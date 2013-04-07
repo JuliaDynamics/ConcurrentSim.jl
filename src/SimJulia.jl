@@ -1,11 +1,11 @@
 module SimJulia
 	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.pop!, Base.shift!, Base.unshift!, Base.delete!, Base.mean, Base.length
 	export Simulation, Process, Signal, Resource, Monitor, Level, Store
-	export run, register, reset
+	export run, stop, register, reset
 	export observe, trace, count, mean, var, time_average, tseries, yseries, histogram
 	export now, simulation, terminated, active, passive, interrupted
 	export activate, reactivate, interrupt, interrupt_reset, interrupt_left, interrupt_cause
-	export sleep, hold
+	export sleep, hold, waituntil
 	export fire, wait, queue, param
 	export occupied, request, release, acquired, wait_monitor, activity_monitor
 	export amount, buffer, put, get, got, put_monitor, get_monitor, buffer_monitor

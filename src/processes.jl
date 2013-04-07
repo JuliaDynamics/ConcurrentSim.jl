@@ -113,3 +113,24 @@ function hold(process::Process, delay::Float64)
 	post(process.simulation, process, now(process)+delay, false)
 	produce(true)
 end
+
+function waituntil(process::Process, condition::Function, args...)
+	cancel(process)
+	if length(args) == 0
+		_condition = ()->condition()
+	elseif length(args) == 1
+		_condition = ()->condition(args[1])
+	elseif length(args) == 2
+		_condition = ()->condition(args[1], args[2])
+	elseif length(args) == 3
+		_condition = ()->condition(args[1], args[2], args[3])
+	elseif length(args) == 4
+		_condition = ()->condition(args[1], args[2], args[3], args[4])
+	elseif length(args) == 5
+		_condition = ()->condition(args[1], args[2], args[3], args[4], args[5])
+	else
+		throw("Too many arguments!")
+	end
+	add_condition(process.simulation, process.task, _condition)
+	produce(true)
+end
