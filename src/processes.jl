@@ -134,3 +134,15 @@ function waituntil(process::Process, condition::Function, args...)
 	add_condition(process.simulation, process.task, _condition)
 	produce(true)
 end
+
+function reset_monitors(process::Process)
+	simulation = simulation(process)
+	for monitor in simulation.monitor
+		reset(monitor, now(process))
+	end
+end
+
+function start_collection(simulation::Simulation, time::Float64)
+	process = Process(simulation, "Start collection")
+	activate(process, time, reset_monitors)
+end

@@ -3,7 +3,8 @@ type Resource
 	capacity::Uint64
 	uncommitted::Uint64
 	wait_queue::PriorityQueue{Process,Int64}
-	active_set::Set{Process}
+	active_set::Dict{Process, Int64}
+	preempt_set::Dict{Process, Float64}
 	monitored::Bool
 	wait_monitor::Monitor{Int64}
 	activity_monitor::Monitor{Int64}
@@ -13,7 +14,8 @@ type Resource
 		resource.capacity = capacity
 		resource.uncommitted = capacity
 		resource.wait_queue = PriorityQueue{Process,Int64}()
-		resource.active_set = Set{Process}()
+		resource.active_set = Dict{Process, Int64}()
+		resource.preempt_set = Dict{Process, Float64}()
 		resource.monitored = monitored
 		if monitored
 			resource.wait_monitor = Monitor{Int64}("Wait monitor of $name")
@@ -41,18 +43,29 @@ function acquired(process::Process, resource::Resource)
 	return result
 end
 
-function request(process::Process, resource::Resource, priority::Int64, waittime::Float64, renege::Bool)
+function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, waittime::Float64, renege::Bool)
 	if resource.uncommitted == 0
-		element = push!(resource.wait_queue, process, priority)
+		min_priority, min_index = findmin(values(resource.active_set))
+		if preempt && priority > min_priority
+			min_process = keys(resource.active_set)[min_index]
+			delete!(resource.active_set, min_process)
+			unshift!(resource.wait_queue, min_process, min_priority)
+			resource.preempt_set[min_process] = min_process.next_event.time - now(process)
+			cancel(min_process)
+			resource.active_set[process] = priority
+			post(process.simulation, process, now(process), true)
+		else
+			push!(resource.wait_queue, process, priority)
+			if renege
+				post(process.simulation, process, now(process)+waittime, true)
+			end
+		end
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 		end
-		if renege
-			post(process.simulation, process, now(process)+waittime, true)
-		end
 	else
 		resource.uncommitted -= 1
-		add!(resource.active_set, process)
+		resource.active_set[process] = priority
 		if resource.monitored
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
@@ -61,20 +74,28 @@ function request(process::Process, resource::Resource, priority::Int64, waittime
 	produce(true)
 end
 
+function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, waittime::Float64)
+	request(process, resource, priority, preempt, waittime, true)
+end
+
 function request(process::Process, resource::Resource, priority::Int64, waittime::Float64)
-	request(process, resource, priority, waittime, true)
+	request(process, resource, priority, false, waittime, true)
+end
+
+function request(process::Process, resource::Resource, priority::Int64, preempt::Bool)
+	request(process, resource, priority, preempt, Inf, false)
 end
 
 function request(process::Process, resource::Resource, priority::Int64)
-	request(process, resource, priority, Inf, false)
+	request(process, resource, priority, false, Inf, false)
 end
 
 function request(process::Process, resource::Resource, waittime::Float64)
-	request(process, resource, 0, waittime, true)
+	request(process, resource, 0, false, waittime, true)
 end
 
 function request(process::Process, resource::Resource)
-	request(process, resource, 0, Inf, false)
+	request(process, resource, 0, false, Inf, false)
 end
 
 function release(process::Process, resource::Resource)
@@ -86,12 +107,17 @@ function release(process::Process, resource::Resource)
 	if length(resource.wait_queue) > 0
 		new_process, new_priority = shift!(resource.wait_queue)
 		resource.uncommitted -= 1
-		add!(resource.active_set, new_process)
+		resource.active_set[new_process] = new_priority
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
-		post(new_process.simulation, new_process, now(new_process), true)
+		if has(resource.preempt_set, new_process)
+			post(new_process.simulation, new_process, now(new_process)+resource.preempt_set[new_process], true)
+			delete!(resource.preempt_set, new_process)
+		else
+			post(new_process.simulation, new_process, now(new_process), true)
+		end
 	end
 	post(process.simulation, process, now(process), true)
 	produce(true)

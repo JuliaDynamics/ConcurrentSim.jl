@@ -36,6 +36,6 @@ for i = 1:3
 	activate(c, 0.0, consume_widgets, buffer)
 end
 run(sim, 50.0)
-println("$(buffer_monitor(buffer))")
-println("$(get_monitor(buffer))")
-println("$(put_monitor(buffer))")
+println("$(collect(buffer_monitor(buffer)))")
+println("$(collect(get_monitor(buffer)))")
+println("$(collect(put_monitor(buffer)))")

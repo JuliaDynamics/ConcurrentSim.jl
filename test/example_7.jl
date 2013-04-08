@@ -32,7 +32,7 @@ function fight(shooter::Process, target::Player)
 		if floor(rand()*10) < 2
 			target.damage += 1
 			if target.damage <= 5
-				println("$(now(shooter)) Ha! $(target.name) hit! Damage = $(target.damage)")
+				println("Ha! $(target.name) hit! Damage = $(target.damage)")
 			else
 				if target.lives - 1 == 0
 					println("No more $(target.name) left!")

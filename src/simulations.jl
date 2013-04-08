@@ -19,8 +19,8 @@ end
 
 function run(simulation::Simulation, until::Float64)
 	for (task, simulation.time) in simulation.event_list
-		if simulation.time > until
-			simulation.stop = true
+		if simulation.time > until || simulation.stop
+			break
 		end
 		consume(task)
 		for (cond_task, condition) in simulation.condition_list
@@ -28,9 +28,6 @@ function run(simulation::Simulation, until::Float64)
 				delete!(simulation.condition_list, cond_task)
 				consume(cond_task)
 			end
-		end
-		if simulation.stop
-			break
 		end
 	end
 	stop_monitors(simulation)
@@ -43,12 +40,6 @@ end
 function register(simulation::Simulation, monitor::Monitor)
 	add!(simulation.monitors, monitor)
 	reset(monitor, 0.0)
-end
-
-function reset(simulation::Simulation)
-	for monitor in simulation.monitors
-		reset(monitor, simulation.time)
-	end
 end
 
 function stop_monitors(simulation::Simulation)

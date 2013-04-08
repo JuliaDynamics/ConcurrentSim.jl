@@ -15,11 +15,7 @@ function Monitor{V<:Real}(name::ASCIIString, initial_value::V)
 end
 
 function show(io::IO, monitor::Monitor)
-	print(io, "$(monitor.name) [ ")
-	for i = 1:length(monitor.observations)-1
-		print(io, "[$(monitor.times[i]), $(monitor.observations[i])] ")
-	end
-	print(io, "]")
+	print(io, "$(monitor.name)")
 end
 
 function reset{V<:Real}(monitor::Monitor{V}, time::Float64)
@@ -45,13 +41,6 @@ function observe{V<:Real}(monitor::Monitor{V}, time::Float64, value::V)
 	else
 		push!(monitor.times, time)
 		push!(monitor.observations, value)
-	end
-end
-
-function trace(monitor::Monitor)
-	len = length(monitor.times)
-	for i = 1:len-1
-		println("$(monitor.times[i]): $(monitor.observations[i])")
 	end
 end
 
@@ -113,6 +102,15 @@ end
 function yseries(monitor::Monitor)
 	len = length(monitor.observations)
 	return monitor.observations[1:len-1]
+end
+
+function collect{V}(monitor::Monitor{V})
+	len = length(monitor.observations)
+	result = Array((Float64, V),len-1)
+	for i = 1:len-1
+		result[i] = (monitor.times[i], monitor.observations[i])
+	end
+	return result
 end
 
 function start(monitor::Monitor)
