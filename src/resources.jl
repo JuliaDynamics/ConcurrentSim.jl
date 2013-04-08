@@ -43,7 +43,8 @@ function acquired(process::Process, resource::Resource)
 	return result
 end
 
-function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, waittime::Float64, renege::Bool)
+function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, waittime::Float64, signals::Set{Signal}, renege::Bool)
+	cancel(process)
 	if resource.uncommitted == 0
 		min_priority, min_index = findmin(values(resource.active_set))
 		if preempt && priority > min_priority
@@ -57,7 +58,11 @@ function request(process::Process, resource::Resource, priority::Int64, preempt:
 		else
 			push!(resource.wait_queue, process, priority)
 			if renege
-				post(process.simulation, process, now(process)+waittime, true)
+				if waittime < Inf
+					post(process.simulation, process, now(process)+waittime, true)
+				else
+					return wait(process, signals)
+				end
 			end
 		end
 		if resource.monitored
@@ -75,27 +80,49 @@ function request(process::Process, resource::Resource, priority::Int64, preempt:
 end
 
 function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, waittime::Float64)
-	request(process, resource, priority, preempt, waittime, true)
+	signals = Set{Signal}()
+	request(process, resource, priority, preempt, waittime, signals, true)
+	return signals
+end
+
+function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, signals::Set{Signal})
+	return request(process, resource, priority, preempt, Inf, signals, true)
 end
 
 function request(process::Process, resource::Resource, priority::Int64, waittime::Float64)
-	request(process, resource, priority, false, waittime, true)
+	signals = Set{Signal}()
+	request(process, resource, priority, false, waittime, signals, true)
+	return signals
+end
+
+function request(process::Process, resource::Resource, priority::Int64, signals::Set{Signal})
+	return request(process, resource, priority, false, Inf, signals, true)
 end
 
 function request(process::Process, resource::Resource, priority::Int64, preempt::Bool)
-	request(process, resource, priority, preempt, Inf, false)
+	signals = Set{Signal}()
+	request(process, resource, priority, preempt, Inf, signals, false)
+	return signals
 end
 
 function request(process::Process, resource::Resource, priority::Int64)
-	request(process, resource, priority, false, Inf, false)
+	return request(process, resource, priority, false, Inf, Set{Signal}(), false)
 end
 
 function request(process::Process, resource::Resource, waittime::Float64)
-	request(process, resource, 0, false, waittime, true)
+	signals = Set{Signal}()
+	request(process, resource, 0, false, waittime, signals, true)
+	return signals
+end
+
+function request(process::Process, resource::Resource, signals::Set{Signal})
+	return request(process, resource, 0, false, Inf, signals, true)
 end
 
 function request(process::Process, resource::Resource)
-	request(process, resource, 0, false, Inf, false)
+	signals = Set{Signal}()
+	request(process, resource, 0, false, Inf, signals, false)
+	return signals
 end
 
 function release(process::Process, resource::Resource)
