@@ -33,7 +33,7 @@ end
 
 function acquired(process::Process, resource::Resource)
 	result = true
-	if ! contains(resource.active_set, process)
+	if ! has(resource.active_set, process)
 		delete!(resource.wait_queue, process)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
