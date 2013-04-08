@@ -14,7 +14,7 @@ function demand(process::Process, stock::Level)
 	delay = 1.0
 	while true
 		hold(process, delay)
-		dd = (rand()-0.5)+1.25
+		dd = 0.2*randn()+1.2
 		ds = dd - amount(stock)
 		if ds > 0.0
 			get(process, stock, amount(stock))
