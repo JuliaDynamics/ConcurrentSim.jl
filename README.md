@@ -16,7 +16,7 @@ Tests are identical to the examples in the SimPy documentation.
 - example_7.jl: Example demonstrates the use of waituntil. The function "killed" in the Task "life" defines the condition te be waited for. 
 - example_8.jl: The Resource "server" is given two resource units. Six clients arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
 - example_9.jl: The Resource "server" is given two resource units. Six clients having a priority arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
-- example_10.jl: Preemptive requests for a Resource unit not yet implemented.
+- example_10.jl: Two client of different priority compete for the same resource unit. Preemption is enabled.
 - example_11.jl: Reneging after a timelimit before acquiring a Resource is demonstrated by cars seaching a parking space in a parking lot.
 - example_12.jl: Reneging when an event has happened before acquiring a Resource not yet implemented.
 - example_13.jl: A Monitor is used to record the Resource queues. After the simulation, some basic statistics for each queue and their complete time series are displayed.
