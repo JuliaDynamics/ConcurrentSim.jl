@@ -13,7 +13,7 @@ Tests are identical to the examples in the SimPy documentation.
 - example_4.jl: A source creates and activates a series of customers who arrive at regular intervals of 10.0 units of time.
 - example_5.jl: A simulation with interrupts. A bus is subject to breakdowns that are modelled as interrupts caused by a Process "breakdown".
 - example_6.jl: Asynchronous signalling using wait or queue and fire.
-- example_7.jl: Example demonstrates the use of waituntil. The function "killed" in the Task "life" defines the condition te be waited for. 
+- example_7.jl: Example demonstrates the use of waituntil. The function "killed" in the Task "life" defines the condition to be waited for. 
 - example_8.jl: The Resource "server" is given two resource units. Six clients arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
 - example_9.jl: The Resource "server" is given two resource units. Six clients having a priority arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
 - example_10.jl: Two client of different priority compete for the same resource unit. Preemption is enabled.
