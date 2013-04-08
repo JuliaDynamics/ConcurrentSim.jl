@@ -27,7 +27,7 @@ Tests are identical to the examples in the SimPy documentation.
 - example_9.jl: The Resource "server" is given two resource units. Six clients having a priority arrive in the order specified by the program. They all request a resource unit from the "server" at the same time.
 - example_10.jl: Two client of different priority compete for the same resource unit. Preemption is enabled.
 - example_11.jl: Reneging after a timelimit before acquiring a Resource is demonstrated by cars seaching a parking space in a parking lot.
-- example_12.jl: Reneging when an event has happened before acquiring a Resource not yet implemented.
+- example_12.jl: Queueing for a movie ticket. Visitors abandon the queue when the doors are closed or the tickets are sold out.
 - example_13.jl: A Monitor is used to record the Resource queues. After the simulation, some basic statistics for each queue and their complete time series are displayed.
 - example_14.jl: A random demand on an inventory is made each day. The inventory (modelled as an object of the Level class) is refilled by 10 units at fixed intervals of 10 days. There are no back-orders. A trace is to be printed out each day and whenever there is a stock-out.
 - example_15.jl: A Store is used to model the production and consumption of "widgets". The widgets are distinguished by their weight.
