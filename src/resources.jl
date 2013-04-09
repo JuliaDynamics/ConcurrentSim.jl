@@ -82,7 +82,6 @@ end
 function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, waittime::Float64)
 	signals = Set{Signal}()
 	request(process, resource, priority, preempt, waittime, signals, true)
-	return signals
 end
 
 function request(process::Process, resource::Resource, priority::Int64, preempt::Bool, signals::Set{Signal})
@@ -92,7 +91,6 @@ end
 function request(process::Process, resource::Resource, priority::Int64, waittime::Float64)
 	signals = Set{Signal}()
 	request(process, resource, priority, false, waittime, signals, true)
-	return signals
 end
 
 function request(process::Process, resource::Resource, priority::Int64, signals::Set{Signal})
@@ -102,7 +100,6 @@ end
 function request(process::Process, resource::Resource, priority::Int64, preempt::Bool)
 	signals = Set{Signal}()
 	request(process, resource, priority, preempt, Inf, signals, false)
-	return signals
 end
 
 function request(process::Process, resource::Resource, priority::Int64)
@@ -112,7 +109,6 @@ end
 function request(process::Process, resource::Resource, waittime::Float64)
 	signals = Set{Signal}()
 	request(process, resource, 0, false, waittime, signals, true)
-	return signals
 end
 
 function request(process::Process, resource::Resource, signals::Set{Signal})
