@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function waitup(process::Process, signals)

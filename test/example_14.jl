@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function deliver(process::Process, stock::Level)

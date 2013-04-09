@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function visit(visitor::Process, seats::Resource, signals::Set{Signal})

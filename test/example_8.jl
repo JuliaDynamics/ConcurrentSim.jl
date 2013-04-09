@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function get_served(client::Process, serv_time::Float64, my_server::Resource, in_clients::Vector{Process}, out_clients::Vector{Process})

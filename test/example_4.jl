@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function buy(customer::Process, budget::Float64)

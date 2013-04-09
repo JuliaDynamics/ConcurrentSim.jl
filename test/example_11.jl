@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function park(process::Process, parking_lot::Resource, patience::Float64, park_time::Float64)

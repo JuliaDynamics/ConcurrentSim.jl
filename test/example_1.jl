@@ -1,3 +1,4 @@
+using Test
 using SimJulia
 
 function go(process::Process)
