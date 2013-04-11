@@ -1,4 +1,4 @@
-using Test
+using Base.Test
 using SimJulia
 
 function generate(process::Process)

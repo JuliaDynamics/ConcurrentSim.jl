@@ -1,4 +1,4 @@
-using Test
+using Base.Test
 using SimJulia
 
 function operate(bus::Process, repairduration::Float64, triplength::Float64, br::Process)

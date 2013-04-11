@@ -1,4 +1,4 @@
-using Test
+using Base.Test
 using SimJulia
 
 function life_cycle_car(car::Process, waiting_cars::Store)
