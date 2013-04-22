@@ -1,7 +1,7 @@
 type Event
 	task::Task
 	time::Float64
-	priority::Int64
+	priority::Int
 	canceled::Bool
 	function Event()
 		event = new()
@@ -11,7 +11,7 @@ type Event
 	end
 end
 
-function Event(task::Task, time::Float64, priority::Int64)
+function Event(task::Task, time::Float64, priority::Int)
 	event = Event()
 	event.task = task
 	event.time = time
@@ -29,7 +29,7 @@ function isless(event1::Event, event2::Event)
 end
 
 type EventList
-	count::Uint64
+	count::Uint
 	heap::Vector{Event}
 	function EventList(n::Uint)
 		new(uint(0), Array(Event, n))
@@ -67,7 +67,7 @@ function percolate_down(event_list::EventList)
 	end
 end
 
-function push!(event_list::EventList, task::Task, time::Float64, priority::Int64)
+function push!(event_list::EventList, task::Task, time::Float64, priority::Int)
 	if event_list.count == length(event_list.heap)
 		throw("Heap overflow!")
 	end
@@ -97,10 +97,10 @@ function start(event_list::EventList)
 	return event_list.count
 end
 
-function done(event_list::EventList, state::Uint64)
+function done(event_list::EventList, state::Uint)
 	return event_list.count == 0
 end
 
-function next(event_list::EventList, state::Uint64)
+function next(event_list::EventList, state::Uint)
 	return shift!(event_list), event_list.count
 end

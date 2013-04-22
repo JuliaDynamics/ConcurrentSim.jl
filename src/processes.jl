@@ -72,6 +72,8 @@ function activate(process::Process, at::Float64, run::Function, args...)
 		process.task = Task(()->run(process, args[1], args[2], args[3], args[4]))
 	elseif length(args) == 5
 		process.task = Task(()->run(process, args[1], args[2], args[3], args[4], args[5]))
+	elseif length(args) == 6
+		process.task = Task(()->run(process, args[1], args[2], args[3], args[4], args[5], args[6]))
 	else
 		throw("Too many arguments!")
 	end

@@ -37,7 +37,7 @@ function number_active_neighbours(x::Int64, y::Int64, automata::Automata)
 end
 
 function decide(self_active::Bool, nan::Int64)
-	return (self_active && (nan == 2 || nan == 3)) || nan == 3
+	return self_active && (nan == 2 || nan == 3) || nan == 3
 end
 
 function life(cell::Process, x::Int64, y::Int64, automata::Automata)

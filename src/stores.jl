@@ -1,18 +1,18 @@
 type Store{T}
 	name::ASCIIString
-	capacity::Int64
-	occupied::Int64
+	capacity::Int
+	occupied::Int
 	buffer::Vector{T}
 	put_set::Dict{Process,Vector{T}}
 	get_set::Dict{Process,Function}
 	getted_set::Dict{Process,Vector{T}}
-	put_queue::PriorityQueue{Process,Int64}
-	get_queue::PriorityQueue{Process,Int64}
+	put_queue::PriorityQueue{Process,Int}
+	get_queue::PriorityQueue{Process,Int}
 	monitored::Bool
-	put_monitor::Monitor{Int64}
-	get_monitor::Monitor{Int64}
-	buffer_monitor::Monitor{Int64}
-	function Store(simulation::Simulation, name::ASCIIString, capacity::Int64, initial_buffered::Vector{T}, monitored::Bool)
+	put_monitor::Monitor{Int}
+	get_monitor::Monitor{Int}
+	buffer_monitor::Monitor{Int}
+	function Store(simulation::Simulation, name::ASCIIString, capacity::Int, initial_buffered::Vector{T}, monitored::Bool)
 		store = new()
 		store.name = name
 		store.capacity = capacity
@@ -22,13 +22,13 @@ type Store{T}
 		store.put_set = Dict{Process,Vector{T}}()
 		store.get_set = Dict{Process,Function}()
 		store.getted_set = Dict{Process,Vector{T}}()
-		store.put_queue = PriorityQueue{Process,Int64}()
-		store.get_queue = PriorityQueue{Process,Int64}()
+		store.put_queue = PriorityQueue{Process,Int}()
+		store.get_queue = PriorityQueue{Process,Int}()
 		store.monitored = monitored
 		if monitored
-			store.put_monitor = Monitor{Int64}("Put monitor of $name")
+			store.put_monitor = Monitor{Int}("Put monitor of $name")
 			register(simulation, store.put_monitor)
-			store.get_monitor = Monitor{Int64}("Get monitor of $name")
+			store.get_monitor = Monitor{Int}("Get monitor of $name")
 			register(simulation, store.get_monitor)
 			store.buffer_monitor = Monitor("Buffer monitor of $name", length(initial_buffered))
 			register(simulation, store.buffer_monitor)
@@ -67,7 +67,7 @@ function acquired(process::Process, store::Store)
 	return result
 end
 
-function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int64, waittime::Float64, signals::Set{Signal}, renege::Bool)
+function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	if store.capacity - store.occupied < length(buffer) || length(store.put_queue) > 0
 		store.put_set[process] = buffer
 		push!(store.put_queue, process, priority)
@@ -113,16 +113,16 @@ function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int
 	produce(true)
 end
 
-function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int64, waittime::Float64)
+function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int, waittime::Float64)
 	signals = Set{Signal}()
 	put(process, store, buffer, priority, waittime, signals, true)
 end
 
-function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int64, signals::Set{Signal})
+function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int, signals::Set{Signal})
 	return put(process, store, buffer, priority, Inf, signals, true)
 end
 
-function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int64)
+function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int)
 	signals = Set{Signal}()
 	put(process, store, buffer, priority, Inf, signals, false)
 end
@@ -141,7 +141,7 @@ function put{T}(process::Process, store::Store, buffer::Vector{T})
 	put(process, store, buffer, 0, Inf, signals, false)
 end
 
-function get(process::Process, store::Store, filter::Function, priority::Int64, waittime::Float64, signals::Set{Signal}, renege::Bool)
+function get(process::Process, store::Store, filter::Function, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	success, buffer = filter(copy(store.buffer))
 	if ! success || length(store.get_queue) > 0
 		store.get_set[process] =  filter
@@ -187,16 +187,16 @@ function get(process::Process, store::Store, filter::Function, priority::Int64, 
 	produce(true)
 end
 
-function get(process::Process, store::Store, filter::Function, priority::Int64, waittime::Float64)
+function get(process::Process, store::Store, filter::Function, priority::Int, waittime::Float64)
 	signals = Set{Signal}()
 	get(process, store, filter, priority, waittime, signals, true)
 end
 
-function get(process::Process, store::Store, filter::Function, priority::Int64, signals::Set{Signal})
+function get(process::Process, store::Store, filter::Function, priority::Int, signals::Set{Signal})
 	return get(process, store, filter, priority, Inf, signals, true)
 end
 
-function get(process::Process, store::Store, filter::Function, priority::Int64)
+function get(process::Process, store::Store, filter::Function, priority::Int)
 	signals = Set{Signal}()
 	get(process, store, filter, priority, Inf, signals, false)
 end
@@ -215,7 +215,7 @@ function get(process::Process, store::Store, filter::Function)
 	get(process, store, filter, 0, Inf, signals, false)
 end
 
-function filter_number{T}(buffer::Vector{T}, number::Uint64)
+function filter_number{T}(buffer::Vector{T}, number::Uint)
 	success = false
 	selection = T[]
 	if length(buffer) > number
@@ -225,30 +225,30 @@ function filter_number{T}(buffer::Vector{T}, number::Uint64)
 	return success, selection
 end
 
-function get(process::Process, store::Store, number::Uint64, priority::Int64, waittime::Float64)
+function get(process::Process, store::Store, number::Uint, priority::Int, waittime::Float64)
 	signals = Set{Signal}()
 	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), priority, waittime, signals, true)
 end
 
-function get(process::Process, store::Store, number::Uint64, priority::Int64, signals::Set{Signal})
+function get(process::Process, store::Store, number::Uint, priority::Int, signals::Set{Signal})
 	return get(process, store, (buffer::Vector{T})->filter_number(buffer, number), priority, Inf, signals, true)
 end
 
-function get(process::Process, store::Store, number::Uint64, priority::Int64)
+function get(process::Process, store::Store, number::Uint, priority::Int)
 	signals = Set{Signal}()
 	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), priority, Inf, signals, false)
 end
 
-function get(process::Process, store::Store, number::Uint64, waittime::Float64)
+function get(process::Process, store::Store, number::Uint, waittime::Float64)
 	signals = Set{Signal}()
 	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), 0, waittime, signals, true)
 end
 
-function get(process::Process, store::Store, number::Uint64, signals::Set{Signal})
+function get(process::Process, store::Store, number::Uint, signals::Set{Signal})
 	return get(process, store, (buffer::Vector{T})->filter_number(buffer, number), 0, Inf, signals, true)
 end
 
-function get{T}(process::Process, store::Store{T}, number::Uint64)
+function get{T}(process::Process, store::Store{T}, number::Uint)
 	signals = Set{Signal}()
 	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), 0, Inf, signals, false)
 end

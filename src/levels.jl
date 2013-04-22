@@ -4,11 +4,11 @@ type Level
 	amount::Float64
 	put_amounts::Dict{Process,Float64}
 	get_amounts::Dict{Process,Float64}
-	put_queue::PriorityQueue{Process,Int64}
-	get_queue::PriorityQueue{Process,Int64}
+	put_queue::PriorityQueue{Process,Int}
+	get_queue::PriorityQueue{Process,Int}
 	monitored::Bool
-	put_monitor::Monitor{Int64}
-	get_monitor::Monitor{Int64}
+	put_monitor::Monitor{Int}
+	get_monitor::Monitor{Int}
 	buffer_monitor::Monitor{Float64}
 	function Level(simulation::Simulation, name::ASCIIString, capacity::Float64, initial_buffered::Float64, monitored::Bool)
 		level = new()
@@ -17,13 +17,13 @@ type Level
 		level.amount = initial_buffered
 		level.put_amounts = Dict{Process,Float64}()
 		level.get_amounts = Dict{Process,Float64}()
-		level.put_queue = PriorityQueue{Process,Int64}()
-		level.get_queue = PriorityQueue{Process,Int64}()
+		level.put_queue = PriorityQueue{Process,Int}()
+		level.get_queue = PriorityQueue{Process,Int}()
 		level.monitored = monitored
 		if monitored
-			level.put_monitor = Monitor{Int64}("Put monitor of $name")
+			level.put_monitor = Monitor{Int}("Put monitor of $name")
 			register(simulation, level.put_monitor)
-			level.get_monitor = Monitor{Int64}("Get monitor of $name")
+			level.get_monitor = Monitor{Int}("Get monitor of $name")
 			register(simulation, level.get_monitor)
 			level.buffer_monitor = Monitor("Buffer monitor of $name", initial_buffered)
 			register(simulation, level.buffer_monitor)
@@ -56,7 +56,7 @@ function acquired(process::Process, level::Level)
 	return result
 end
 
-function put(process::Process, level::Level, give::Float64, priority::Int64, waittime::Float64, signals::Set{Signal}, renege::Bool)
+function put(process::Process, level::Level, give::Float64, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	if level.capacity - level.amount < give || length(level.put_queue) > 0
 		level.put_amounts[process] = give
 		push!(level.put_queue, process, priority)
@@ -95,16 +95,16 @@ function put(process::Process, level::Level, give::Float64, priority::Int64, wai
 	produce(true)
 end
 
-function put(process::Process, level::Level, give::Float64, priority::Int64, waittime::Float64)
+function put(process::Process, level::Level, give::Float64, priority::Int, waittime::Float64)
 	signals = Set{Signal}()
 	put(process, level, give, priority, waittime, signals, true)
 end
 
-function put(process::Process, level::Level, give::Float64, priority::Int64, signals::Set{Signal})
+function put(process::Process, level::Level, give::Float64, priority::Int, signals::Set{Signal})
 	return put(process, level, give, priority, Inf, signals, true)
 end
 
-function put(process::Process, level::Level, give::Float64, priority::Int64)
+function put(process::Process, level::Level, give::Float64, priority::Int)
 	signals = Set{Signal}()
 	put(process, level, give, priority, Inf, signals, false)
 end
@@ -123,7 +123,7 @@ function put(process::Process, level::Level, give::Float64)
 	put(process, level, give, 0, Inf, signals, false)
 end
 
-function get(process::Process, level::Level, ask::Float64, priority::Int64, waittime::Float64, signals::Set{Signal}, renege::Bool)
+function get(process::Process, level::Level, ask::Float64, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	if level.amount < ask || length(level.get_queue) > 0 
 		level.get_amounts[process] = ask
 		push!(level.get_queue, process, priority)
@@ -162,16 +162,16 @@ function get(process::Process, level::Level, ask::Float64, priority::Int64, wait
 	produce(true)
 end
 
-function get(process::Process, level::Level, ask::Float64, priority::Int64, waittime::Float64)
+function get(process::Process, level::Level, ask::Float64, priority::Int, waittime::Float64)
 	signals = Set{Signal}()
 	get(process, level, ask, priority, waittime, signals, true)
 end
 
-function get(process::Process, level::Level, ask::Float64, priority::Int64, signals::Set{Signal})
+function get(process::Process, level::Level, ask::Float64, priority::Int, signals::Set{Signal})
 	return get(process, level, ask, priority, Inf, signals, true)
 end
 
-function get(process::Process, level::Level, ask::Float64, priority::Int64)
+function get(process::Process, level::Level, ask::Float64, priority::Int)
 	signals = Set{Signal}()
 	get(process, level, ask, priority, Inf, signals, false)
 end

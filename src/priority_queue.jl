@@ -68,10 +68,10 @@ function start(priority_queue::PriorityQueue)
 	return priority_queue.count
 end
 
-function done(priority_queue::PriorityQueue, state::Uint64)
+function done(priority_queue::PriorityQueue, state::Uint)
 	return priority_queue.count == 0
 end
 
-function next(priority_queue::PriorityQueue, state::Uint64)
+function next(priority_queue::PriorityQueue, state::Uint)
 	return pop!(priority_queue), priority_queue.count
 end

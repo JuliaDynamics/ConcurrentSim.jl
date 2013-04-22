@@ -1,11 +1,11 @@
 type Simulation
 	stop::Bool
 	time::Float64
-	sort_priority::Int64
+	sort_priority::Int
 	event_list::EventList
 	condition_list::Dict{Task,Function}
 	monitors::Set{Monitor}
-	function Simulation(n::Uint64)
+	function Simulation(n::Uint)
 		simulation = new()
 		simulation.stop = false
 		simulation.time = typemin(Float64)

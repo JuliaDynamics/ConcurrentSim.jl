@@ -1,7 +1,7 @@
 using Base.Test
 using SimJulia
 
-function get_served(client::Process, serv_time::Float64, priority::Int64, my_server::Resource, in_clients::Vector{Process}, out_clients::Vector{Process})
+function get_served(client::Process, serv_time::Float64, priority::Int, my_server::Resource, in_clients::Vector{Process}, out_clients::Vector{Process})
 	push!(in_clients, client)
 	println("$client requests 1 unit at t = $(now(client))")
 	request(client, my_server, priority)

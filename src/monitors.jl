@@ -78,7 +78,7 @@ function time_average(monitor::Monitor)
 end
 
 function histogram{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
-	histogram = zeros(Int64, nbins+2)
+	histogram = zeros(Int, nbins+2)
 	len = length(monitor.observations)
 	for i = 1:len-1
 		y = monitor.observations[i]
@@ -117,10 +117,10 @@ function start(monitor::Monitor)
 	return 1
 end
 
-function done(monitor::Monitor, state::Int64)
+function done(monitor::Monitor, state::Int)
 	return state == length(monitor.times)
 end
 
-function next(monitor::Monitor, state::Int64)
+function next(monitor::Monitor, state::Int)
 	return (monitor.times[state], monitor.observations[state]), state+1
 end
