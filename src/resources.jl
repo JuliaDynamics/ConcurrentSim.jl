@@ -46,7 +46,7 @@ end
 function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	cancel(process)
 	if resource.uncommitted == 0
-		min_priority, min_index = min(enumerate(values(resource.active_set)))
+		min_index, min_priority = min(enumerate(values(resource.active_set)))
 		if preempt && priority > min_priority
 			min_process = unique(keys(resource.active_set))[min_index]
 			delete!(resource.active_set, min_process)
