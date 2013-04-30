@@ -15,4 +15,4 @@ end
 sim = Simulation(uint(16))
 c = Process(sim, "Christel")
 activate(c, 10.0, buy, 100.0)
-run_continuous(sim, 100.0)
+run(sim, 100.0)
