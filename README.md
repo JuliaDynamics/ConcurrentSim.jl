@@ -9,7 +9,7 @@ Following intrinsics are implemented:
 - sleep: process is deactivated and can be reactivated by another process
 - hold: process is busy for a certain amount of time, during this period an interrupt can force the control back to the process
 - wait and queue: a process can wait or queue for some signals to be fired by another process
-- waitunil: a process can wait for a general condition (which depend on the state of the simulaton) to be satisfied, this functionality requires interrogative scheduling, while all other synchronization constructs are imperative 
+- waituntil: a process can wait for a general condition (which depend on the state of the simulaton) to be satisfied, this functionality requires interrogative scheduling, while all other synchronization constructs are imperative 
 - request and release: a resource, a discrete congestion point to which processes may have to queue up, can be requested and when it is finished, be released; queue type can be FIFO or priority without and with preemption; reneging, leaving a queue before acquiring a resource is also implemented
 - put and get: a level (continuous) and a store (discrete) model congestion points which can produce or consume continuous/discrete "material"; queue type can be FIFO or priority; reneging, leaving a queue before putting or getting is also implemented
 - observe: a monitor enables the observation of a single variable of interest and can return a data summary during or at the end of a simulation run
