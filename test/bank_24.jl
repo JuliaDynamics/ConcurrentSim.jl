@@ -4,7 +4,7 @@ using SimJulia
 # Model components
 
 
-function visit(customer::Process, time_in_bank::Float64, counter::Resource, max_in_queue::Int64)
+function visit(customer::Process, time_in_bank::Float64, counter::Resource, max_in_queue::Int)
 	arrive = now(customer)
 	@printf("%8.4f %s: Here I am\n", arrive, customer)
 	if length(counter.wait_queue) < max_in_queue
@@ -19,7 +19,7 @@ function visit(customer::Process, time_in_bank::Float64, counter::Resource, max_
 	end
 end
 
-function generate(source::Process, number::Int64, mean_time_between_arrivals::Float64, mean_time_in_bank::Float64, counter::Resource, max_in_queue::Int64)
+function generate(source::Process, number::Int, mean_time_between_arrivals::Float64, mean_time_in_bank::Float64, counter::Resource, max_in_queue::Int)
 	d_tba = Exponential(mean_time_between_arrivals)
 	d_tib = Exponential(mean_time_in_bank)
 	for i = 1:number
@@ -49,7 +49,7 @@ theseed = 212121
 
 srand(theseed)
 sim = Simulation(uint(16))
-k = Resource(sim, "Clounter", uint(1), false)
+k = Resource(sim, "Counter", uint(1), false)
 s = Process(sim, "Source")
 activate(s, 0.0, generate, max_number, mean_time_between_arrivals, mean_time_in_bank, k, max_in_queue)
-run(sim, max_time)
+run_continuous(sim, max_time)

@@ -93,6 +93,30 @@ function shift!(event_list::EventList)
 	return Task(()->print("")), result.time
 end
 
+function next_event(event_list::EventList)
+	result = Event()
+	while event_list.count > 0
+		result = event_list.heap[1]
+		if ! result.canceled
+			return result.task, result.time
+		end
+		event_list.heap[1] = event_list.heap[event_list.count]
+		event_list.heap[event_list.count] = Event()
+		event_list.count -= 1
+		percolate_down(event_list)
+	end
+	return Task(()->print("")), -1.0
+end
+
+function remove_first(event_list::EventList)
+	if event_list.count > 0
+		event_list.heap[1] = event_list.heap[event_list.count]
+		event_list.heap[event_list.count] = Event()
+		event_list.count -= 1
+		percolate_down(event_list)
+	end
+end	
+
 function start(event_list::EventList)
 	return event_list.count
 end

@@ -13,6 +13,6 @@ function buy(customer::Process, budget::Float64)
 end
 
 sim = Simulation(uint(16))
-c = Process(sim, "Evelyn")
+c = Process(sim, "Christel")
 activate(c, 10.0, buy, 100.0)
-run(sim, 100.0)
+run_continuous(sim, 100.0)

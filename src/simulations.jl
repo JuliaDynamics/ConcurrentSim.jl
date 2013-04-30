@@ -18,10 +18,11 @@ type Simulation
 end
 
 function run(simulation::Simulation, until::Float64)
-	for (task, simulation.time) in simulation.event_list
-		if simulation.time > until || simulation.stop
+	for (task, new_time) in simulation.event_list
+		if new_time > until || simulation.stop
 			break
 		end
+		simulation.time = new_time
 		consume(task)
 		for (cond_task, condition) in simulation.condition_list
 			if condition()
@@ -29,6 +30,19 @@ function run(simulation::Simulation, until::Float64)
 				consume(cond_task)
 			end
 		end
+	end
+	stop_monitors(simulation)
+end
+
+function run_continuous(simulation::Simulation, until::Float64)
+	while true
+		(task, new_time) = next_event(simulation.event_list)
+		if new_time > until || new_time < 0.0 || simulation.stop
+			break
+		end
+		simulation.time = new_time
+		remove_first(simulation.event_list)
+		consume(task)
 	end
 	stop_monitors(simulation)
 end
