@@ -1,9 +1,11 @@
 SimJulia
 ========
 
-SimJulia is a process oriented simulation framework written in Julia inspired by the Python library SimPy.
+SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.
 
 A process is implemented as a type containing a Task (co-routine). The "produce" function is used to schedule future events having a pointer to the Task object. A heap-based simulation kernel processes the events in order by "consuming" the related Tasks.
+
+The continuous state changes of the system may be described by means of the type Variable and a Function computing the derivatives. A Variable has a "state", the current value, and a "rate", the derivative with respect to time. The waituntil intrinsic allows to schedule a state event, a Task that is planned to resume as soon as the state of the model fulfils a specified condition. Between the discrete events the state of the model is advanced in steps using the Runge-Kutta Dormand-Prince method. 
 
 Following intrinsics are implemented:
 - sleep: process is deactivated and can be reactivated by another process
@@ -14,7 +16,7 @@ Following intrinsics are implemented:
 - put and get: a level (continuous) and a store (discrete) model congestion points which can produce or consume continuous/discrete "material"; queue type can be FIFO or priority; reneging, leaving a queue before putting or getting is also implemented
 - observe: a monitor enables the observation of a single variable of interest and can return a data summary during or at the end of a simulation run
 
-Tests are identical to the examples in the SimPy documentation.
+Discrete event tests are identical to the examples in the SimPy documentation.
 
 - example_1.jl: Basic simulation. A Process "message" is defined with an associated Task "go".
 - example_2.jl: A Process "customer" is defined and the associated Task "buy" has an extra argument "budget".
@@ -34,3 +36,7 @@ Tests are identical to the examples in the SimPy documentation.
 - example_16.jl: Cars arrive randomly at a car wash and add themselves to the "waiting cars" Store. They wait passively for a Signal. There are two "Carwash" washers. These get a car, if one is available, wash it and then send the Signal to reactivate the car.
 - example_17.jl: Printing a histogram from a Monitor.
 - example_18.jl: A Monitor is used to observe exponential random variates.
+
+Continuous time tests are identical to the examples in the JDisco documentation, a clone of DISCO.
+
+- continuous_1.jl: A Process starts two Variables and suspends itself for a period of 10 time units. The system is known to be cyclic. The period can be determined using the waituntil intrinsic by computing the time interval between two consecutive maximum points of a Variable.
