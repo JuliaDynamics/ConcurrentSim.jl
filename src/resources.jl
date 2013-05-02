@@ -135,7 +135,7 @@ function release(process::Process, resource::Resource)
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
-		if has(resource.preempt_set, new_process)
+		if haskey(resource.preempt_set, new_process)
 			post(new_process.simulation, new_process, now(new_process)+resource.preempt_set[new_process], true)
 			delete!(resource.preempt_set, new_process)
 		else
