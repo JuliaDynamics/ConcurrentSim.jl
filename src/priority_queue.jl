@@ -16,7 +16,7 @@ function show(io::IO, element::Element)
 end
 
 function isless(element1::Element, element2::Element)
-	return element1.priority < element2.priority #
+	return element1.priority < element2.priority
 end
 
 type PriorityQueue{V,P<:Real}

@@ -28,79 +28,99 @@ function isless(event1::Event, event2::Event)
 	return event1.time < event2.time || (event1.time == event2.time && event1.priority < event2.priority)
 end
 
-type EventList
+type Heap{E}
 	count::Uint
-	heap::Vector{Event}
-	function EventList(n::Uint)
-		new(uint(0), Array(Event, n))
+	array::Vector{E}
+	function Heap(n::Uint)
+		new(uint(0), Array(E, n))
 	end
 end
 
-function show(io::IO, event_list::EventList)
-	print(io, "EventList: $(event_list.count)")
-end
-
-function percolate_up(event_list::EventList)
-	position = event_list.count
+function percolate_up{E}(heap::Heap{E})
+	position = heap.count
 	parent = convert(Uint, ifloor(position/2))
-	while position > 1 && event_list.heap[position] < event_list.heap[parent]
-		event_list.heap[position], event_list.heap[parent] = event_list.heap[parent], event_list.heap[position]
+	while position > 1 && heap.array[position] < heap.array[parent]
+		heap.array[position], heap.array[parent] = heap.array[parent], heap.array[position]
 		position = parent
 		parent = convert(Uint, ifloor(position/2))
 	end
 end
 
-function percolate_down(event_list::EventList)
+function percolate_down{E}(heap::Heap{E})
 	position = 1
 	left = 2*position
-	while left <= event_list.count
-		smallest = event_list.heap[left] < event_list.heap[position] ? left : position
-		if left < event_list.count
-			smallest = event_list.heap[left+1] < event_list.heap[smallest] ? left+1 : smallest
+	while left <= heap.count
+		smallest = heap.array[left] < heap.array[position] ? left : position
+		if left < heap.count
+			smallest = heap.array[left+1] < heap.array[smallest] ? left+1 : smallest
 		end
 		if smallest == position
 			return
 		end
-		event_list.heap[smallest], event_list.heap[position] = event_list.heap[position], event_list.heap[smallest]
+		heap.array[smallest], heap.array[position] = heap.array[position], heap.array[smallest]
 		position = smallest
 		left = 2*position
 	end
 end
 
-function push!(event_list::EventList, task::Task, time::Float64, priority::Int)
-	if event_list.count == length(event_list.heap)
+function push!(heap::Heap{Event}, task::Task, time::Float64, priority::Int)
+	if heap.count == length(heap.array)
 		throw("Heap overflow!")
 	end
-	event_list.count += 1
+	heap.count += 1
 	event = Event(task, time, priority)
-	event_list.heap[event_list.count] = event
-	percolate_up(event_list)
+	heap.array[heap.count] = event
+	percolate_up(heap)
 	return event
 end
 
-function shift!(event_list::EventList)
+function shift!(heap::Heap{Event})
 	result = Event()
-	while event_list.count > 0
-		result = event_list.heap[1]
-		event_list.heap[1] = event_list.heap[event_list.count]
-		event_list.heap[event_list.count] = Event()
-		event_list.count -= 1
-		percolate_down(event_list)
+	while heap.count > 0
+		result = heap.array[1]
+		heap.array[1] = heap.array[heap.count]
+		heap.array[heap.count] = Event()
+		heap.count -= 1
+		percolate_down(heap)
 		if ! result.canceled
 			return result.task, result.time
 		end
 	end
-	return Task(()->print("")), result.time
+	return Task(()->()), result.time
 end
 
-function start(event_list::EventList)
-	return event_list.count
+function next_event(heap::Heap{Event})
+	result = Event()
+	while heap.count > 0
+		result = heap.array[1]
+		if ! result.canceled
+			return result.task, result.time
+		end
+		heap.array[1] = heap.array[heap.count]
+		heap.array[heap.count] = Event()
+		heap.count -= 1
+		percolate_down(heap)
+	end
+	return Task(()->()), Inf
 end
 
-function done(event_list::EventList, state::Uint)
-	return event_list.count == 0
+function remove_first(heap::Heap{Event})
+	if heap.count > 0
+		heap.array[1] = heap.array[heap.count]
+		heap.array[heap.count] = Event()
+		heap.count -= 1
+		percolate_down(heap)
+	end
+end	
+
+function start(heap::Heap{Event})
+	return heap.count
 end
 
-function next(event_list::EventList, state::Uint)
-	return shift!(event_list), event_list.count
+function done(heap::Heap{Event}, state::Uint)
+	return heap.count == 0
+end
+
+function next(heap::Heap{Event}, state::Uint)
+	return shift!(heap), heap.count
 end
