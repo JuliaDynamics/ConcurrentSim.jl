@@ -94,6 +94,25 @@ function histogram{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
 	return histogram
 end
 
+function report{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
+	h = histogram(monitor, low, high, nbins)
+	c = count(monitor)
+	println("Histogram for $monitor")
+	println("Number of observations: $c")
+	println("Mean: $(mean(monitor))")
+	println("Variance: $(var(monitor))")
+	println("Minimum: $(min(monitor.observations))")
+	println("Maximum: $(max(monitor.observations))")
+	s = h[1]
+	@printf("          X < %6.2f: %6i (cum: %6i / %5.2f)\n", 0.0, h[1], s, 100.0*s/c)
+	for i = 2:nbins+1
+		s = s + h[i]
+		@printf("%6.2f <= X < %6.2f: %6i (cum: %6i / %5.2f)\n", 100.0/nbins*(i-2), 100.0/nbins*(i-1), h[i], s, 100.0*s/c)
+	end
+	s = s + h[22]
+	@printf("%6.2f <= X         : %6i (cum: %6i / %5.2f)\n", 100.0, h[nbins+2], s, 100.0*s/c)
+end
+
 function tseries(monitor::Monitor)
 	len = length(monitor.observations)
 	return monitor.times[1:len-1]
