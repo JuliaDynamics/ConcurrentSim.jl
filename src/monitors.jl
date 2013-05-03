@@ -19,14 +19,16 @@ function show(io::IO, monitor::Monitor)
 end
 
 function reset{V<:Real}(monitor::Monitor{V}, time::Float64)
-	value = zero(V)
 	if ! isempty(monitor.observations)
 		value = monitor.observations[length(monitor.observations)]
+		monitor.times = Float64[]
+		monitor.observations = V[]
+		push!(monitor.times, time)
+		push!(monitor.observations, value)
+	else
+		monitor.times = Float64[]
+		monitor.observations = V[]
 	end
-	monitor.times = Float64[]
-	monitor.observations = V[]
-	push!(monitor.times, time)
-	push!(monitor.observations, value)
 end
 
 function stop{V<:Real}(monitor::Monitor{V}, time::Float64)
@@ -36,7 +38,7 @@ end
 
 function observe{V<:Real}(monitor::Monitor{V}, time::Float64, value::V)
 	len = length(monitor.times)
-	if (time == monitor.times[len])
+	if len > 0 && time == monitor.times[len]
 		monitor.observations[len] = value
 	else
 		push!(monitor.times, time)
@@ -47,6 +49,16 @@ end
 function count(monitor::Monitor)
 	len = length(monitor.times)
 	return len-1
+end
+
+function min(monitor::Monitor)
+	len = length(monitor.times)
+	return min(monitor.observations[1:len-1])
+end
+
+function max(monitor::Monitor)
+	len = length(monitor.times)
+	return max(monitor.observations[1:len-1])
 end
 
 function mean{V<:Real}(monitor::Monitor{V})
@@ -82,13 +94,13 @@ function histogram{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
 	len = length(monitor.observations)
 	for i = 1:len-1
 		y = monitor.observations[i]
-		if y < low
+		if y <= low
 			histogram[1] = histogram[1] + 1
-		elseif y >= high
+		elseif y > high
 			histogram[nbins+2] = histogram[nbins+2] + 1
 		else
 			n = floor(nbins * (y - low) / (high - low)) + 2
-			histogram[n] =  histogram[n] + 1
+			histogram[n] = histogram[n] + 1
 		end
 	end
 	return histogram
@@ -97,20 +109,20 @@ end
 function report{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
 	h = histogram(monitor, low, high, nbins)
 	c = count(monitor)
-	println("Histogram for $monitor")
+	println("$monitor report")
 	println("Number of observations: $c")
-	println("Mean: $(mean(monitor))")
-	println("Variance: $(var(monitor))")
-	println("Minimum: $(min(monitor.observations))")
-	println("Maximum: $(max(monitor.observations))")
+	println("Average: $(mean(monitor))")
+	println("Sample Variance: $(var(monitor))")
+	println("Minimum: $(min(monitor))")
+	println("Maximum: $(max(monitor))")
 	s = h[1]
-	@printf("          X < %6.2f: %6i (cum: %6i / %5.2f)\n", 0.0, h[1], s, 100.0*s/c)
+	@printf("           X <= %8.2f: %6i (cum: %6i / %8.2f)\n", low, h[1], s, high*s/c)
 	for i = 2:nbins+1
 		s = s + h[i]
-		@printf("%6.2f <= X < %6.2f: %6i (cum: %6i / %5.2f)\n", 100.0/nbins*(i-2), 100.0/nbins*(i-1), h[i], s, 100.0*s/c)
+		@printf("%8.2f < X <= %8.2f: %6i (cum: %6i / %8.2f)\n", high/nbins*(i-2), high/nbins*(i-1), h[i], s, high*s/c)
 	end
 	s = s + h[22]
-	@printf("%6.2f <= X         : %6i (cum: %6i / %5.2f)\n", 100.0, h[nbins+2], s, 100.0*s/c)
+	@printf("%8.2f < X            : %6i (cum: %6i / %8.2f)\n", high, h[nbins+2], s, high*s/c)
 end
 
 function tseries(monitor::Monitor)
