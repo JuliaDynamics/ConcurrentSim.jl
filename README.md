@@ -37,6 +37,7 @@ Discrete event tests are identical to the examples in the SimPy documentation.
 - example_17.jl: Printing a histogram from a Monitor.
 - example_18.jl: A Monitor is used to observe exponential random variates.
 
-Continuous time tests are identical to the examples in the JDisco documentation, a clone of DISCO.
+Continuous time tests are identical to the examples in the jDisco documentation, a clone of DISCO.
 
 - continuous_1.jl: A Process starts two Variables and suspends itself for a period of 10 time units. The system is known to be cyclic. The period can be determined using the waituntil intrinsic by computing the time interval between two consecutive maximum points of a Variable.
+- continuous_2.jl: The launch of a threestage rocket is simulated. The model has both continuous and discrete elements. During the rocket's flight well-known physical laws govern its motion, and its mass decreases continuously as a result of the expulsion of burnt fuel. However, when a stage separates from the rest of the rocket, an instantaneous change of the rocket's mass and acceleration takes place.
