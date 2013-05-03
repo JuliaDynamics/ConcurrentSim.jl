@@ -1,7 +1,6 @@
 type Variable
 	state :: Float64
 	old_state :: Float64
-	next_state :: Float64
 	rate :: Float64
 	k1 :: Float64
 	k2 :: Float64
@@ -10,7 +9,7 @@ type Variable
 	k5 :: Float64
 	ds :: Float64
 	function Variable(initial_state::Float64)
-		new(initial_state, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+		new(initial_state, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 	end
 end
 
@@ -26,18 +25,6 @@ end
 function save_state(variables::Set{Variable})
 	for variable in variables
 		variable.old_state = variable.state
-	end
-end
-
-function next_state(variables::Set{Variable})
-	for variable in variables
-		variable.next_state = variable.state
-	end
-end
-
-function previous_state(variables::Set{Variable})
-	for variable in variables
-		variable.state = variable.next_state
 	end
 end
 
@@ -84,9 +71,8 @@ const e5 = -17253.0 / 339200.0
 const e6 = 22.0 / 525.0
 const e7 = -1.0 / 40.0
 
-function integrate(variables::Set{Variable}, derivatives::Set{Continuous}, last_time::Float64, dt_now::Float64, dt_full::Float64, dt_min::Float64, dt_max::Float64, max_abs_error::Float64, max_rel_error::Float64)
+function integrate(variables::Set{Variable}, derivatives::Set{Continuous}, last_time::Float64, dt_now::Float64, dt_next::Float64, dt_min::Float64, dt_max::Float64, max_abs_error::Float64, max_rel_error::Float64)
 	h = dt_now
-	dt_next = dt_now
 	error_ratio = 0.0
 	next_time = last_time
 	for variable in variables
@@ -168,7 +154,7 @@ function integrate(variables::Set{Variable}, derivatives::Set{Continuous}, last_
 			break
 		end
 	end
-	if dt_now == dt_full
+	if dt_now == dt_next
 		dt_next = (0.5 * error_ratio) ^ 0.2 * dt_now
 		if dt_next > dt_max
 			dt_next = dt_max
