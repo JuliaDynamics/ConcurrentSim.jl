@@ -12,7 +12,7 @@ type Simulation
 	dt_max::Float64
 	max_abs_error::Float64
 	max_rel_error::Float64
-	function Simulation(n::Uint)
+	function Simulation(n::Uint, dt_min::Float64, dt_max::Float64, max_abs_error::Float64, max_rel_error::Float64)
 		simulation = new()
 		simulation.stop = false
 		simulation.time = 0.0
@@ -23,12 +23,16 @@ type Simulation
 		simulation.monitors = Set{Monitor}()
 		simulation.variables = Set{Variable}()
 		simulation.derivatives = Set{Continuous}()
-		simulation.dt_min = 1.0e-5
-		simulation.dt_max = 1.0
-		simulation.max_abs_error = 1.0e-5
-		simulation.max_rel_error = 1.0e-5
+		simulation.dt_min = dt_min
+		simulation.dt_max = dt_max
+		simulation.max_abs_error = max_abs_error
+		simulation.max_rel_error = max_rel_error
 		return simulation
 	end
+end
+
+function Simulation(n::Uint)
+	return Simulation(n, 1.0e-5, 1.0, 1.0e-5, 1.0e-5)
 end
 
 function run(simulation::Simulation, until::Float64)

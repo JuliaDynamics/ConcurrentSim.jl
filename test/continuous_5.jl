@@ -30,8 +30,8 @@ function stone(process::Process, nr::Int, distance::Float64, initial_omega::Floa
 	stop(simulation(process), [omega, phi], dynamics)
 end
 
-function func(distance::Float64)
-	sim = Simulation(uint(32))
+function game(distance::Float64)
+	sim = Simulation(uint(32), 1.0e-6, 0.2, 1.0e-4, 1.0e-4)
 	domino = Process(sim, "Stone 1")
 	k0 = 1.0 - (distance - width)^2 / height^2
 	phi_push = asin((distance - width) / height)
@@ -68,5 +68,5 @@ function golden_section_search(f::Function, a::Float64, b::Float64, tol::Float64
 	return x2, y2
 end
 
-d, v = golden_section_search(func, 0.008, 0.046 + 0.008, 0.001)
+d, v = golden_section_search(game, 0.008, 0.046 + 0.008, 0.001)
 @printf("The maximum chain velocity %5.3f m/s is reached with a distance of %6.4f m between stones.\n", v, d)
