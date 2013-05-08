@@ -33,7 +33,7 @@ end
 
 function acquired(process::Process, resource::Resource)
 	result = true
-	if ! has(resource.active_set, process)
+	if ! haskey(resource.active_set, process)
 		delete!(resource.wait_queue, process)
 		if resource.monitored
 			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
@@ -48,7 +48,7 @@ function request(process::Process, resource::Resource, priority::Int, preempt::B
 	if resource.uncommitted == 0
 		min_index, min_priority = min(enumerate(values(resource.active_set)))
 		if preempt && priority > min_priority
-			min_process = unique(keys(resource.active_set))[min_index]
+			min_process = keys(resource.active_set)[min_index]
 			delete!(resource.active_set, min_process)
 			unshift!(resource.wait_queue, min_process, min_priority)
 			resource.preempt_set[min_process] = min_process.next_event.time - now(process)
