@@ -22,6 +22,10 @@ function state(variable::Variable)
 	return variable.state
 end
 
+function rate(variable::Variable)
+	return variable.rate
+end
+
 function save_state(variables::Set{Variable})
 	for variable in variables
 		variable.old_state = variable.state

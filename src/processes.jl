@@ -2,7 +2,7 @@ type Process
 	name::ASCIIString
 	simulation::Simulation
 	task::Task
-	next_event::Event
+	next_event::TimeEvent
 	interrupted::Bool
 	interrupt_left::Float64
 	interrupt_cause::Process
@@ -10,7 +10,7 @@ type Process
 		process = new()
 		process.simulation = simulation
 		process.name = name
-		process.next_event = Event()
+		process.next_event = TimeEvent()
 		process.interrupted = false
 		process.interrupt_left = 0.0
 		return process
@@ -23,16 +23,6 @@ end
 
 function simulation(process::Process)
 	return process.simulation
-end
-
-function post(simulation::Simulation, process::Process, at::Float64, priority::Bool)
-	cancel(process)
-	simulation.sort_priority += 1
-	if priority
-		process.next_event = push!(simulation.event_list, process.task, at, -simulation.sort_priority)
-	else
-		process.next_event = push!(simulation.event_list, process.task, at, simulation.sort_priority)
-	end
 end
 
 function cancel(process::Process)
@@ -77,20 +67,23 @@ function activate(process::Process, at::Float64, run::Function, args...)
 	else
 		throw("Too many arguments!")
 	end
-	post(process.simulation, process, at, false)
+	process.next_event = post(process.simulation, process.task, at, false)
 end
 
 function reactivate(process::Process, delay::Float64)
-	process.next_event.canceled = true
-	post(process.simulation, process, now(process)+delay, false)
+	if passive(process)
+		process.next_event.canceled = true
+		process.next_event = post(process.simulation, process.task, now(process)+delay, false)
+	end
 end
 
 function interrupt(victim::Process, cause::Process)
 	if active(victim)
+		victim.next_event.canceled = true
 		victim.interrupted = true
 		victim.interrupt_left = victim.next_event.time - now(victim)
 		victim.interrupt_cause = cause
-		reactivate(victim, 0.0)
+		victim.next_event = post(victim.simulation, victim.task, now(victim), true)
 	end
 end
 
@@ -107,33 +100,18 @@ function interrupt_reset(process::Process)
 end
 
 function sleep(process::Process)
-	cancel(process)
+	process.next_event = TimeEvent()
 	produce(true)
 end
 
 function hold(process::Process, delay::Float64)
-	post(process.simulation, process, now(process)+delay, false)
+	process.next_event = post(process.simulation, process.task, now(process)+delay, false)
 	produce(true)
 end
 
-function waituntil(process::Process, condition::Function, args...)
-	cancel(process)
-	if length(args) == 0
-		_condition = ()->condition()
-	elseif length(args) == 1
-		_condition = ()->condition(args[1])
-	elseif length(args) == 2
-		_condition = ()->condition(args[1], args[2])
-	elseif length(args) == 3
-		_condition = ()->condition(args[1], args[2], args[3])
-	elseif length(args) == 4
-		_condition = ()->condition(args[1], args[2], args[3], args[4])
-	elseif length(args) == 5
-		_condition = ()->condition(args[1], args[2], args[3], args[4], args[5])
-	else
-		throw("Too many arguments!")
-	end
-	add_condition(process.simulation, process.task, _condition)
+function waituntil(process::Process, condition::Function, priority::Bool=false)
+	process.next_event = TimeEvent()
+	post(process.simulation, process.task, condition, priority)
 	produce(true)
 end
 

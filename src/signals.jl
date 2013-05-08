@@ -26,7 +26,7 @@ function wait(process::Process, signals::Set{Signal})
 	for signal in signals
 		add!(signal.wait_list, process)
 	end
-	cancel(process)
+	process.next_event = TimeEvent()
 	produce(true)
 	occured_signals = Set{Signal}()
 	for signal in signals
@@ -51,7 +51,7 @@ function queue(process::Process, signals::Set{Signal})
 	for signal in signals
 		push!(signal.queue_list, process)
 	end
-	cancel(process)
+	process.next_event = TimeEvent()
 	produce(true)
 	occured_signals = Set{Signal}()
 	for signal in signals
@@ -72,26 +72,14 @@ function queue(process::Process, signal::Signal)
 	return queue(process, signals)
 end
 
-function fire(signal::Signal)
-	signal.occured = true
-	signal.param = ""
-	for process in signal.wait_list
-		post(process.simulation, process, now(process), true)
-	end
-	if ! isempty(signal.queue_list)
-		process = signal.queue_list[1]
-		post(process.simulation, process, now(process), true)
-	end
-end
-
-function fire(signal::Signal, param)
+function fire(signal::Signal, param=nothing)
 	signal.occured = true
 	signal.param = param
 	for process in signal.wait_list
-		post(process.simulation, process, now(process), true)
+		post(process.simulation, process.task, now(process), true)
 	end
 	if ! isempty(signal.queue_list)
 		process = signal.queue_list[1]
-		post(process.simulation, process, now(process), true)
+		post(process.simulation, process.task, now(process), true)
 	end
 end

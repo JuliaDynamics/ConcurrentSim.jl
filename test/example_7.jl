@@ -17,7 +17,7 @@ end
 
 function life(romulans::Process, player::Player)
 	while true
-		waituntil(romulans, killed, player)
+		waituntil(romulans, ()->killed(player))
 		player.damage = 0
 		player.lives -= 1
 		if player.lives == 0

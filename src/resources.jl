@@ -44,7 +44,7 @@ function acquired(process::Process, resource::Resource)
 end
 
 function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	cancel(process)
+	process.next_event = TimeEvent()
 	if resource.uncommitted == 0
 		min_index, min_priority = min(enumerate(values(resource.active_set)))
 		if preempt && priority > min_priority
@@ -54,12 +54,12 @@ function request(process::Process, resource::Resource, priority::Int, preempt::B
 			resource.preempt_set[min_process] = min_process.next_event.time - now(process)
 			cancel(min_process)
 			resource.active_set[process] = priority
-			post(process.simulation, process, now(process), true)
+			post(process.simulation, process.task, now(process), true)
 		else
 			push!(resource.wait_queue, process, priority)
 			if renege
 				if waittime < Inf
-					post(process.simulation, process, now(process)+waittime, true)
+					post(process.simulation, process.task, now(process)+waittime, true)
 				else
 					return wait(process, signals)
 				end
@@ -74,7 +74,7 @@ function request(process::Process, resource::Resource, priority::Int, preempt::B
 		if resource.monitored
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
-		post(process.simulation, process, now(process), true)
+		post(process.simulation, process.task, now(process), true)
 	end
 	produce(true)
 end
@@ -136,13 +136,13 @@ function release(process::Process, resource::Resource)
 			observe(resource.activity_monitor, now(process), length(resource.active_set))
 		end
 		if haskey(resource.preempt_set, new_process)
-			post(new_process.simulation, new_process, now(new_process)+resource.preempt_set[new_process], true)
+			post(new_process.simulation, new_process.task, now(new_process)+resource.preempt_set[new_process], true)
 			delete!(resource.preempt_set, new_process)
 		else
-			post(new_process.simulation, new_process, now(new_process), true)
+			post(new_process.simulation, new_process.task, now(new_process), true)
 		end
 	end
-	post(process.simulation, process, now(process), true)
+	post(process.simulation, process.task, now(process), true)
 	produce(true)
 end
 

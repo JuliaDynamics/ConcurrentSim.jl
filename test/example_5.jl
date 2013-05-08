@@ -13,7 +13,7 @@ function operate(bus::Process, repairduration::Float64, triplength::Float64, br:
 			hold(bus, repairduration)
 			println("Bus repaired at $(now(bus))")
 		else
-			break
+			tripleft = 0.0
 		end
 	end
 	println("Bus has arrived at $(now(bus))")

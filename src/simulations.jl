@@ -1,9 +1,10 @@
 type Simulation
 	stop::Bool
 	time::Float64
-	sort_priority::Int
-	event_list::Heap{Event}
-	condition_list::Dict{Task,Function}
+	time_priority::Int
+	state_priority::Int
+	time_events::Heap{TimeEvent}
+	state_events::Vector{StateEvent}
 	monitors::Set{Monitor}
 	variables::Set{Variable}
 	derivatives::Set{Continuous}
@@ -15,9 +16,10 @@ type Simulation
 		simulation = new()
 		simulation.stop = false
 		simulation.time = 0.0
-		simulation.sort_priority = 0
-		simulation.event_list = Heap{Event}(n)
-		simulation.condition_list = Dict{Task,Function}()
+		simulation.time_priority = 0
+		simulation.state_priority = 0
+		simulation.time_events = Heap{TimeEvent}(n)
+		simulation.state_events = StateEvent[]
 		simulation.monitors = Set{Monitor}()
 		simulation.variables = Set{Variable}()
 		simulation.derivatives = Set{Continuous}()
@@ -29,26 +31,15 @@ type Simulation
 	end
 end
 
-function check_conditions(simulation::Simulation)
-	tasks = Set{Task}()
-	for (task, condition) in simulation.condition_list
-		if condition()
-			add!(tasks, task)
-		end
-	end
-	return tasks
-end
-
 function run(simulation::Simulation, until::Float64)
 	dt_next = simulation.dt_max
 	while true
-		(task, next_event_time) = next_event(simulation.event_list)
-		if next_event_time > until && isempty(simulation.condition_list) || simulation.stop
+		next_event_time = top(simulation.time_events)
+		if next_event_time > until && isempty(simulation.state_events) || simulation.stop
 			break
 		end
 		compute_derivatives(simulation.time, simulation.derivatives)
-		tasks = check_conditions(simulation)
-		if ! isempty(tasks)
+		if check(simulation.state_events)
 			next_event_time = simulation.time
 		end
 		while simulation.time < next_event_time 
@@ -63,8 +54,7 @@ function run(simulation::Simulation, until::Float64)
 			end
 			dt_full = dt_now
 			simulation.time = next_time
-			tasks = check_conditions(simulation)
-			if ! isempty(tasks)
+			if check(simulation.state_events)
 				prepare_interpolation(simulation.variables, dt_full)
 				dt_lower = 0.0
 				dt = 0.0
@@ -73,8 +63,7 @@ function run(simulation::Simulation, until::Float64)
 					simulation.time = last_time + dt
 					interpolate(simulation.variables, dt, dt_full)
 					compute_derivatives(simulation.time, simulation.derivatives)
-					tasks = check_conditions(simulation)
-					if ! isempty(tasks)
+					if check(simulation.state_events)
 						dt_now = dt
 					else
 						dt_lower = dt
@@ -84,36 +73,47 @@ function run(simulation::Simulation, until::Float64)
 					simulation.time = last_time + dt_now
 					interpolate(simulation.variables, dt_now, dt_full)
 					compute_derivatives(simulation.time, simulation.derivatives)
-					tasks = check_conditions(simulation)
 				end
 				next_event_time = simulation.time
 			end
 		end
-		if ! isempty(tasks)
-			for task in tasks
-				delete!(simulation.condition_list, task)
-				consume(task)
-			end
+		if check(simulation.state_events)
+			task = pop!(simulation.state_events)
+			consume(task)
 		else
-			remove_first(simulation.event_list)
+			task = pop!(simulation.time_events)
 			consume(task)
 		end
 	end
 	stop_monitors(simulation)
 end
 
-function add_condition(simulation::Simulation, task::Task, condition::Function)
-	simulation.condition_list[task] = condition
+function post(simulation::Simulation, task::Task, at::Float64, priority::Bool)
+	simulation.time_priority += 1
+	if priority
+		return push!(simulation.time_events, task, at, -simulation.time_priority)
+	else
+		return push!(simulation.time_events, task, at, simulation.time_priority)
+	end
 end
 
-function add_variables(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
+function post(simulation::Simulation, task::Task, condition::Function, priority::Bool)
+	simulation.state_priority += 1
+	if priority
+		return push!(simulation.state_events, task, condition, -simulation.time_priority)
+	else
+		return push!(simulation.state_events, task, condition, simulation.time_priority)
+	end
+end
+
+function start(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
 	for variable in variables
 		add!(simulation.variables, variable)
 	end
 	add!(simulation.derivatives, Continuous(variables, derivative))
 end
 
-function remove_variables(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
+function stop(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
 	for variable in variables
 		delete!(simulation.variables, variable)
 	end

@@ -1,3 +1,38 @@
+type Heap{E}
+	count::Uint
+	array::Vector{E}
+	function Heap(n::Uint)
+		new(uint(0), Array(E, n))
+	end
+end
+
+function percolate_up{E}(heap::Heap{E})
+	position = heap.count
+	parent = convert(Uint, ifloor(position/2))
+	while position > 1 && heap.array[position] < heap.array[parent]
+		heap.array[position], heap.array[parent] = heap.array[parent], heap.array[position]
+		position = parent
+		parent = convert(Uint, ifloor(position/2))
+	end
+end
+
+function percolate_down{E}(heap::Heap{E})
+	position = 1
+	left = 2*position
+	while left <= heap.count
+		smallest = heap.array[left] < heap.array[position] ? left : position
+		if left < heap.count
+			smallest = heap.array[left+1] < heap.array[smallest] ? left+1 : smallest
+		end
+		if smallest == position
+			return
+		end
+		heap.array[smallest], heap.array[position] = heap.array[position], heap.array[smallest]
+		position = smallest
+		left = 2*position
+	end
+end
+
 type Element{V,P<:Real}
 	value::V
 	priority::P

@@ -19,7 +19,7 @@ end
 function predator_prey(process::Process)
 	prey = Variable(100.0)
 	predator = Variable(400.0)
-	add_variables(simulation(process), [prey, predator], dynamics)
+	start(simulation(process), [prey, predator], dynamics)
 	monitor = Process(simulation(process), "Monitor")
 	activate(monitor, now(process), print_variables, [prey, predator])
 	waituntil(process, ()->return(prey.rate > 0))
@@ -33,7 +33,7 @@ function predator_prey(process::Process)
 	cycle_stop = now(process)
 	@printf("%6.3f: Prey rate negatif\n", cycle_stop)
 	hold(process, 1.0)
-	remove_variables(simulation(process), [prey, predator], dynamics)
+	stop(simulation(process), [prey, predator], dynamics)
 	println("period = $cycle_stop - $cycle_start = $(cycle_stop - cycle_start)")
 end
 

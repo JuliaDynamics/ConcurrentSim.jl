@@ -76,7 +76,7 @@ function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int
 		end
 		if renege
 			if waittime < Inf
-				post(process.simulation, process, now(process)+waittime, true)
+				post(process.simulation, process.task, now(process)+waittime, true)
 			else
 				return wait(process, signals)
 			end
@@ -87,7 +87,7 @@ function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int
 		if store.monitored
 			observe(store.buffer_monitor, now(process), store.occupied)
 		end
-		post(process.simulation, process, now(process), true)
+		post(process.simulation, process.task, now(process), true)
 		while length(store.get_queue) > 0
 			new_process, new_priority = shift!(store.get_queue)
 			filter = store.get_set[new_process]
@@ -103,7 +103,7 @@ function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int
 				end
 				store.getted_set[new_process] = new_buffer
 				delete!(store.get_set, new_process)
-				post(new_process.simulation, new_process, now(new_process), true)
+				post(new_process.simulation, new_process.task, now(new_process), true)
 			else
 				unshift!(store.get_queue, new_process, new_priority)
 				break
@@ -151,7 +151,7 @@ function get(process::Process, store::Store, filter::Function, priority::Int, wa
 		end
 		if renege
 			if waittime < Inf
-				post(process.simulation, process, now(process)+waittime, true)
+				post(process.simulation, process.task, now(process)+waittime, true)
 			else
 				return wait(process, signals)
 			end
@@ -165,7 +165,7 @@ function get(process::Process, store::Store, filter::Function, priority::Int, wa
 			observe(store.buffer_monitor, now(process), store.occupied)
 		end
 		store.getted_set[process] = buffer
-		post(process.simulation, process, now(process), true)
+		post(process.simulation, process.task, now(process), true)
 		while length(store.put_queue) > 0
 			new_process, new_priority = shift!(store.put_queue)
 			new_buffer = store.put_set[new_process]
@@ -177,7 +177,7 @@ function get(process::Process, store::Store, filter::Function, priority::Int, wa
 					observe(store.put_monitor, now(new_process), length(store.put_queue))
 				end
 				delete!(store.put_set, new_process)
-				post(new_process.simulation, new_process, now(new_process), true)
+				post(new_process.simulation, new_process.task, now(new_process), true)
 			else
 				unshift!(store.put_queue, new_process, new_priority)
 				break

@@ -26,7 +26,7 @@ function house_on_fire(process::Process, fire_station::Store{FireEngine}, damage
 	damage = Variable(size.state)
 	variables = [size, damage]
 	burn = (time::Float64, variables::Vector{Variable})->burning(time, variables, house)
-	add_variables(simulation(process), variables, burn)
+	start(simulation(process), variables, burn)
 	engines = FireEngine[]
 	get(process, fire_station, uint(1))
 	engine = got(process, fire_station)[1]
@@ -45,7 +45,7 @@ function house_on_fire(process::Process, fire_station::Store{FireEngine}, damage
 		house.extinguishrate += engine.capacity
 	end
 	waituntil(process, ()->return size.state <= 0.0 || damage.state >= house.material)
-	remove_variables(simulation(process), [size, damage], burn)
+	stop(simulation(process), [size, damage], burn)
 	observe(damage_monitor, now(process), 100.0 * min(damage.state, house.material) / house.material)
 	@printf("%5.0f: fire stopped in %s\n", now(process), "$process")
 	hold(process, house.travel_time)
