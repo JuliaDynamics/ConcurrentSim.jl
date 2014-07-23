@@ -93,7 +93,7 @@ end
 function delete!{V,P<:Real}(priority_queue::PriorityQueue{V,P}, value::V)
 	for i = 1:length(priority_queue.elements)
 		if priority_queue.elements[i].value == value
-			splice!(priority_queue.elements, i)
+			delete!(priority_queue.elements, i)
 			break
 		end
 	end
