@@ -46,7 +46,7 @@ function run(simulation::Simulation, until::Float64)
 		if check(simulation.state_events)
 			next_event_time = simulation.time
 		end
-		while simulation.time < next_event_time 
+		while simulation.time < next_event_time
 			next_time = next_event_time
 			save_state(simulation.variables)
 			last_time = simulation.time
@@ -111,10 +111,8 @@ function post(simulation::Simulation, task::Task, condition::Function, priority:
 end
 
 function start(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
-	for variable in variables
-		add!(simulation.variables, variable)
-	end
-	add!(simulation.derivatives, Continuous(variables, derivative))
+	append!(simulation.variables, variable)
+	push!(simulation.derivatives, Continuous(variables, derivative))
 end
 
 function stop(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
@@ -130,7 +128,7 @@ function stop(simulation::Simulation, variables::Vector{Variable}, derivative::F
 end
 
 function register(simulation::Simulation, monitor::Monitor)
-	add!(simulation.monitors, monitor)
+	push!(simulation.monitors, monitor)
 	reset(monitor, 0.0)
 end
 
