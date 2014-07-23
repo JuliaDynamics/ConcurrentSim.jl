@@ -13,8 +13,8 @@ end
 
 function generate(process::Process, seats::Resource, sold_out::Signal, too_late::Signal)
 	signals = Set{Signal}()
-	add!(signals, sold_out)
-	add!(signals, too_late)
+	push!(signals, sold_out)
+	push!(signals, too_late)
 	i = 1
 	while true
 		person = Process(simulation(process), "Person $i")
