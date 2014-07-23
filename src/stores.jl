@@ -218,7 +218,7 @@ end
 function filter_number{T}(buffer::Vector{T}, number::Uint)
 	success = false
 	selection = T[]
-	if length(buffer) > number
+	if length(buffer) >= number
 		success = true
 		append!(selection, buffer[1:number])
 	end
