@@ -58,7 +58,7 @@ function queue(process::Process, signals::Set{Signal})
 		if signal.occured
 			push!(occured_signals, signal)
 		end
-		delete!(signal.queue_list, findin(signal.queue_list, [process])[1])
+		splice!(signal.queue_list, findin(signal.queue_list, [process])[1])
 		if isempty(signal.wait_list)
 			signal.occured = false
 		end

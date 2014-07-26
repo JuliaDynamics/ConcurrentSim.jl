@@ -64,7 +64,7 @@ function pop!(heap::Heap{TimeEvent})
 		percolate_down(heap)
 	end
 	return result.task
-end	
+end
 
 type StateEvent
 	task::Task
@@ -100,6 +100,6 @@ function pop!(list::Vector{StateEvent})
 			index = i
 		end
 	end
-	event = delete!(list, index)
+	event = splice!(list, index)
 	return event.task
 end

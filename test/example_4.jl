@@ -26,6 +26,6 @@ function execute(source::Process, finish::Float64)
 end
 
 sim = Simulation(uint(16))
-g = Process(sim, "Source")
-activate(g, 0.0, execute, 30.0)
+p = Process(sim, "Source")
+activate(p, 0.0, execute, 30.0)
 run(sim, 100.0)

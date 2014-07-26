@@ -86,14 +86,14 @@ function shift!(priority_queue::PriorityQueue)
 		throw("PriorityQueue underflow!")
 	end
 	result, idx = findmax(priority_queue.elements)
-	delete!(priority_queue.elements, idx)
+	splice!(priority_queue.elements, idx)
 	return result.value, result.priority
 end
 
 function delete!{V,P<:Real}(priority_queue::PriorityQueue{V,P}, value::V)
 	for i = 1:length(priority_queue.elements)
 		if priority_queue.elements[i].value == value
-			delete!(priority_queue.elements, i)
+			splice!(priority_queue.elements, i)
 			break
 		end
 	end

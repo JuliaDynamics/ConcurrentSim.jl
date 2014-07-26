@@ -49,7 +49,7 @@ function request(process::Process, resource::Resource, priority::Int, preempt::B
 		min_index, min_priority = minimum(enumerate(values(resource.active_set)))
 		if preempt && priority > min_priority
 			min_process = keys(resource.active_set)[min_index]
-			delete!(resource.active_set, min_process)
+			splice!(resource.active_set, min_process)
 			unshift!(resource.wait_queue, min_process, min_priority)
 			resource.preempt_set[min_process] = min_process.next_event.time - now(process)
 			cancel(min_process)

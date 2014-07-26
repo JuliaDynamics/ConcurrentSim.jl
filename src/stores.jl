@@ -94,7 +94,7 @@ function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int
 			success, new_buffer = filter(copy(store.buffer))
 			if (success)
 				for element in new_buffer
-					delete!(store.buffer, findin(store.buffer, [element])[1])
+					splice!(store.buffer, findin(store.buffer, [element])[1])
 				end
 				store.occupied -= length(new_buffer)
 				if store.monitored
@@ -158,7 +158,7 @@ function get(process::Process, store::Store, filter::Function, priority::Int, wa
 		end
 	else
 		for element in buffer
-			delete!(store.buffer, findin(store.buffer, [element])[1])
+			splice!(store.buffer, findin(store.buffer, [element])[1])
 		end
 		store.occupied -= length(buffer)
 		if store.monitored
@@ -252,6 +252,13 @@ function get{T}(process::Process, store::Store{T}, number::Uint)
 	signals = Set{Signal}()
 	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), 0, Inf, signals, false)
 end
+
+function get{T}(process::Process, store::Store{T}, number::Uint64)
+	signals = Set{Signal}()
+	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), 0, Inf, signals, false)
+end
+
+
 
 function put_monitor(store::Store)
 	return store.put_monitor
