@@ -114,7 +114,7 @@ function start(simulation::Simulation, variables::Vector{Variable}, derivative::
 	for variable in variables
 		push!(simulation.variables, variable)
 	end
-  push!(simulation.derivatives, Continuous(variables, derivative))
+	push!(simulation.derivatives, Continuous(variables, derivative))
 end
 
 function stop(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
