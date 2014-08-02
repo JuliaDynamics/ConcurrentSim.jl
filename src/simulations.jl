@@ -81,13 +81,13 @@ function run(simulation::Simulation, until::Float64)
 				next_event_time = simulation.time
 			end
 		end
-		if check(simulation.state_events)
-			task = pop!(simulation.state_events)
-			consume(task)
-		else
-			task = pop!(simulation.time_events)
-			consume(task)
-		end
+    if check(simulation.state_events)
+      task = pop!(simulation.state_events)
+      consume(task)
+    else
+      task = pop!(simulation.time_events)
+      consume(task)
+    end
 	end
 	stop_monitors(simulation)
 end
@@ -111,8 +111,10 @@ function post(simulation::Simulation, task::Task, condition::Function, priority:
 end
 
 function start(simulation::Simulation, variables::Vector{Variable}, derivative::Function)
-	append!(simulation.variables, variable)
-	push!(simulation.derivatives, Continuous(variables, derivative))
+	for variable in variables
+		push!(simulation.variables, variable)
+	end
+  push!(simulation.derivatives, Continuous(variables, derivative))
 end
 
 function stop(simulation::Simulation, variables::Vector{Variable}, derivative::Function)

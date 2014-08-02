@@ -100,19 +100,19 @@ function interrupt_reset(process::Process)
 end
 
 function sleep(process::Process)
-	process.next_event = TimeEvent()
-	produce(true)
+  process.next_event = TimeEvent()
+  produce(true)
 end
 
 function hold(process::Process, delay::Float64)
-	process.next_event = post(process.simulation, process.task, now(process)+delay, false)
-	produce(true)
+  process.next_event = post(process.simulation, process.task, now(process)+delay, false)
+  produce(true)
 end
 
 function waituntil(process::Process, condition::Function, priority::Bool=false)
-	process.next_event = TimeEvent()
-	post(process.simulation, process.task, condition, priority)
-	produce(true)
+  process.next_event = TimeEvent()
+  post(process.simulation, process.task, condition, priority)
+  produce(true)
 end
 
 function reset_monitors(process::Process)

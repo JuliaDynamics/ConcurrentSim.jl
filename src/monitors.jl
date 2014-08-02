@@ -53,12 +53,12 @@ end
 
 function min(monitor::Monitor)
 	len = length(monitor.times)
-	return min(monitor.observations[1:len-1])
+	return minimum(monitor.observations[1:len-1])
 end
 
 function max(monitor::Monitor)
 	len = length(monitor.times)
-	return max(monitor.observations[1:len-1])
+	return maximum(monitor.observations[1:len-1])
 end
 
 function mean{V<:Real}(monitor::Monitor{V})
@@ -68,7 +68,7 @@ function mean{V<:Real}(monitor::Monitor{V})
 		result = result + monitor.observations[i]
 	end
 	return result / (len-1)
-	
+
 end
 
 function var{V<:Real}(monitor::Monitor{V})
@@ -90,20 +90,20 @@ function time_average(monitor::Monitor)
 end
 
 function histogram{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)
-	histogram = zeros(Int, nbins+2)
+	histogram_data = zeros(Int, nbins+2)
 	len = length(monitor.observations)
 	for i = 1:len-1
 		y = monitor.observations[i]
 		if y <= low
-			histogram[1] = histogram[1] + 1
+			histogram_data[1] = histogram_data[1] + 1
 		elseif y > high
-			histogram[nbins+2] = histogram[nbins+2] + 1
+			histogram_data[nbins+2] = histogram_data[nbins+2] + 1
 		else
 			n = floor(nbins * (y - low) / (high - low)) + 2
-			histogram[n] = histogram[n] + 1
+			histogram_data[n] = histogram_data[n] + 1
 		end
 	end
-	return histogram
+	return histogram_data
 end
 
 function report{V<:Real}(monitor::Monitor{V}, low::V, high::V, nbins::Uint)

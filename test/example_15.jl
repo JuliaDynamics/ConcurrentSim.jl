@@ -14,7 +14,7 @@ end
 
 function consume_widgets(process::Process, buffer::Store)
 	while true
-		get(process, buffer, uint(3))
+		SimJulia.get(process, buffer, uint(3))
 		widgets = got(process, buffer)
 		println("$(now(process)) Get widget weights $(widgets[1].weight), $(widgets[2].weight), $(widgets[3].weight))")
 		hold(process, 11.0)

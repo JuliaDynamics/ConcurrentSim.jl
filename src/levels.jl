@@ -57,42 +57,42 @@ function acquired(process::Process, level::Level)
 end
 
 function put(process::Process, level::Level, give::Float64, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	if level.capacity - level.amount < give || length(level.put_queue) > 0
-		level.put_amounts[process] = give
-		push!(level.put_queue, process, priority)
-		if level.monitored
-			observe(level.put_monitor, now(process), length(level.put_queue))
-		end
-		if renege
-			if waittime < Inf
-				post(process.simulation, process.task, now(process)+waittime, true)
-			else
-				return wait(process, signals)
-			end
-		end
-	else
-		level.amount += give
-		if level.monitored
-			observe(level.buffer_monitor, now(process), level.amount)
-		end
-		post(process.simulation, process.task, now(process), true)
-		while length(level.get_queue) > 0
-			new_process, new_priority = shift!(level.get_queue)
-			ask = level.get_amounts[new_process]
-			if level.amount >= ask
-				level.amount -= ask
-				if level.monitored
-					observe(level.buffer_monitor, now(new_process), level.amount)
-					observe(level.get_monitor, now(new_process), length(level.get_queue))
-				end
-				delete!(level.get_amounts, new_process)
-				post(new_process.simulation, new_process.task, now(new_process), true)
-			else
-				break
-			end
-		end
-	end
-	produce(true)
+  if level.capacity - level.amount < give || length(level.put_queue) > 0
+    level.put_amounts[process] = give
+    push!(level.put_queue, process, priority)
+    if level.monitored
+      observe(level.put_monitor, now(process), length(level.put_queue))
+    end
+    if renege
+      if waittime < Inf
+        post(process.simulation, process.task, now(process)+waittime, true)
+      else
+        return wait(process, signals)
+      end
+    end
+  else
+    level.amount += give
+    if level.monitored
+      observe(level.buffer_monitor, now(process), level.amount)
+    end
+    post(process.simulation, process.task, now(process), true)
+    while length(level.get_queue) > 0
+      new_process, new_priority = shift!(level.get_queue)
+      ask = level.get_amounts[new_process]
+      if level.amount >= ask
+        level.amount -= ask
+        if level.monitored
+          observe(level.buffer_monitor, now(new_process), level.amount)
+          observe(level.get_monitor, now(new_process), length(level.get_queue))
+        end
+        delete!(level.get_amounts, new_process)
+        post(new_process.simulation, new_process.task, now(new_process), true)
+      else
+        break
+      end
+    end
+  end
+  produce(true)
 end
 
 function put(process::Process, level::Level, give::Float64, priority::Int, waittime::Float64)
@@ -108,7 +108,7 @@ function put(process::Process, level::Level, give::Float64, priority::Int)
 	signals = Set{Signal}()
 	put(process, level, give, priority, Inf, signals, false)
 end
-	
+
 function put(process::Process, level::Level, give::Float64, waittime::Float64)
 	signals = Set{Signal}()
 	put(process, level, give, 0, waittime, signals,  true)
@@ -124,42 +124,42 @@ function put(process::Process, level::Level, give::Float64)
 end
 
 function get(process::Process, level::Level, ask::Float64, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	if level.amount < ask || length(level.get_queue) > 0 
-		level.get_amounts[process] = ask
-		push!(level.get_queue, process, priority)
-		if level.monitored
-			observe(level.get_monitor, now(process), length(level.get_queue))
-		end
-		if renege
-			if waittime < Inf
-				post(process.simulation, process.task, now(process)+waittime, true)
-			else
-				return wait(process, signals)
-			end
-		end
-	else
-		level.amount -= ask
-		if level.monitored
-			observe(level.buffer_monitor, now(process), level.amount)
-		end
-		post(process.simulation, process.task, now(process), true)
-		while length(level.put_queue) >0
-			new_process, new_priority = shift!(level.put_queue)
-			give = level.put_amounts(new_process)
-			if level.capacity - level.amount >= give
-				level.amount += give
-				if level.monitored
-					observe(level.buffer_monitor, now(new_process), level.amount)
-					observe(level.put_monitor, now(new_process), length(level.put_queue))
-				end
-				delete!(level.put_amounts, new_process)
-				post(new_process.simulation, new_process.task, now(new_process), true)
-			else
-				break
-			end
-		end
-	end
-	produce(true)
+  if level.amount < ask || length(level.get_queue) > 0
+    level.get_amounts[process] = ask
+    push!(level.get_queue, process, priority)
+    if level.monitored
+      observe(level.get_monitor, now(process), length(level.get_queue))
+    end
+    if renege
+      if waittime < Inf
+        post(process.simulation, process.task, now(process)+waittime, true)
+      else
+        return wait(process, signals)
+      end
+    end
+  else
+    level.amount -= ask
+    if level.monitored
+      observe(level.buffer_monitor, now(process), level.amount)
+    end
+    post(process.simulation, process.task, now(process), true)
+    while length(level.put_queue) >0
+      new_process, new_priority = shift!(level.put_queue)
+      give = level.put_amounts(new_process)
+      if level.capacity - level.amount >= give
+        level.amount += give
+        if level.monitored
+          observe(level.buffer_monitor, now(new_process), level.amount)
+          observe(level.put_monitor, now(new_process), length(level.put_queue))
+        end
+        delete!(level.put_amounts, new_process)
+        post(new_process.simulation, new_process.task, now(new_process), true)
+      else
+        break
+      end
+    end
+  end
+  produce(true)
 end
 
 function get(process::Process, level::Level, ask::Float64, priority::Int, waittime::Float64)

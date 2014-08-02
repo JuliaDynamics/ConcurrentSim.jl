@@ -28,7 +28,7 @@ function house_on_fire(process::Process, fire_station::Store{FireEngine}, damage
 	burn = (time::Float64, variables::Vector{Variable})->burning(time, variables, house)
 	start(simulation(process), variables, burn)
 	engines = FireEngine[]
-	get(process, fire_station, uint(1))
+	SimJulia.get(process, fire_station, uint(1))
 	engine = got(process, fire_station)[1]
 	@printf("%5.0f: first engine leaves station for %s\n", now(process), "$process")
 	push!(engines, engine)

@@ -10,6 +10,7 @@ module SimJulia
 	export state, rate
 	export occupied, request, release, acquired, wait_monitor, activity_monitor
 	export amount, buffer, put, get, got, put_monitor, get_monitor, buffer_monitor
+
 	include("priority_queue.jl")
 	include("events.jl")
 	include("monitors.jl")

@@ -68,49 +68,49 @@ function acquired(process::Process, store::Store)
 end
 
 function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	if store.capacity - store.occupied < length(buffer) || length(store.put_queue) > 0
-		store.put_set[process] = buffer
-		push!(store.put_queue, process, priority)
-		if store.monitored
-			observe(store.put_monitor, now(process), length(store.put_queue))
-		end
-		if renege
-			if waittime < Inf
-				post(process.simulation, process.task, now(process)+waittime, true)
-			else
-				return wait(process, signals)
-			end
-		end
-	else
-		append!(store.buffer, buffer)
-		store.occupied += length(buffer)
-		if store.monitored
-			observe(store.buffer_monitor, now(process), store.occupied)
-		end
-		post(process.simulation, process.task, now(process), true)
-		while length(store.get_queue) > 0
-			new_process, new_priority = shift!(store.get_queue)
-			filter = store.get_set[new_process]
-			success, new_buffer = filter(copy(store.buffer))
-			if (success)
-				for element in new_buffer
-					splice!(store.buffer, findin(store.buffer, [element])[1])
-				end
-				store.occupied -= length(new_buffer)
-				if store.monitored
-					observe(store.buffer_monitor, now(new_process), store.occupied)
-					observe(store.get_monitor, now(new_process), length(store.get_queue))
-				end
-				store.getted_set[new_process] = new_buffer
-				delete!(store.get_set, new_process)
-				post(new_process.simulation, new_process.task, now(new_process), true)
-			else
-				unshift!(store.get_queue, new_process, new_priority)
-				break
-			end
-		end
-	end
-	produce(true)
+    if store.capacity - store.occupied < length(buffer) || length(store.put_queue) > 0
+      store.put_set[process] = buffer
+      push!(store.put_queue, process, priority)
+      if store.monitored
+        observe(store.put_monitor, now(process), length(store.put_queue))
+      end
+      if renege
+        if waittime < Inf
+          post(process.simulation, process.task, now(process)+waittime, true)
+        else
+          return wait(process, signals)
+        end
+      end
+    else
+      append!(store.buffer, buffer)
+      store.occupied += length(buffer)
+      if store.monitored
+        observe(store.buffer_monitor, now(process), store.occupied)
+      end
+      post(process.simulation, process.task, now(process), true)
+      while length(store.get_queue) > 0
+        new_process, new_priority = shift!(store.get_queue)
+        filter = store.get_set[new_process]
+        success, new_buffer = filter(copy(store.buffer))
+        if (success)
+          for element in new_buffer
+            splice!(store.buffer, findin(store.buffer, [element])[1])
+          end
+          store.occupied -= length(new_buffer)
+          if store.monitored
+            observe(store.buffer_monitor, now(new_process), store.occupied)
+            observe(store.get_monitor, now(new_process), length(store.get_queue))
+          end
+          store.getted_set[new_process] = new_buffer
+          delete!(store.get_set, new_process)
+          post(new_process.simulation, new_process.task, now(new_process), true)
+        else
+          unshift!(store.get_queue, new_process, new_priority)
+          break
+        end
+      end
+    end
+    produce(true)
 end
 
 function put{T}(process::Process, store::Store, buffer::Vector{T}, priority::Int, waittime::Float64)
@@ -142,49 +142,49 @@ function put{T}(process::Process, store::Store, buffer::Vector{T})
 end
 
 function get(process::Process, store::Store, filter::Function, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	success, buffer = filter(copy(store.buffer))
-	if ! success || length(store.get_queue) > 0
-		store.get_set[process] =  filter
-		push!(store.get_queue, process, priority)
-		if store.monitored
-			observe(store.get_monitor, now(process), length(store.get_queue))
-		end
-		if renege
-			if waittime < Inf
-				post(process.simulation, process.task, now(process)+waittime, true)
-			else
-				return wait(process, signals)
-			end
-		end
-	else
-		for element in buffer
-			splice!(store.buffer, findin(store.buffer, [element])[1])
-		end
-		store.occupied -= length(buffer)
-		if store.monitored
-			observe(store.buffer_monitor, now(process), store.occupied)
-		end
-		store.getted_set[process] = buffer
-		post(process.simulation, process.task, now(process), true)
-		while length(store.put_queue) > 0
-			new_process, new_priority = shift!(store.put_queue)
-			new_buffer = store.put_set[new_process]
-			if store.capacity - store.occupied >= length(new_buffer)
-				append!(store.buffer, new_buffer)
-				store.occupied += length(new_buffer)
-				if store.monitored
-					observe(store.buffer_monitor, now(new_process), store.occupied)
-					observe(store.put_monitor, now(new_process), length(store.put_queue))
-				end
-				delete!(store.put_set, new_process)
-				post(new_process.simulation, new_process.task, now(new_process), true)
-			else
-				unshift!(store.put_queue, new_process, new_priority)
-				break
-			end
-		end
-	end
-	produce(true)
+  success, buffer = filter(copy(store.buffer))
+  if ! success || length(store.get_queue) > 0
+    store.get_set[process] =  filter
+    push!(store.get_queue, process, priority)
+    if store.monitored
+      observe(store.get_monitor, now(process), length(store.get_queue))
+    end
+    if renege
+      if waittime < Inf
+        post(process.simulation, process.task, now(process)+waittime, true)
+      else
+        return wait(process, signals)
+      end
+    end
+  else
+    for element in buffer
+      splice!(store.buffer, findin(store.buffer, [element])[1])
+    end
+    store.occupied -= length(buffer)
+    if store.monitored
+      observe(store.buffer_monitor, now(process), store.occupied)
+    end
+    store.getted_set[process] = buffer
+    post(process.simulation, process.task, now(process), true)
+    while length(store.put_queue) > 0
+      new_process, new_priority = shift!(store.put_queue)
+      new_buffer = store.put_set[new_process]
+      if store.capacity - store.occupied >= length(new_buffer)
+        append!(store.buffer, new_buffer)
+        store.occupied += length(new_buffer)
+        if store.monitored
+          observe(store.buffer_monitor, now(new_process), store.occupied)
+          observe(store.put_monitor, now(new_process), length(store.put_queue))
+        end
+        delete!(store.put_set, new_process)
+        post(new_process.simulation, new_process.task, now(new_process), true)
+      else
+        unshift!(store.put_queue, new_process, new_priority)
+        break
+      end
+    end
+  end
+  produce(true)
 end
 
 function get(process::Process, store::Store, filter::Function, priority::Int, waittime::Float64)
@@ -257,8 +257,6 @@ function get{T}(process::Process, store::Store{T}, number::Uint64)
 	signals = Set{Signal}()
 	get(process, store, (buffer::Vector{T})->filter_number(buffer, number), 0, Inf, signals, false)
 end
-
-
 
 function put_monitor(store::Store)
 	return store.put_monitor

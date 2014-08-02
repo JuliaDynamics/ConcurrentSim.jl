@@ -21,7 +21,7 @@ end
 
 function wash_car(process::Process, waiting_cars::Store)
 	while true
-		get(process, waiting_cars, uint(1))
+		SimJulia.get(process, waiting_cars, uint(1))
 		signal = got(process, waiting_cars)[1]
 		hold(process, 5.0)
 		fire(signal, process)
@@ -41,4 +41,4 @@ end
 cg = Process(sim, "Cargenerator")
 activate(cg, 0.0, generate_cars, waiting_cars)
 run(sim, 30.0)
-println("Cars waiting: $(buffer(waiting_cars))")
+println("Cars waiting: $(length(SimJulia.buffer(waiting_cars)))")
