@@ -19,7 +19,7 @@ function show(io::IO, signal::Signal)
 end
 
 function param(signal::Signal)
-	return signal.param 
+	return signal.param
 end
 
 function wait(process::Process, signals::Set{Signal})

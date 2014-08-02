@@ -81,13 +81,13 @@ function run(simulation::Simulation, until::Float64)
 				next_event_time = simulation.time
 			end
 		end
-    if check(simulation.state_events)
-      task = pop!(simulation.state_events)
-      consume(task)
-    else
-      task = pop!(simulation.time_events)
-      consume(task)
-    end
+		if check(simulation.state_events)
+			task = pop!(simulation.state_events)
+			consume(task)
+		else
+			task = pop!(simulation.time_events)
+			consume(task)
+		end
 	end
 	stop_monitors(simulation)
 end
