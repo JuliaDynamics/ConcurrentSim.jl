@@ -45,38 +45,38 @@ end
 
 function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	process.next_event = TimeEvent()
-  if resource.uncommitted == 0
-    min_index, min_priority = minimum(enumerate(values(resource.active_set)))
-    if preempt && priority > min_priority
-      min_process = collect(keys(resource.active_set))[min_index]
-      delete!(resource.active_set, min_process)
-      unshift!(resource.wait_queue, min_process, min_priority)
-      resource.preempt_set[min_process] = min_process.next_event.time - now(process)
-      cancel(min_process)
-      resource.active_set[process] = priority
-      post(process.simulation, process.task, now(process), true)
-    else
-      push!(resource.wait_queue, process, priority)
-      if renege
-        if waittime < Inf
-          post(process.simulation, process.task, now(process)+waittime, true)
-        else
-          return wait(process, signals)
-        end
-      end
-    end
-    if resource.monitored
-      observe(resource.wait_monitor, now(process), length(resource.wait_queue))
-    end
-  else
-    resource.uncommitted -= 1
-    resource.active_set[process] = priority
-    if resource.monitored
-      observe(resource.activity_monitor, now(process), length(resource.active_set))
-    end
-    post(process.simulation, process.task, now(process), true)
-  end
-  produce(true)
+	if resource.uncommitted == 0
+		min_index, min_priority = minimum(enumerate(values(resource.active_set)))
+		if preempt && priority > min_priority
+			min_process = collect(keys(resource.active_set))[min_index]
+			delete!(resource.active_set, min_process)
+			unshift!(resource.wait_queue, min_process, min_priority)
+			resource.preempt_set[min_process] = min_process.next_event.time - now(process)
+			cancel(min_process)
+			resource.active_set[process] = priority
+			post(process.simulation, process.task, now(process), true)
+		else
+			push!(resource.wait_queue, process, priority)
+			if renege
+				if waittime < Inf
+					post(process.simulation, process.task, now(process)+waittime, true)
+				else
+					return wait(process, signals)
+				end
+			end
+		end
+		if resource.monitored
+			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
+		end
+	else
+		resource.uncommitted -= 1
+		resource.active_set[process] = priority
+		if resource.monitored
+			observe(resource.activity_monitor, now(process), length(resource.active_set))
+		end
+		post(process.simulation, process.task, now(process), true)
+	end
+	produce(true)
 end
 
 function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64)
@@ -122,28 +122,28 @@ function request(process::Process, resource::Resource)
 end
 
 function release(process::Process, resource::Resource)
-  resource.uncommitted += 1
-  delete!(resource.active_set, process)
-  if resource.monitored
-    observe(resource.activity_monitor, now(process), length(resource.active_set))
-  end
-  if length(resource.wait_queue) > 0
-    new_process, new_priority = shift!(resource.wait_queue)
-    resource.uncommitted -= 1
-    resource.active_set[new_process] = new_priority
-    if resource.monitored
-      observe(resource.wait_monitor, now(process), length(resource.wait_queue))
-      observe(resource.activity_monitor, now(process), length(resource.active_set))
-    end
-    if haskey(resource.preempt_set, new_process)
-      post(new_process.simulation, new_process.task, now(new_process)+resource.preempt_set[new_process], true)
-      delete!(resource.preempt_set, new_process)
-    else
-      post(new_process.simulation, new_process.task, now(new_process), true)
-    end
-  end
-  post(process.simulation, process.task, now(process), true)
-  produce(true)
+	resource.uncommitted += 1
+	delete!(resource.active_set, process)
+	if resource.monitored
+		observe(resource.activity_monitor, now(process), length(resource.active_set))
+	end
+	if length(resource.wait_queue) > 0
+		new_process, new_priority = shift!(resource.wait_queue)
+		resource.uncommitted -= 1
+		resource.active_set[new_process] = new_priority
+		if resource.monitored
+			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
+			observe(resource.activity_monitor, now(process), length(resource.active_set))
+		end
+		if haskey(resource.preempt_set, new_process)
+			post(new_process.simulation, new_process.task, now(new_process)+resource.preempt_set[new_process], true)
+			delete!(resource.preempt_set, new_process)
+		else
+			post(new_process.simulation, new_process.task, now(new_process), true)
+		end
+	end
+	post(process.simulation, process.task, now(process), true)
+	produce(true)
 end
 
 function wait_monitor(resource::Resource)

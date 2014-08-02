@@ -23,22 +23,22 @@ function param(signal::Signal)
 end
 
 function wait(process::Process, signals::Set{Signal})
-  for signal in signals
-    push!(signal.wait_list, process)
-  end
-  process.next_event = TimeEvent()
-  produce(true)
-  occured_signals = Set{Signal}()
-  for signal in signals
-    if signal.occured
-      push!(occured_signals, signal)
-    end
-    delete!(signal.wait_list, process)
-    if isempty(signal.wait_list)
-      signal.occured = false
-    end
-  end
-  return occured_signals
+	for signal in signals
+		push!(signal.wait_list, process)
+	end
+	process.next_event = TimeEvent()
+	produce(true)
+	occured_signals = Set{Signal}()
+	for signal in signals
+		if signal.occured
+			push!(occured_signals, signal)
+		end
+		delete!(signal.wait_list, process)
+		if isempty(signal.wait_list)
+			signal.occured = false
+		end
+	end
+	return occured_signals
 end
 
 function wait(process::Process, signal::Signal)
@@ -48,22 +48,22 @@ function wait(process::Process, signal::Signal)
 end
 
 function queue(process::Process, signals::Set{Signal})
-  for signal in signals
-    push!(signal.queue_list, process)
-  end
-  process.next_event = TimeEvent()
-  produce(true)
-  occured_signals = Set{Signal}()
-  for signal in signals
-    if signal.occured
-      push!(occured_signals, signal)
-    end
-    splice!(signal.queue_list, findin(signal.queue_list, [process])[1])
-    if isempty(signal.wait_list)
-      signal.occured = false
-    end
-  end
-  return occured_signals
+	for signal in signals
+		push!(signal.queue_list, process)
+	end
+	process.next_event = TimeEvent()
+	produce(true)
+	occured_signals = Set{Signal}()
+	for signal in signals
+		if signal.occured
+			push!(occured_signals, signal)
+		end
+		splice!(signal.queue_list, findin(signal.queue_list, [process])[1])
+		if isempty(signal.wait_list)
+			signal.occured = false
+		end
+	end
+	return occured_signals
 end
 
 function queue(process::Process, signal::Signal)
