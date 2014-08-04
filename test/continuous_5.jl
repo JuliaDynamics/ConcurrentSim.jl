@@ -7,6 +7,7 @@ const height = 0.046
 const nbr_stones = 55
 const km = m * g * 0.5 * sqrt(width^2 + height^2)
 const theta = m * (width^2 + height^2) / 3.0
+const gs = (sqrt(5.0) - 1.0) / 2.0
 
 function dynamics(time::Float64, variables::Vector{Variable}, nr::Int)
 	omega = variables[1]
@@ -43,7 +44,6 @@ function game(distance::Float64)
 end
 
 function golden_section_search(f::Function, a::Float64, b::Float64, tol::Float64)
-	gs = (sqrt(5.0) - 1.0) / 2.0
 	x1 = b - gs * (b - a)
 	y1 = f(x1)
 	x2 = a + gs * (b - a)
