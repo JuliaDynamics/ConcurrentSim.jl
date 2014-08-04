@@ -24,17 +24,17 @@ end
 
 function wait(process::Process, signals::Set{Signal})
 	for signal in signals
-		add!(signal.wait_list, process)
+		push!(signal.wait_list, process)
 	end
 	process.next_event = TimeEvent()
 	produce(true)
 	occured_signals = Set{Signal}()
 	for signal in signals
 		if signal.occured
-			add!(occured_signals, signal)
+			push!(occured_signals, signal)
 		end
 		delete!(signal.wait_list, process)
-		if isempty(signal.wait_list) 
+		if isempty(signal.wait_list)
 			signal.occured = false
 		end
 	end
@@ -43,7 +43,7 @@ end
 
 function wait(process::Process, signal::Signal)
 	signals = Set{Signal}()
-	add!(signals, signal)
+	push!(signals, signal)
 	return wait(process, signals)
 end
 
@@ -56,9 +56,9 @@ function queue(process::Process, signals::Set{Signal})
 	occured_signals = Set{Signal}()
 	for signal in signals
 		if signal.occured
-			add!(occured_signals, signal)
+			push!(occured_signals, signal)
 		end
-		delete!(signal.queue_list, findin(signal.queue_list, [process])[1])
+		splice!(signal.queue_list, findin(signal.queue_list, [process])[1])
 		if isempty(signal.wait_list)
 			signal.occured = false
 		end
@@ -68,7 +68,7 @@ end
 
 function queue(process::Process, signal::Signal)
 	signals = Set{Signal}()
-	add!(signals, signal)
+	push!(signals, signal)
 	return queue(process, signals)
 end
 

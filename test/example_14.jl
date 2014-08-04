@@ -18,13 +18,13 @@ function demand(process::Process, stock::Level)
 		dd = 0.2*randn()+1.2
 		ds = dd - amount(stock)
 		if ds > 0.0
-			get(process, stock, amount(stock))
+			SimJulia.get(process, stock, amount(stock))
 			println("at $(now(process)), demand = $dd, shortfall = -$ds")
 		else
-			get(process, stock, dd)
+			SimJulia.get(process, stock, dd)
 			println("at $(now(process)), demand = $dd, now amount = $(amount(stock))")
 		end
-	end	
+	end
 end
 
 sim = Simulation(uint(16))
@@ -33,5 +33,7 @@ offeror = Process(sim, "Offeror")
 activate(offeror, 0.0, deliver, stock)
 requestor = Process(sim, "Requestor")
 activate(requestor, 0.0, demand, stock)
+
+println("after")
 run(sim, 49.9)
 println("Average stock = $(mean(buffer_monitor(stock)))")

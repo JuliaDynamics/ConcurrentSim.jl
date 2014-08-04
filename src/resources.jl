@@ -46,9 +46,9 @@ end
 function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64, signals::Set{Signal}, renege::Bool)
 	process.next_event = TimeEvent()
 	if resource.uncommitted == 0
-		min_index, min_priority = min(enumerate(values(resource.active_set)))
+		min_index, min_priority = minimum(enumerate(values(resource.active_set)))
 		if preempt && priority > min_priority
-			min_process = keys(resource.active_set)[min_index]
+			min_process = collect(keys(resource.active_set))[min_index]
 			delete!(resource.active_set, min_process)
 			unshift!(resource.wait_queue, min_process, min_priority)
 			resource.preempt_set[min_process] = min_process.next_event.time - now(process)

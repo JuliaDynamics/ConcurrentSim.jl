@@ -108,7 +108,7 @@ function put(process::Process, level::Level, give::Float64, priority::Int)
 	signals = Set{Signal}()
 	put(process, level, give, priority, Inf, signals, false)
 end
-	
+
 function put(process::Process, level::Level, give::Float64, waittime::Float64)
 	signals = Set{Signal}()
 	put(process, level, give, 0, waittime, signals,  true)
@@ -124,7 +124,7 @@ function put(process::Process, level::Level, give::Float64)
 end
 
 function get(process::Process, level::Level, ask::Float64, priority::Int, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	if level.amount < ask || length(level.get_queue) > 0 
+	if level.amount < ask || length(level.get_queue) > 0
 		level.get_amounts[process] = ask
 		push!(level.get_queue, process, priority)
 		if level.monitored
