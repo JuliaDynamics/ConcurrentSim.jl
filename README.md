@@ -4,22 +4,26 @@ SimJulia
 [![Build Status](https://travis-ci.org/IainNZ/SimJulia.jl.svg)](https://travis-ci.org/IainNZ/SimJulia.jl)
 [![Coverage Status](https://coveralls.io/repos/IainNZ/SimJulia.jl/badge.svg)](https://coveralls.io/r/IainNZ/SimJulia.jl)
 
-SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.
+**SimJulia** is a combined continuous time / discrete event process oriented simulation framework written in [Julia](http://julialang.org) inspired by the Simula library DISCO and the Python library [SimPy](http://simpy.sourceforge.net/old/SimPy_Manual/).
 
-A process is implemented as a type containing a Task (co-routine). The "produce" function is used to schedule future events having a pointer to the Task object. A heap-based simulation kernel processes the events in order by "consuming" the related Tasks.
+## Documentation
+
+A process is implemented as a type containing a `Task` (co-routine). The "produce" function is used to schedule future events having a pointer to the Task object. A heap-based simulation kernel processes the events in order by "consuming" the related Tasks.
 
 The continuous state changes of the system may be described by means of the type Variable and a Function computing the derivatives. A Variable has a "state", the current value, and a "rate", the derivative with respect to time. The waituntil intrinsic allows to schedule a state event, a Task that is planned to resume as soon as the state of the model fulfils a specified condition. Between the discrete events the state of the model is advanced in steps using the Runge-Kutta Dormand-Prince method. 
 
 Following intrinsics are implemented:
-- sleep: process is deactivated and can be reactivated by another process
-- hold: process is busy for a certain amount of time, during this period an interrupt can force the control back to the process
-- wait and queue: a process can wait or queue for some signals to be fired by another process
-- waituntil: a process can wait for a general condition (which depend on the state of the simulaton) to be satisfied, this functionality requires interrogative scheduling, while all other synchronization constructs are imperative 
-- request and release: a resource, a discrete congestion point to which processes may have to queue up, can be requested and when it is finished, be released; queue type can be FIFO or priority without and with preemption; reneging, leaving a queue before acquiring a resource is also implemented
-- put and get: a level (continuous) and a store (discrete) model congestion points which can produce or consume continuous/discrete "material"; queue type can be FIFO or priority; reneging, leaving a queue before putting or getting is also implemented
-- observe: a monitor enables the observation of a single variable of interest and can return a data summary during or at the end of a simulation run
+- `sleep`: process is deactivated and can be reactivated by another process
+- `hold`: process is busy for a certain amount of time, during this period an interrupt can force the control back to the process
+- `wait` and `queue`: a process can wait or queue for some signals to be fired by another process
+- `waituntil`: a process can wait for a general condition (which depend on the state of the simulaton) to be satisfied, this functionality requires interrogative scheduling, while all other synchronization constructs are imperative 
+- `request` and `release`: a resource, a discrete congestion point to which processes may have to queue up, can be requested and when it is finished, be released; queue type can be FIFO or priority without and with preemption; reneging, leaving a queue before acquiring a resource is also implemented
+- `put` and `get`: a level (continuous) and a store (discrete) model congestion points which can produce or consume continuous/discrete "material"; queue type can be FIFO or priority; reneging, leaving a queue before putting or getting is also implemented
+- `observe`: a monitor enables the observation of a single variable of interest and can return a data summary during or at the end of a simulation run
 
-Discrete event tests are identical to the examples in the SimPy documentation.
+## Examples
+
+**Discrete event tests** are identical to the examples in the [SimPy 2.x](http://simpy.sourceforge.net/old/SimPy_Manual/) documentation.
 
 - example_1.jl: Basic simulation. A Process "message" is defined with an associated Task "go".
 - example_2.jl: A Process "customer" is defined and the associated Task "buy" has an extra argument "budget".
@@ -40,7 +44,7 @@ Discrete event tests are identical to the examples in the SimPy documentation.
 - example_17.jl: Printing a histogram from a Monitor.
 - example_18.jl: A Monitor is used to observe exponential random variates.
 
-Continuous time tests are identical to the examples in the jDisco documentation, a clone of DISCO.
+**Continuous time tests** are identical to the examples in the jDisco documentation, a clone of DISCO.
 
 - continuous_1.jl: A Process starts two Variables and suspends itself for a period of 10 time units. The system is known to be cyclic. The period can be determined using the waituntil intrinsic by computing the time interval between two consecutive maximum points of a Variable.
 - continuous_2.jl: The launch of a threestage rocket is simulated. The model has both continuous and discrete elements. During the rocket's flight well-known physical laws govern its motion, and its mass decreases continuously as a result of the expulsion of burnt fuel. However, when a stage separates from the rest of the rocket, an instantaneous change of the rocket's mass and acceleration takes place.
