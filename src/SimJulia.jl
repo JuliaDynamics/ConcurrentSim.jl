@@ -1,5 +1,5 @@
 module SimJulia
-	import Base.show, Base.start, Base.done, Base.next, Base.isless, Base.push!, Base.pop!, Base.shift!, Base.unshift!, Base.delete!, Base.mean, Base.length, Base.collect, Base.min, Base.max
+	importall Base
 	export Simulation, Variable, Process, Signal, Resource, Monitor, Level, Store
 	export run, run_continuous, stop, register, reset
 	export observe, count, mean, var, time_average, tseries, yseries, histogram, report
