@@ -118,7 +118,7 @@ function yield(env::Environment, ev::Event)
 end
 
 function interrupt(env::Environment, proc::Process)
-  if !istaskdone(proc.task) || !istaskstarted(proc.task)
+  if !istaskdone(proc.task)
     ev = Event()
     push!(ev.callbacks, (execute, proc))
     schedule(env, ev, InterruptException())
