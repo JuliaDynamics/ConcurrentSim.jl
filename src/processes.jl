@@ -1,4 +1,4 @@
-type Process <: BaseEvent
+type Process
   name :: ASCIIString
   task :: Task
   target :: Event

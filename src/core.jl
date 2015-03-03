@@ -8,6 +8,8 @@ type Environment
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.now = initial_time
+    # Problem with PriorityQueue in julia v0.4
+    # env.heap = PriorityQueue{Event, EventID}()
     env.heap = PriorityQueue()
     env.eid = 0
     return env
