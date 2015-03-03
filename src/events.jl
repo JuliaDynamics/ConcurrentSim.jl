@@ -9,12 +9,12 @@ type EventID
 end
 
 type Event <: BaseEvent
-  callbacks :: Set{(Function, BaseEvent)}
+  callbacks :: Set{Function}
   id :: Uint16
   value
   function Event()
     ev = new()
-    ev.callbacks = Set{(Function, BaseEvent)}()
+    ev.callbacks = Set{Function}()
     return ev
   end
 end

@@ -3,6 +3,7 @@ type Process <: BaseEvent
   task :: Task
   target :: Event
   ev :: Event
+  execute :: Function
   function Process(name::ASCIIString, task::Task)
     proc = new()
     proc.name = name

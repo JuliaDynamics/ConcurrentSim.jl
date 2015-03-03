@@ -48,7 +48,7 @@ function run(env::Environment, at::Float64)
 end
 
 function run(env::Environment, until::Event)
-  push!(until.callbacks, (stop_simulate, NoneEvent()))
+  push!(until.callbacks, stop_simulate)
   try
     while true
       step(env)
@@ -69,12 +69,8 @@ function step(env::Environment)
   ev = dequeue!(env.heap)
   ev.id = ev_id.id
   while !isempty(ev.callbacks)
-    callback, base_ev = pop!(ev.callbacks)
-    if isa(base_ev, Process)
-      callback(env, ev, base_ev)
-    else
-      callback(env, ev)
-    end
+    callback = pop!(ev.callbacks)
+    callback(env, ev)
   end
 end
 
@@ -101,8 +97,9 @@ end
 
 function process(env::Environment, name::ASCIIString, func::Function, args...)
   proc = Process(name, Task(()->func(env, args...)))
+  proc.execute = (env, ev)->execute(env, ev, proc)
   ev = Event()
-  push!(ev.callbacks, (execute, proc))
+  push!(ev.callbacks, proc.execute)
   schedule(env, ev, "execute")
   proc.target = ev
   return proc
@@ -110,7 +107,8 @@ end
 
 function yield(env::Environment, ev::Event)
   env.active_proc.target = ev
-  push!(ev.callbacks, (execute, env.active_proc))
+  proc = env.active_proc
+  push!(ev.callbacks, proc.execute)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)
@@ -120,8 +118,8 @@ end
 function interrupt(env::Environment, proc::Process)
   if !istaskdone(proc.task)
     ev = Event()
-    push!(ev.callbacks, (execute, proc))
+    push!(ev.callbacks, proc.execute)
     schedule(env, ev, InterruptException())
-    delete!(proc.target.callbacks, (execute, proc))
+    delete!(proc.target.callbacks, proc.execute)
   end
 end

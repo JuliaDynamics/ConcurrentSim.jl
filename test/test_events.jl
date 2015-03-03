@@ -6,6 +6,6 @@ end
 
 env = Environment()
 ev = timeout(env, 1.0)
-push!(ev, my_callback)
+push!(ev.callbacks, my_callback)
 run(env, 2.0)
 println("End of simulation at time $(env.now)")
