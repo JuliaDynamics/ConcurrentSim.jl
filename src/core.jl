@@ -2,13 +2,13 @@ using Base.Collections
 
 type Environment
   now :: Float64
-  heap :: PriorityQueue{Event, EventID}
+  heap :: PriorityQueue{Event, EventID, Base.Order.ForwardOrdering}
   eid :: Uint16
   active_proc :: Process
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.now = initial_time
-    env.heap = PriorityQueue{Event, EventID}()
+    env.heap = PriorityQueue{Event, EventID, Base.Order.ForwardOrdering}()
     env.eid = 0
     return env
   end
