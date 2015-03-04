@@ -1,5 +1,37 @@
 using Base.Collections
 
+type EventID
+  time :: Float64
+  priority :: Bool
+  id :: Uint16
+end
+
+type Event
+  callbacks :: Set
+  ev_id :: EventID
+  value
+  function Event()
+    ev = new()
+    ev.callbacks = Set{Function}()
+    return ev
+  end
+end
+
+type Process
+  name :: ASCIIString
+  task :: Task
+  target :: Event
+  ev :: Event
+  execute :: Function
+  function Process(name::ASCIIString, task::Task)
+    proc = new()
+    proc.name = name
+    proc.task = task
+    proc.ev = Event()
+    return proc
+  end
+end
+
 type Environment
   now :: Float64
   heap :: PriorityQueue
@@ -19,9 +51,18 @@ end
 type EmptySchedule <: Exception end
 type TaskDone <: Exception end
 
+function isless(a::EventID, b::EventID)
+	return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
+end
+
+function triggered(ev::Event)
+  return isdefined(ev, :ev_id)
+end
+
 function schedule(env::Environment, ev::Event, priority::Bool, delay::Float64, value=nothing)
   env.eid += 1
-  env.heap[ev] = EventID(env.now + delay, priority, env.eid)
+  ev.ev_id = EventID(env.now + delay, priority, env.eid)
+  env.heap[ev] = ev.ev_id
   ev.value = value
   return ev
 end
@@ -66,10 +107,8 @@ function step(env::Environment)
   if isempty(env.heap)
     throw(EmptySchedule())
   end
-  ev_id = peek(env.heap)[2]
-  env.now = ev_id.time
   ev = dequeue!(env.heap)
-  ev.id = ev_id.id
+  env.now = ev.ev_id.time
   while !isempty(ev.callbacks)
     callback = pop!(ev.callbacks)
     callback(env, ev)
@@ -121,7 +160,7 @@ function interrupt(env::Environment, proc::Process)
   if !istaskdone(proc.task)
     ev = Event()
     push!(ev.callbacks, proc.execute)
-    schedule(env, ev, InterruptException())
+    schedule(env, ev, true, InterruptException())
     delete!(proc.target.callbacks, proc.execute)
   end
 end
