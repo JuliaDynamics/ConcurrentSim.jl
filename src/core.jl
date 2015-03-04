@@ -51,7 +51,6 @@ type Environment
 end
 
 type EmptySchedule <: Exception end
-type TaskDone <: Exception end
 
 function Timeout(env::Environment, delay::Float64)
   ev = Event()
