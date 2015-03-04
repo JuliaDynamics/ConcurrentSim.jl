@@ -170,9 +170,6 @@ function stop_simulate(env::Environment, ev::Event)
 end
 
 function execute(env::Environment, ev::Event, proc::Process)
-  if istaskdone(proc.task)
-    throw(TaskDone())
-  end
   env.active_proc = proc
   value = consume(proc.task, ev.value)
   if istaskdone(proc.task)

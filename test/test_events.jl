@@ -33,3 +33,7 @@ add(succeed_ev, succeed_callback)
 add(fail_ev, fail_callback)
 run(env)
 println("End of simulation at time $(now(env))")
+
+env = Environment(10.0)
+run(env, 12.0)
+println("End of simulation at time $(now(env))")
