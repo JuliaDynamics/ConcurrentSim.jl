@@ -9,13 +9,17 @@ end
 type Event
   callbacks :: Set
   ev_id :: EventID
+  ok :: Bool
   value
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
+    ev.ok = true
     return ev
   end
 end
+
+typealias Timeout Event
 
 type Process
   name :: ASCIIString
@@ -51,12 +55,52 @@ end
 type EmptySchedule <: Exception end
 type TaskDone <: Exception end
 
+function Timeout(env::Environment, delay::Float64)
+  ev = Event()
+  schedule(env, ev, delay, "timeout")
+  return ev
+end
+
+function Process(env::Environment, name::ASCIIString, func::Function, args...)
+  proc = Process(name, Task(()->func(env, args...)))
+  proc.execute = (env, ev)->execute(env, ev, proc)
+  ev = Event()
+  push!(ev.callbacks, proc.execute)
+  schedule(env, ev, "execute")
+  proc.target = ev
+  return proc
+end
+
+function show(io::IO, ev::Event)
+  print(io, "Event $(ev.ev_id.id)")
+end
+
+function show(io::IO, proc::Process)
+  print(io, "Process $(proc.name)")
+end
+
+function now(env::Environment)
+  return env.now
+end
+
+function add(ev::Event, callback::Function)
+  push!(ev.callbacks, callback)
+end
+
+function value(ev::Event)
+  return ev.value
+end
+
+function active_process(env::Environment)
+  return env.active_proc
+end
+
 function isless(a::EventID, b::EventID)
 	return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
 
 function triggered(ev::Event)
-  return isdefined(ev, :ev_id)
+  return isdefined(ev, :value)
 end
 
 function schedule(env::Environment, ev::Event, priority::Bool, delay::Float64, value=nothing)
@@ -77,6 +121,15 @@ end
 
 function schedule(env::Environment, ev::Event, value=nothing)
   schedule(env, ev, false, 0.0, value)
+end
+
+function succeed(env::Environment, ev::Event, value=nothing)
+  schedule(env, ev, value)
+end
+
+function fail(env::Environment, ev::Event, value=nothing)
+  ev.ok = false
+  schedule(env, ev, value)
 end
 
 function run(env::Environment)
@@ -119,12 +172,6 @@ function stop_simulate(env::Environment, ev::Event)
   throw(EmptySchedule())
 end
 
-function timeout(env::Environment, delay::Float64)
-  ev = Event()
-  schedule(env, ev, delay, "timeout")
-  return ev
-end
-
 function execute(env::Environment, ev::Event, proc::Process)
   if istaskdone(proc.task)
     throw(TaskDone())
@@ -136,24 +183,18 @@ function execute(env::Environment, ev::Event, proc::Process)
   end
 end
 
-function process(env::Environment, name::ASCIIString, func::Function, args...)
-  proc = Process(name, Task(()->func(env, args...)))
-  proc.execute = (env, ev)->execute(env, ev, proc)
-  ev = Event()
-  push!(ev.callbacks, proc.execute)
-  schedule(env, ev, "execute")
-  proc.target = ev
-  return proc
-end
-
 function yield(env::Environment, ev::Event)
   env.active_proc.target = ev
-  proc = env.active_proc
-  push!(ev.callbacks, proc.execute)
+  push!(ev.callbacks, env.active_proc.execute)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)
   end
+  return value
+end
+
+function yield(env::Environment, proc::Process)
+  return yield(env, proc.ev)
 end
 
 function interrupt(env::Environment, proc::Process)

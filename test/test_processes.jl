@@ -3,12 +3,12 @@ using Base.Test
 
 function fib(env::Environment, a=1, b=1)
   while a < 10
-    println("At time $(env.now) the value of $(env.active_proc.name) is $b")
+    println("At time $(now(env)) the value of $(active_process(env)) is $b")
     try
-      yield(env, timeout(env, 3.0))
+      yield(env, Timeout(env, 3.0))
     catch exc
       if isa(exc, InterruptException)
-        println("At time $(env.now) an interrupt occured")
+        println("At time $(now(env)) an interrupt occured")
         return
       end
     end
@@ -20,14 +20,21 @@ end
 
 function interrupt_fib(env::Environment, proc::Process, when::Float64)
   while true
-    yield(env, timeout(env, when))
+    yield(env, Timeout(env, when))
     interrupt(env, proc)
   end
 end
 
+function wait_fib(env::Environment, proc::Process)
+  println("Start waiting at $(now(env))")
+  yield(env, proc)
+  println("Stop waiting at $(now(env))")
+end
+
 env = Environment()
-proc = process(env, "Fibonnaci", fib)
-proc2 = process(env, "Fibonnaci2", fib, 2, 3)
-proc_interrupt = process(env, "Interrupt Fibonnaci", interrupt_fib, proc, 4.0)
+proc = Process(env, "Fibonnaci", fib)
+proc2 = Process(env, "Fibonnaci2", fib, 2, 3)
+proc_interrupt = Process(env, "Interrupt Fibonnaci", interrupt_fib, proc, 4.0)
+proc_wait = Process(env, "Wait Fibonnaci", wait_fib, proc)
 run(env, 20.0)
-println("End of simulation at time $(env.now)")
+println("End of simulation at time $(now(env))")
