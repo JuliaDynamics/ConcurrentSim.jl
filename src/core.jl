@@ -9,12 +9,10 @@ end
 type Event
   callbacks :: Set
   ev_id :: EventID
-  ok :: Bool
   value
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
-    ev.ok = true
     return ev
   end
 end
@@ -127,9 +125,8 @@ function succeed(env::Environment, ev::Event, value=nothing)
   schedule(env, ev, value)
 end
 
-function fail(env::Environment, ev::Event, value=nothing)
-  ev.ok = false
-  schedule(env, ev, value)
+function fail(env::Environment, ev::Event, exc::Exception)
+  schedule(env, ev, exc)
 end
 
 function run(env::Environment)
@@ -151,7 +148,7 @@ function run(env::Environment, until::Event)
     end
   catch exc
     if !isa(exc, EmptySchedule)
-      throw(exc)
+      rethrow(exc)
     end
   end
 end
@@ -177,9 +174,9 @@ function execute(env::Environment, ev::Event, proc::Process)
     throw(TaskDone())
   end
   env.active_proc = proc
-  consume(proc.task, ev.value)
+  value = consume(proc.task, ev.value)
   if istaskdone(proc.task)
-    schedule(env, proc.ev, "taskdone")
+    schedule(env, proc.ev, value)
   end
 end
 
