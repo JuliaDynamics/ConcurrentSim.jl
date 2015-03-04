@@ -10,6 +10,7 @@ type Event
   callbacks :: Set
   ev_id :: EventID
   value
+  env
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
@@ -18,6 +19,14 @@ type Event
 end
 
 typealias Timeout Event
+
+type Condition
+  events :: Set
+  function Condition()
+    cond = new()
+    cond.events = Set{Event}()
+  end
+end
 
 type Process
   name :: ASCIIString
@@ -29,7 +38,6 @@ type Process
     proc = new()
     proc.name = name
     proc.task = task
-    proc.ev = Event()
     return proc
   end
 end
@@ -52,14 +60,21 @@ end
 
 type EmptySchedule <: Exception end
 
-function Timeout(env::Environment, delay::Float64)
+function Event(env::Environment)
   ev = Event()
+  ev.env = env
+  return ev
+end
+
+function Timeout(env::Environment, delay::Float64)
+  ev = Event(env)
   schedule(env, ev, delay, "timeout")
   return ev
 end
 
 function Process(env::Environment, name::ASCIIString, func::Function, args...)
   proc = Process(name, Task(()->func(env, args...)))
+  proc.ev = Event(env)
   proc.execute = (env, ev)->execute(env, ev, proc)
   ev = Event()
   push!(ev.callbacks, proc.execute)
@@ -120,12 +135,12 @@ function schedule(env::Environment, ev::Event, value=nothing)
   schedule(env, ev, false, 0.0, value)
 end
 
-function succeed(env::Environment, ev::Event, value=nothing)
-  schedule(env, ev, value)
+function succeed(ev::Event, value=nothing)
+  schedule(ev.env, ev, value)
 end
 
-function fail(env::Environment, ev::Event, exc::Exception)
-  schedule(env, ev, exc)
+function fail(ev::Event, exc::Exception)
+  schedule(ev.env, ev, exc)
 end
 
 function run(env::Environment)
@@ -176,9 +191,9 @@ function execute(env::Environment, ev::Event, proc::Process)
   end
 end
 
-function yield(env::Environment, ev::Event)
-  env.active_proc.target = ev
-  push!(ev.callbacks, env.active_proc.execute)
+function yield(ev::Event)
+  ev.env.active_proc.target = ev
+  push!(ev.callbacks, ev.env.active_proc.execute)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)
@@ -186,15 +201,15 @@ function yield(env::Environment, ev::Event)
   return value
 end
 
-function yield(env::Environment, proc::Process)
-  return yield(env, proc.ev)
+function yield(proc::Process)
+  return yield(proc.ev)
 end
 
-function interrupt(env::Environment, proc::Process)
+function interrupt(proc::Process)
   if !istaskdone(proc.task)
-    ev = Event()
+    ev = Event(proc.ev.env)
     push!(ev.callbacks, proc.execute)
-    schedule(env, ev, true, InterruptException())
+    schedule(proc.ev.env, ev, true, InterruptException())
     delete!(proc.target.callbacks, proc.execute)
   end
 end
