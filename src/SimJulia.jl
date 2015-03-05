@@ -1,8 +1,8 @@
 module SimJulia
   import Base.show, Base.isless, Base.interrupt
-  export Environment, Event, Timeout, Process, Condition
+  export Environment, Event, Timeout, Process, Condition, Interrupt
   export run, succeed, fail, yield
-  export triggered
-  export now, active_process, add, value
+  export triggered, processed
+  export now, active_process, add, value, cause
   include("core.jl")
 end

@@ -7,8 +7,10 @@ function fib(env::Environment, a=1, b=1)
     try
       yield(Timeout(env, 3.0))
     catch exc
-      if isa(exc, InterruptException)
+      if isa(exc, Interrupt)
         println("At time $(now(env)) an interrupt occured")
+        println(exc)
+        println(cause(exc))
         return "An interrupt occured"
       end
     end
@@ -35,8 +37,9 @@ function wait_fib(env::Environment, proc::Process, ev::Event)
   try
     yield(ev)
   catch exc
-    rethrow(exc)
+    println(exc)
   end
+  yield(ev)
 end
 
 env = Environment()

@@ -59,6 +59,18 @@ type Environment
 end
 
 type EmptySchedule <: Exception end
+type EventProcessed <: Exception end
+
+type Interrupt <: Exception
+  cause :: Process
+  msg :: ASCIIString
+  function Interrupt(cause::Process, msg::ASCIIString="")
+    inter = new()
+    inter.cause = cause
+    inter.msg = msg
+    return inter
+  end
+end
 
 function Event(env::Environment)
   ev = Event()
@@ -68,7 +80,7 @@ end
 
 function Timeout(env::Environment, delay::Float64)
   ev = Event(env)
-  schedule(env, ev, delay, "timeout")
+  schedule(env, ev, delay)
   return ev
 end
 
@@ -78,7 +90,7 @@ function Process(env::Environment, name::ASCIIString, func::Function, args...)
   proc.execute = (env, ev)->execute(env, ev, proc)
   ev = Event()
   push!(ev.callbacks, proc.execute)
-  schedule(env, ev, "execute")
+  schedule(env, ev, true)
   proc.target = ev
   return proc
 end
@@ -89,6 +101,10 @@ end
 
 function show(io::IO, proc::Process)
   print(io, "Process $(proc.name)")
+end
+
+function show(io::IO, inter::Interrupt)
+  print(io, "Interrupt caused by $(inter.cause): $(inter.msg)")
 end
 
 function now(env::Environment)
@@ -107,12 +123,20 @@ function active_process(env::Environment)
   return env.active_proc
 end
 
+function cause(inter::Interrupt)
+  return inter.cause
+end
+
 function isless(a::EventID, b::EventID)
 	return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
 
 function triggered(ev::Event)
   return isdefined(ev, :value)
+end
+
+function processed(ev::Event)
+  return isdefined(ev, :value) && isa(ev.callbacks, Set{Nothing})
 end
 
 function schedule(env::Environment, ev::Event, priority::Bool, delay::Float64, value=nothing)
@@ -177,6 +201,7 @@ function step(env::Environment)
     callback = pop!(ev.callbacks)
     callback(env, ev)
   end
+  ev.callbacks = Set{Nothing}()
 end
 
 function stop_simulate(env::Environment, ev::Event)
@@ -185,13 +210,20 @@ end
 
 function execute(env::Environment, ev::Event, proc::Process)
   env.active_proc = proc
-  value = consume(proc.task, ev.value)
-  if istaskdone(proc.task)
-    schedule(env, proc.ev, value)
+  try
+    value = consume(proc.task, ev.value)
+    if istaskdone(proc.task)
+      schedule(env, proc.ev, value)
+    end
+  catch exc
+    schedule(env, proc.ev, exc)
   end
 end
 
 function yield(ev::Event)
+  if processed(ev)
+    throw(EventProcessed())
+  end
   ev.env.active_proc.target = ev
   push!(ev.callbacks, ev.env.active_proc.execute)
   value = produce(ev)
@@ -205,11 +237,15 @@ function yield(proc::Process)
   return yield(proc.ev)
 end
 
-function interrupt(proc::Process)
-  if !istaskdone(proc.task)
+function yield(cond::Condition)
+
+end
+
+function interrupt(proc::Process, msg::ASCIIString="")
+  if !istaskdone(proc.task) && proc!=proc.ev.env.active_proc
     ev = Event(proc.ev.env)
     push!(ev.callbacks, proc.execute)
-    schedule(proc.ev.env, ev, true, InterruptException())
+    schedule(proc.ev.env, ev, true, Interrupt(proc.ev.env.active_proc, msg))
     delete!(proc.target.callbacks, proc.execute)
   end
 end
