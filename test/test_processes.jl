@@ -39,7 +39,27 @@ function wait_fib(env::Environment, proc::Process, ev::Event)
   catch exc
     println(exc)
   end
-  yield(ev)
+end
+
+function ev_too_late(env::Environment, ev::Event, when::Float64)
+  yield(Timeout(env, when))
+  println("Processed: $(processed(ev))")
+  try
+    value = yield(ev)
+  catch exc
+    println(exc)
+    rethrow(exc)
+  end
+end
+
+function die(env::Environment, proc::Process)
+  try
+    println("I wait for a died process")
+    value = yield(proc)
+  catch exc
+    println("I received a died process")
+    rethrow(exc)
+  end
 end
 
 env = Environment()
@@ -48,6 +68,8 @@ proc = Process(env, "Fibonnaci", fib)
 proc2 = Process(env, "Fibonnaci2", fib, 2, 3)
 proc_interrupt = Process(env, "Interrupt Fibonnaci", interrupt_fib, proc, 4.0, ev)
 proc_wait = Process(env, "Wait Fibonnaci", wait_fib, proc, ev)
+proc_too_late = Process(env, "Too late", ev_too_late, ev, 16.0)
+proc_die = Process(env, "Die", die, proc_too_late)
 try
   run(env, 20.0)
 catch exc

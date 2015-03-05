@@ -216,7 +216,11 @@ function execute(env::Environment, ev::Event, proc::Process)
       schedule(env, proc.ev, value)
     end
   catch exc
-    schedule(env, proc.ev, exc)
+    if !isempty(proc.ev.callbacks)
+      schedule(env, proc.ev, exc)
+    else
+      rethrow(exc)
+    end
   end
 end
 
