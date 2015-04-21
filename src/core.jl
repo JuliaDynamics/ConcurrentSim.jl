@@ -10,7 +10,6 @@ type Event
   callbacks :: Set
   ev_id :: EventID
   value
-  env
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
@@ -19,14 +18,6 @@ type Event
 end
 
 typealias Timeout Event
-
-type Condition
-  events :: Set
-  function Condition()
-    cond = new()
-    cond.events = Set{Event}()
-  end
-end
 
 type Process
   name :: ASCIIString
@@ -44,15 +35,13 @@ end
 
 type Environment
   now :: Float64
-  heap :: PriorityQueue
+  heap :: PriorityQueue{Event, EventID}
   eid :: Uint16
   active_proc :: Process
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.now = initial_time
-    # Problem with PriorityQueue in julia v0.4
-    # env.heap = PriorityQueue{Event, EventID}()
-    env.heap = PriorityQueue()
+    env.heap = PriorityQueue{Event, EventID}()
     env.eid = 0
     return env
   end
@@ -72,21 +61,15 @@ type Interrupt <: Exception
   end
 end
 
-function Event(env::Environment)
-  ev = Event()
-  ev.env = env
-  return ev
-end
-
 function Timeout(env::Environment, delay::Float64)
-  ev = Event(env)
+  ev = Event()
   schedule(env, ev, delay)
   return ev
 end
 
 function Process(env::Environment, name::ASCIIString, func::Function, args...)
   proc = Process(name, Task(()->func(env, args...)))
-  proc.ev = Event(env)
+  proc.ev = Event()
   proc.execute = (env, ev)->execute(env, ev, proc)
   ev = Event()
   push!(ev.callbacks, proc.execute)
@@ -159,12 +142,12 @@ function schedule(env::Environment, ev::Event, value=nothing)
   schedule(env, ev, false, 0.0, value)
 end
 
-function succeed(ev::Event, value=nothing)
-  schedule(ev.env, ev, value)
+function succeed(env::Environment, ev::Event, value=nothing)
+  schedule(env, ev, value)
 end
 
-function fail(ev::Event, exc::Exception)
-  schedule(ev.env, ev, exc)
+function fail(env::Environment, ev::Event, exc::Exception)
+  schedule(env, ev, exc)
 end
 
 function run(env::Environment)
@@ -224,12 +207,12 @@ function execute(env::Environment, ev::Event, proc::Process)
   end
 end
 
-function yield(ev::Event)
+function yield(env::Environment, ev::Event)
   if processed(ev)
     throw(EventProcessed())
   end
-  ev.env.active_proc.target = ev
-  push!(ev.callbacks, ev.env.active_proc.execute)
+  env.active_proc.target = ev
+  push!(ev.callbacks, env.active_proc.execute)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)
@@ -237,19 +220,20 @@ function yield(ev::Event)
   return value
 end
 
-function yield(proc::Process)
-  return yield(proc.ev)
+function hold(env::Environment, delay::Float64)
+  ev = Timeout(env, delay)
+  return yield(env, ev)
 end
 
-function yield(cond::Condition)
-
+function wait(env::Environment, proc::Process)
+  return yield(env, proc.ev)
 end
 
-function interrupt(proc::Process, msg::ASCIIString="")
-  if !istaskdone(proc.task) && proc!=proc.ev.env.active_proc
-    ev = Event(proc.ev.env)
+function interrupt(env::Environment, proc::Process, msg::ASCIIString="")
+  if !istaskdone(proc.task) && proc!=env.active_proc
+    ev = Event()
     push!(ev.callbacks, proc.execute)
-    schedule(proc.ev.env, ev, true, Interrupt(proc.ev.env.active_proc, msg))
+    schedule(env, ev, true, Interrupt(env.active_proc, msg))
     delete!(proc.target.callbacks, proc.execute)
   end
 end
