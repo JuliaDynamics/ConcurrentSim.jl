@@ -35,13 +35,17 @@ end
 
 type Environment
   now :: Float64
-  heap :: PriorityQueue
+  heap :: PriorityQueue{Event, EventID}
   eid :: Uint16
   active_proc :: Process
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.now = initial_time
-    env.heap = PriorityQueue()
+    if VERSION >= v"0.4-"
+      env.heap = PriorityQueue(Event, EventID)
+    else
+      env.heap = PriorityQueue{Event, EventID}()
+    end
     env.eid = 0
     return env
   end
