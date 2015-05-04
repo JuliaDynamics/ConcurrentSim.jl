@@ -5,7 +5,7 @@ function fib(env::Environment, a=1, b=1)
   while a < 10
     println("At time $(now(env)) the value of $(active_process(env)) is $b")
     try
-      hold(env, 3.0)
+      yield(env, 3.0)
     catch exc
       if isa(exc, Interrupt)
         println("At time $(now(env)) an interrupt occured")
@@ -22,16 +22,16 @@ end
 
 function interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event)
   while true
-    hold(env, when)
+    yield(env, when)
     interrupt(env, proc)
-    hold(env, when)
+    yield(env, when)
     fail(env, ev, ErrorException("Failed event"))
   end
 end
 
 function wait_fib(env::Environment, proc::Process, ev::Event)
   println("Start waiting at $(now(env))")
-  value = wait(env, proc)
+  value = yield(env, proc)
   println("Value is $value")
   println("Stop waiting at $(now(env))")
   try
@@ -42,7 +42,7 @@ function wait_fib(env::Environment, proc::Process, ev::Event)
 end
 
 function ev_too_late(env::Environment, ev::Event, when::Float64)
-  hold(env, when)
+  yield(env, when)
   println("Processed: $(processed(ev))")
   try
     value = yield(env, ev)
@@ -55,7 +55,7 @@ end
 function die(env::Environment, proc::Process)
   try
     println("I wait for a died process")
-    value = wait(env, proc)
+    value = yield(env, proc)
   catch exc
     println("I received a died process")
     rethrow(exc)

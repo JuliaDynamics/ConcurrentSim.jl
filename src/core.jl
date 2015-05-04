@@ -33,6 +33,16 @@ type Process
   end
 end
 
+type Condition
+  check :: Function
+  ev :: Event
+  function Condition(check::Function)
+    cond = new()
+    cond.check = check
+    cond.ev = Event()
+  end
+end
+
 type Environment
   now :: Float64
   heap :: PriorityQueue{Event, EventID}
@@ -224,13 +234,17 @@ function yield(env::Environment, ev::Event)
   return value
 end
 
-function hold(env::Environment, delay::Float64)
+function yield(env::Environment, delay::Float64)
   ev = Timeout(env, delay)
   return yield(env, ev)
 end
 
-function wait(env::Environment, proc::Process)
+function yield(env::Environment, proc::Process)
   return yield(env, proc.ev)
+end
+
+function yield(env:Environment, cond::Condition)
+  return yield(env, cond.ev)
 end
 
 function interrupt(env::Environment, proc::Process, msg::ASCIIString="")
@@ -240,4 +254,14 @@ function interrupt(env::Environment, proc::Process, msg::ASCIIString="")
     schedule(env, ev, true, Interrupt(env.active_proc, msg))
     delete!(proc.target.callbacks, proc.execute)
   end
+end
+
+function check_and()
+
+end
+
+function and(ev1::Event, ev2::Event)
+  cond = Condition()
+
+  return cond
 end
