@@ -3,7 +3,7 @@ using Base.Test
 
 function fib(env::Environment, a=1, b=1)
   while a < 10
-    println("At time $(now(env)) the value of $(active_process(env)) is $b")
+    println("At time $(now(env)) the value is $b")
     try
       yield(env, 3.0)
     catch exc
@@ -64,12 +64,12 @@ end
 
 env = Environment()
 ev = Event()
-proc = Process(env, "Fibonnaci", fib)
-proc2 = Process(env, "Fibonnaci2", fib, 2, 3)
-proc_interrupt = Process(env, "Interrupt Fibonnaci", interrupt_fib, proc, 4.0, ev)
-proc_wait = Process(env, "Wait Fibonnaci", wait_fib, proc, ev)
-proc_too_late = Process(env, "Too late", ev_too_late, ev, 16.0)
-proc_die = Process(env, "Die", die, proc_too_late)
+proc = Process(env, fib)
+proc2 = Process(env, fib, 2, 3)
+proc_interrupt = Process(env, interrupt_fib, proc, 4.0, ev)
+proc_wait = Process(env, wait_fib, proc, ev)
+proc_too_late = Process(env, ev_too_late, ev, 16.0)
+proc_die = Process(env, die, proc_too_late)
 try
   run(env, 20.0)
 catch exc

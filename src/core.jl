@@ -20,14 +20,12 @@ end
 typealias Timeout Event
 
 type Process
-  name :: ASCIIString
   task :: Task
   target :: Event
   ev :: Event
   execute :: Function
-  function Process(name::ASCIIString, task::Task)
+  function Process(task::Task)
     proc = new()
-    proc.name = name
     proc.task = task
     return proc
   end
@@ -81,8 +79,8 @@ function Timeout(env::Environment, delay::Float64)
   return ev
 end
 
-function Process(env::Environment, name::ASCIIString, func::Function, args...)
-  proc = Process(name, Task(()->func(env, args...)))
+function Process(env::Environment, func::Function, args...)
+  proc = Process(Task(()->func(env, args...)))
   proc.ev = Event()
   proc.execute = (env, ev)->execute(env, ev, proc)
   ev = Event()
@@ -97,7 +95,7 @@ function show(io::IO, ev::Event)
 end
 
 function show(io::IO, proc::Process)
-  print(io, "Process $(proc.name)")
+  print(io, "Process $(proc.execute)")
 end
 
 function show(io::IO, inter::Interrupt)
