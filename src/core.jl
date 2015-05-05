@@ -243,7 +243,7 @@ function yield(env::Environment, proc::Process)
   return yield(env, proc.ev)
 end
 
-function yield(env:Environment, cond::Condition)
+function yield(env::Environment, cond::Condition)
   return yield(env, cond.ev)
 end
 
