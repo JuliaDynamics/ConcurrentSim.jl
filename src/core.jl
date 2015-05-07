@@ -17,6 +17,7 @@ type Event
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
+    ev.id = 0
     ev.state = 0
     return ev
   end
@@ -218,7 +219,6 @@ function step(env::Environment)
     callback(ev)
   end
   ev.state = EVENT_PROCESSED
-  ev.callbacks = Set{Function}()
 end
 
 function stop_simulate(env::Environment, ev::Event)
