@@ -6,6 +6,7 @@ module SimJulia
   export Environment, Event, Timeout, Process, Condition, Interrupt
   export run, succeed, fail, yield
   export triggered, processed
-  export now, add, value, cause
+  export now, append_callback, value, cause
+  export and
   include("core.jl")
 end

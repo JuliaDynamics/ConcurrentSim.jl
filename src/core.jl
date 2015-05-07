@@ -1,18 +1,23 @@
 using Base.Collections
 
-type EventID
+type EventKey
   time :: Float64
   priority :: Bool
   id :: Uint16
 end
 
+const EVENT_TRIGGERED = 1
+const EVENT_PROCESSED = 2
+
 type Event
-  callbacks :: Set
-  ev_id :: EventID
-  value
+  callbacks :: Set{Function}
+  id :: Uint16
+  value :: Any
+  state :: Uint16
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
+    ev.state = 0
     return ev
   end
 end
@@ -32,27 +37,30 @@ type Process
 end
 
 type Condition
-  check :: Function
+  evaluate :: Function
+  events :: Vector{Event}
   ev :: Event
-  function Condition(check::Function)
+  function Condition(evaluate::Function, events::Vector{Event})
     cond = new()
-    cond.check = check
+    cond.evaluate = evaluate
+    cond.events = events
     cond.ev = Event()
+    return cond
   end
 end
 
 type Environment
   now :: Float64
-  heap :: PriorityQueue{Event, EventID}
+  heap :: PriorityQueue{Event, EventKey}
   eid :: Uint16
   active_proc :: Process
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.now = initial_time
     if VERSION >= v"0.4-"
-      env.heap = PriorityQueue(Event, EventID)
+      env.heap = PriorityQueue(Event, EventKey)
     else
-      env.heap = PriorityQueue{Event, EventID}()
+      env.heap = PriorityQueue{Event, EventKey}()
     end
     env.eid = 0
     return env
@@ -82,7 +90,7 @@ end
 function Process(env::Environment, func::Function, args...)
   proc = Process(Task(()->func(env, args...)))
   proc.ev = Event()
-  proc.execute = (env, ev)->execute(env, ev, proc)
+  proc.execute = (ev)->execute(env, ev, proc)
   ev = Event()
   push!(ev.callbacks, proc.execute)
   schedule(env, ev, true)
@@ -90,12 +98,27 @@ function Process(env::Environment, func::Function, args...)
   return proc
 end
 
+function Condition(env::Environment, evaluate::Function, events::Vector{Event})
+  cond = Condition(evaluate, events)
+  if isempty(events)
+    succeed(env, cond.ev, condition_values(events))
+  end
+  for ev in events
+    if processed(ev)
+      check(cond, ev)
+    else
+      append_callback(env, ev, check, cond)
+    end
+  end
+  return cond
+end
+
 function show(io::IO, ev::Event)
-  print(io, "Event $(ev.ev_id.id)")
+  print(io, "Event $(ev.id)")
 end
 
 function show(io::IO, proc::Process)
-  print(io, "Process $(proc.execute)")
+  print(io, "Process $(proc.task)")
 end
 
 function show(io::IO, inter::Interrupt)
@@ -106,39 +129,36 @@ function now(env::Environment)
   return env.now
 end
 
-function add(ev::Event, callback::Function)
-  push!(ev.callbacks, callback)
+function append_callback(env::Environment, ev::Event, callback::Function, args...)
+  push!(ev.callbacks, (event)->callback(env, event, args...))
 end
 
 function value(ev::Event)
   return ev.value
 end
 
-function active_process(env::Environment)
-  return env.active_proc
-end
-
 function cause(inter::Interrupt)
   return inter.cause
 end
 
-function isless(a::EventID, b::EventID)
+function isless(a::EventKey, b::EventKey)
 	return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
 
 function triggered(ev::Event)
-  return isdefined(ev, :value)
+  return ev.state == EVENT_TRIGGERED
 end
 
 function processed(ev::Event)
-  return isdefined(ev, :value) && isa(ev.callbacks, Set{Nothing})
+  return ev.state == EVENT_PROCESSED
 end
 
 function schedule(env::Environment, ev::Event, priority::Bool, delay::Float64, value=nothing)
   env.eid += 1
-  ev.ev_id = EventID(env.now + delay, priority, env.eid)
-  env.heap[ev] = ev.ev_id
+  env.heap[ev] = EventKey(env.now + delay, priority, env.eid)
+  ev.id = env.eid
   ev.value = value
+  ev.state = EVENT_TRIGGERED
   return ev
 end
 
@@ -174,7 +194,7 @@ function run(env::Environment, at::Float64)
 end
 
 function run(env::Environment, until::Event)
-  push!(until.callbacks, stop_simulate)
+  append_callback(env, until, stop_simulate)
   try
     while true
       step(env)
@@ -190,13 +210,15 @@ function step(env::Environment)
   if isempty(env.heap)
     throw(EmptySchedule())
   end
-  ev = dequeue!(env.heap)
-  env.now = ev.ev_id.time
+  (ev, key) = peek(env.heap)
+  dequeue!(env.heap)
+  env.now = key.time
   while !isempty(ev.callbacks)
     callback = pop!(ev.callbacks)
-    callback(env, ev)
+    callback(ev)
   end
-  ev.callbacks = Set{Nothing}()
+  ev.state = EVENT_PROCESSED
+  ev.callbacks = Set{Function}()
 end
 
 function stop_simulate(env::Environment, ev::Event)
@@ -254,12 +276,30 @@ function interrupt(env::Environment, proc::Process, msg::ASCIIString="")
   end
 end
 
-function check_and()
-
+function condition_values(events::Vector{Event})
+  values = Dict{Event, Any}()
+  for ev in events
+    if processed(ev)
+      values[ev] = ev.value
+    end
+  end
 end
 
-function and(ev1::Event, ev2::Event)
-  cond = Condition()
+function check(env::Environment, ev::Event, cond::Condition)
+  if !triggered(cond.ev) && !processed(cond.ev)
+    if isa(ev.value, Exception)
+      fail(env, cond.ev, ev.value)
+    elseif cond.evaluate(cond.events)
+      succeed(env, cond.ev, condition_values)
+    end
+  end
+end
 
+function evaluate_and(events::Vector{Event})
+  return all(map((ev)->triggered(ev), events))
+end
+
+function and(env, ev1::Event, ev2::Event)
+  cond = SimJulia.Condition(env, evaluate_and, [ev1, ev2])
   return cond
 end
