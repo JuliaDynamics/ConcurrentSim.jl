@@ -290,7 +290,7 @@ function check(env::Environment, ev::Event, cond::Condition)
     if isa(ev.value, Exception)
       fail(env, cond.ev, ev.value)
     elseif cond.evaluate(cond.events)
-      succeed(env, cond.ev, condition_values)
+      succeed(env, cond.ev, condition_values(cond.events))
     end
   end
 end
