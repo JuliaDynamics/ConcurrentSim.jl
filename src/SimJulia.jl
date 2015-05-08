@@ -8,5 +8,5 @@ module SimJulia
   export triggered, processed
   export now, append_callback, value, cause
   export and
-  include("core.jl")
+  include("core_old.jl")
 end
