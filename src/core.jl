@@ -1,19 +1,7 @@
 using Base.Collections
 
-type EventKey
-  time :: Float64
-  priority :: Bool
-  id :: Uint16
-end
-
-const EVENT_TRIGGERED = 1
-const EVENT_PROCESSED = 2
-
 type Event
-  callbacks :: Set{Function}
-  id :: Uint16
-  value :: Any
-  state :: Uint16
+  ev :: BaseEvent
   function Event()
     ev = new()
     ev.callbacks = Set{Function}()
