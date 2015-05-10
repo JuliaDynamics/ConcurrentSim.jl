@@ -1,12 +1,12 @@
 using Base.Collections
 
 type Event
-  ev :: BaseEvent
-  function Event()
+  kev :: KernelEvent
+  sched :: Scheduler
+  function Event(sched::Scheduler)
     ev = new()
-    ev.callbacks = Set{Function}()
-    ev.id = 0
-    ev.state = 0
+    ev.kev = KernelEvent()
+    ev.sched = sched
     return ev
   end
 end
@@ -15,42 +15,44 @@ typealias Timeout Event
 
 type Process
   task :: Task
-  target :: Event
-  ev :: Event
+  target :: KernelEvent
+  kev :: KernelEvent
   execute :: Function
-  function Process(task::Task)
+  sched :: Scheduler
+  function Process(task::Task, execute::Function, sched::Scheduler)
     proc = new()
     proc.task = task
+    proc.kev = KernelEvent()
+    proc.execute = execute
+    proc.sched = sched
     return proc
   end
 end
 
 type Condition
   evaluate :: Function
-  events :: Vector{Event}
-  ev :: Event
-  function Condition(evaluate::Function, events::Vector{Event})
+  kevents :: Vector{Event}
+  kev :: Event
+  sched :: Scheduler
+  function Condition(evaluate::Function, kevents::Vector{KernelEvent}, sched::Scheduler)
     cond = new()
     cond.evaluate = evaluate
-    cond.events = events
-    cond.ev = Event()
+    cond.kevents = kevents
+    cond.kev = KernelEvent()
+    cond.sched = sched
     return cond
   end
 end
 
 type Environment
   now :: Float64
-  heap :: PriorityQueue{Event, EventKey}
+  sched :: Scheduler
   eid :: Uint16
   active_proc :: Process
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.now = initial_time
-    if VERSION >= v"0.4-"
-      env.heap = PriorityQueue(Event, EventKey)
-    else
-      env.heap = PriorityQueue{Event, EventKey}()
-    end
+    env.sched = Scheduler()
     env.eid = 0
     return env
   end

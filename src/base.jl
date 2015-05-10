@@ -9,12 +9,12 @@ type EventKey
   id :: Uint16
 end
 
-type BaseEvent
+type KernelEvent
   callbacks :: Set{Function}
   id :: Uint16
   value :: Any
   state :: Uint16
-  function BaseEvent()
+  function KernelEvent()
     ev = new()
     ev.callbacks = Set{Function}()
     ev.id = 0
