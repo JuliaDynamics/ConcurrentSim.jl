@@ -3,7 +3,7 @@ using SimJulia
 function clock(env::Environment, name::ASCIIString, tick::Float64)
   while true
     println("$name $(now(env))")
-    yield(env, tick)
+    yield(Timeout(env, tick))
   end
 end
 

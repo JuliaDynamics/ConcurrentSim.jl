@@ -1,13 +1,13 @@
 using SimJulia
 using Base.Test
 
-function fib(env::Environment, a=1, b=1)
+function fib(env::BaseEnvironment, a=1, b=1)
   while a < 10
     println("At time $(now(env)) the value is $b")
     try
-      yield(env, 3.0)
+      yield(Timeout(env, 3.0))
     catch exc
-      if isa(exc, Interrupt)
+      if isa(exc, SimJulia.InterruptException)
         println("At time $(now(env)) an interrupt occured")
         println(exc)
         println(cause(exc))
@@ -20,42 +20,45 @@ function fib(env::Environment, a=1, b=1)
   end
 end
 
-function interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event)
+function interrupt_fib(env::BaseEnvironment, proc::Process, when::Float64, ev::Event)
   while true
-    yield(env, when)
-    interrupt(env, proc)
-    yield(env, when)
-    fail(env, ev, ErrorException("Failed event"))
+    yield(Timeout(env, when))
+    println("Before interrupt")
+    yield(Interrupt(env, proc))
+    #interrupt(env, proc)
+    println("After interrupt")
+    yield(Timeout(env, when))
+    fail(ev, ErrorException("Failed event"))
   end
 end
 
-function wait_fib(env::Environment, proc::Process, ev::Event)
+function wait_fib(env::BaseEnvironment, proc::Process, ev::Event)
   println("Start waiting at $(now(env))")
-  value = yield(env, proc)
+  value = yield(proc)
   println("Value is $value")
   println("Stop waiting at $(now(env))")
   try
-    yield(env, ev)
+    yield(ev)
   catch exc
     println(exc)
   end
 end
 
-function ev_too_late(env::Environment, ev::Event, when::Float64)
-  yield(env, when)
+function ev_too_late(env::BaseEnvironment, ev::Event, when::Float64)
+  yield(Timeout(env, when))
   println("Processed: $(processed(ev))")
   try
-    value = yield(env, ev)
+    value = yield(ev)
   catch exc
     println(exc)
     rethrow(exc)
   end
 end
 
-function die(env::Environment, proc::Process)
+function die(env::BaseEnvironment, proc::Process)
   try
     println("I wait for a died process")
-    value = yield(env, proc)
+    value = yield(proc)
   catch exc
     println("I received a died process")
     rethrow(exc)
@@ -63,7 +66,7 @@ function die(env::Environment, proc::Process)
 end
 
 env = Environment()
-ev = Event()
+ev = Event(env)
 proc = Process(env, fib)
 proc2 = Process(env, fib, 2, 3)
 proc_interrupt = Process(env, interrupt_fib, proc, 4.0, ev)

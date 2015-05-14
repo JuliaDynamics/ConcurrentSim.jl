@@ -1,8 +1,8 @@
 using SimJulia
 
 function driver(env::Environment, car_proc::Process)
-  yield(env, 3.0)
-  interrupt(env, car_proc)
+  yield(Timeout(env, 3.0))
+  yield(Interrupt(env, car_proc))
 end
 
 function car(env::Environment)
@@ -11,20 +11,20 @@ function car(env::Environment)
     charge_duration = 5.0
     charge_proc = Process(env, charge, charge_duration)
     try
-      yield(env, charge_proc)
+      yield(charge_proc)
     catch exc
-      if isa(exc, Interrupt)
+      if isa(exc, SimJulia.InterruptException)
         println("Was interrupted. Hope, the battery is full enough ...")
       end
     end
     println("Start driving at $(now(env))")
     trip_duration = 2.0
-    yield(env, trip_duration)
+    yield(Timeout(env, trip_duration))
   end
 end
 
 function charge(env::Environment, duration::Float64)
-  yield(env, duration)
+  yield(Timeout(env, duration))
 end
 
 env = Environment()

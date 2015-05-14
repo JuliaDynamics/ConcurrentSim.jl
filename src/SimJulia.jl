@@ -3,10 +3,11 @@ module SimJulia
   if VERSION >= v"0.4-"
     import Base.now
   end
-  export Environment, Event, Timeout, Process, Condition, Interrupt
+  export BaseEvent, BaseEnvironment
+  export Environment, Event, Timeout, Process, Condition, Interrupt, InterruptException
   export run, succeed, fail, yield
   export triggered, processed
   export now, append_callback, value, cause
-  export and
-  include("core_old.jl")
+  export (&), (|)
+  include("core.jl")
 end

@@ -1,14 +1,14 @@
 using SimJulia
 
-function car(env::Environment)
+function car(env::BaseEnvironment)
   while true
     println("Start parking at $(now(env))")
     parking_duration = 5.0
-    yield(env, parking_duration)
+    yield(Timeout(env, parking_duration))
 
     println("Start driving at $(now(env))")
     trip_duration = 2.0
-    yield(env, trip_duration)
+    yield(Timeout(env, trip_duration))
   end
 end
 
