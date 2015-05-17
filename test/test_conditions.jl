@@ -25,7 +25,7 @@ function test_conditions(env::Environment, ev::Event)
   println("Time is $(now(env))")
 end
 
-function fail_ev(env::Environment, ev::Event)
+function failure_ev(env::Environment, ev::Event)
   yield(Timeout(env, 4.0))
   fail(ev, ErrorException("Failure"))
 end
@@ -35,5 +35,5 @@ events = BaseEvent[Timeout(env, 1.0)]
 cond = SimJulia.Condition(env, evaluate, events)
 ev = Event(env)
 Process(env, test_conditions, ev)
-Process(env, fail_ev, ev)
+Process(env, failure_ev, ev)
 run(env, 20.0)
