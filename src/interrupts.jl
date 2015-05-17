@@ -26,3 +26,7 @@ end
 function show(io::IO, inter::InterruptException)
   print(io, "Interrupt caused by $(inter.cause): $(inter.msg)")
 end
+
+function cause(inter::InterruptException)
+  return inter.cause
+end

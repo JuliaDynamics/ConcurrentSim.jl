@@ -29,6 +29,11 @@ function interrupt_fib(env::BaseEnvironment, proc::Process, when::Float64, ev::E
     println("After interrupt")
     yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))
+    try
+      yield(ev)
+    catch exc
+      println(exc)
+    end
   end
 end
 

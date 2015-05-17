@@ -103,10 +103,6 @@ function value(ev::BaseEvent)
   return ev.value
 end
 
-function cause(inter::InterruptException)
-  return inter.cause
-end
-
 function schedule(ev::BaseEvent, priority::Bool, delay::Float64, value=nothing)
   ev.env.eid += 1
   ev.id = ev.env.eid
