@@ -3,19 +3,6 @@ using Base.Collections
 const EVENT_TRIGGERED = 1
 const EVENT_PROCESSED = 2
 
-abstract BaseEvent
-abstract BaseEnvironment
-
-type EventKey
-  time :: Float64
-  priority :: Bool
-  id :: Uint16
-end
-
-function isless(a::EventKey, b::EventKey)
-	return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
-end
-
 type Event <: BaseEvent
   env :: BaseEnvironment
   callbacks :: Set{Function}
@@ -33,8 +20,6 @@ type Event <: BaseEvent
 end
 
 typealias Timeout Event
-typealias Interrupt Event
-typealias Condition Event
 
 type Process <: BaseEvent
   env :: BaseEnvironment
@@ -74,9 +59,13 @@ type Environment <: BaseEnvironment
   end
 end
 
-function Timeout(env::BaseEnvironment, delay::Float64)
+type EmptySchedule <: Exception end
+
+type EventProcessed <: Exception end
+
+function Timeout(env::BaseEnvironment, delay::Float64, value=nothing)
   ev = Event(env)
-  schedule(ev, delay)
+  schedule(ev, delay, value)
   return ev
 end
 
@@ -90,56 +79,12 @@ function Process(env::BaseEnvironment, func::Function, args...)
   return proc
 end
 
-function Interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
-  inter = Event(env)
-  if !istaskdone(proc.task) && proc!=env.active_proc
-    ev = Event(env)
-    push!(ev.callbacks, proc.execute)
-    schedule(ev, true, InterruptException(env.active_proc, msg))
-    delete!(proc.target.callbacks, proc.execute)
-  end
-  schedule(inter)
-  return inter
-end
-
-function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
-  cond = Event(env)
-  if isempty(events)
-    succeed(cond, condition_values(events))
-  end
-  for ev in events
-    if processed(ev)
-      check(ev, cond, eval, events)
-    else
-      append_callback(ev, check, cond, eval, events)
-    end
-  end
-  return cond
-end
-
-type EmptySchedule <: Exception end
-type EventProcessed <: Exception end
-type InterruptException <: Exception
-  cause :: Process
-  msg :: ASCIIString
-  function InterruptException(cause::Process, msg::ASCIIString)
-    inter = new()
-    inter.cause = cause
-    inter.msg = msg
-    return inter
-  end
-end
-
 function show(io::IO, ev::Event)
   print(io, "Event id $(ev.id)")
 end
 
 function show(io::IO, proc::Process)
   print(io, "Process $(proc.task)")
-end
-
-function show(io::IO, inter::InterruptException)
-  print(io, "Interrupt caused by $(inter.cause): $(inter.msg)")
 end
 
 function triggered(ev::BaseEvent)
@@ -180,15 +125,6 @@ end
 
 function schedule(ev::BaseEvent, value=nothing)
   schedule(ev, false, 0.0, value)
-end
-
-function condition_values(events::Vector{BaseEvent})
-  values = Dict{BaseEvent, Any}()
-  for ev in events
-    if processed(ev)
-      values[ev] = ev.value
-    end
-  end
 end
 
 function append_callback(ev::BaseEvent, callback::Function, args...)
@@ -272,32 +208,4 @@ function yield(ev::BaseEvent)
     throw(value)
   end
   return value
-end
-
-function check(ev::BaseEvent, cond::Condition, eval::Function, events::Vector{BaseEvent})
-  if !triggered(cond) && !processed(cond)
-    if isa(ev.value, Exception)
-      fail(cond, ev.value)
-    elseif eval(events)
-      succeed(cond, condition_values(events))
-    end
-  end
-end
-
-function eval_and(events::Vector{BaseEvent})
-  return all(map((ev)->processed(ev), events))
-end
-
-function eval_or(events::Vector{BaseEvent})
-  return any(map((ev)->processed(ev), events))
-end
-
-function (&)(ev1::BaseEvent, ev2::BaseEvent)
-  events = BaseEvent[ev1, ev2]
-  return Condition(ev1.env, eval_and, events)
-end
-
-function (|)(ev1::BaseEvent, ev2::BaseEvent)
-  events = BaseEvent[ev1, ev2]
-  return Condition(ev1.env, eval_or, events)
 end
