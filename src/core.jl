@@ -20,37 +20,30 @@ type Event <: BaseEvent
 end
 
 type Process <: BaseEvent
-  env :: BaseEnvironment
   task :: Task
   target :: BaseEvent
-  callbacks :: Set{Function}
-  state :: Uint16
-  id :: Uint16
-  value :: Any
+  ev :: Event
   execute :: Function
   function Process(env::BaseEnvironment, task::Task)
     proc = new()
-    proc.env = env
     proc.task = task
-    proc.callbacks = Set{Function}()
-    proc.state = 0
-    proc.id = 0
+    proc.ev = Event(env)
     return proc
   end
 end
 
 type Environment <: BaseEnvironment
   time :: Float64
-  sched :: PriorityQueue{BaseEvent, EventKey}
+  sched :: PriorityQueue{Event, EventKey}
   eid :: Uint16
   active_proc :: Process
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.time = initial_time
     if VERSION >= v"0.4-"
-      env.sched = PriorityQueue(BaseEvent, EventKey)
+      env.sched = PriorityQueue(Event, EventKey)
     else
-      env.sched = PriorityQueue{BaseEvent, EventKey}()
+      env.sched = PriorityQueue{Event, EventKey}()
     end
     env.eid = 0
     return env
@@ -85,23 +78,43 @@ function show(io::IO, proc::Process)
   print(io, "Process $(proc.task)")
 end
 
-function triggered(ev::BaseEvent)
+function triggered(ev::Event)
   return ev.state == EVENT_TRIGGERED
 end
 
-function processed(ev::BaseEvent)
+function triggered(ev::BaseEvent)
+  return triggered(ev.ev)
+end
+
+function processed(ev::Event)
   return ev.state == EVENT_PROCESSED
+end
+
+function processed(ev::BaseEvent)
+  return processed(ev.ev)
 end
 
 function now(env::BaseEnvironment)
   return env.time
 end
 
-function value(ev::BaseEvent)
+function value(ev::Event)
   return ev.value
 end
 
-function schedule(ev::BaseEvent, priority::Bool, delay::Float64, value=nothing)
+function value(ev::BaseEvent)
+  return value(ev.ev)
+end
+
+function environment(ev::Event)
+  return ev.env
+end
+
+function environment(ev::BaseEvent)
+  return environment(ev.ev)
+end
+
+function schedule(ev::Event, priority::Bool, delay::Float64, value=nothing)
   ev.env.eid += 1
   ev.id = ev.env.eid
   ev.env.sched[ev] = EventKey(ev.env.time + delay, priority, ev.id)
@@ -109,20 +122,24 @@ function schedule(ev::BaseEvent, priority::Bool, delay::Float64, value=nothing)
   ev.state = EVENT_TRIGGERED
 end
 
-function schedule(ev::BaseEvent, priority::Bool, value=nothing)
+function schedule(ev::Event, priority::Bool, value=nothing)
   schedule(ev, priority, 0.0, value)
 end
 
-function schedule(ev::BaseEvent, delay::Float64, value=nothing)
+function schedule(ev::Event, delay::Float64, value=nothing)
   schedule(ev, false, delay, value)
 end
 
-function schedule(ev::BaseEvent, value=nothing)
+function schedule(ev::Event, value=nothing)
   schedule(ev, false, 0.0, value)
 end
 
-function append_callback(ev::BaseEvent, callback::Function, args...)
+function append_callback(ev::Event, callback::Function, args...)
   push!(ev.callbacks, (ev)->callback(ev, args...))
+end
+
+function append_callback(ev::BaseEvent, callback::Function, args...)
+  push!(ev.ev.callbacks, (ev)->callback(ev, args...))
 end
 
 function succeed(ev::Event, value=nothing)
@@ -171,27 +188,27 @@ function step(env::Environment)
   end
 end
 
-function stop_simulate(ev::BaseEvent)
+function stop_simulate(ev::Event)
   throw(EmptySchedule())
 end
 
-function execute(env::BaseEnvironment, ev::BaseEvent, proc::Process)
+function execute(env::BaseEnvironment, ev::Event, proc::Process)
   env.active_proc = proc
   try
     value = consume(proc.task, ev.value)
     if istaskdone(proc.task)
-      schedule(proc, value)
+      schedule(proc.ev, value)
     end
   catch exc
-    if !isempty(proc.callbacks)
-      schedule(proc, exc)
+    if !isempty(proc.ev.callbacks)
+      schedule(proc.ev, exc)
     else
       rethrow(exc)
     end
   end
 end
 
-function yield(ev::BaseEvent)
+function yield(ev::Event)
   if processed(ev)
     throw(EventProcessed())
   end
@@ -202,4 +219,8 @@ function yield(ev::BaseEvent)
     throw(value)
   end
   return value
+end
+
+function yield(ev::BaseEvent)
+  return yield(ev.ev)
 end

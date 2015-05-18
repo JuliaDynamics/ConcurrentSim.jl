@@ -25,7 +25,7 @@ function condition_values(events::Vector{BaseEvent})
   values = Dict{BaseEvent, Any}()
   for ev in events
     if processed(ev)
-      values[ev] = ev.value
+      values[ev] = value(ev)
     end
   end
   return values
@@ -33,8 +33,8 @@ end
 
 function check(ev::BaseEvent, cond::Event, eval::Function, events::Vector{BaseEvent})
   if !triggered(cond) && !processed(cond)
-    if isa(ev.value, Exception)
-      fail(cond, ev.value)
+    if isa(value(ev), Exception)
+      fail(cond, value(ev))
     elseif eval(events)
       succeed(cond, condition_values(events))
     end
@@ -51,10 +51,10 @@ end
 
 function (&)(ev1::BaseEvent, ev2::BaseEvent)
   events = BaseEvent[ev1, ev2]
-  return Condition(ev1.env, eval_and, events)
+  return Condition(environment(ev1), eval_and, events)
 end
 
 function (|)(ev1::BaseEvent, ev2::BaseEvent)
   events = BaseEvent[ev1, ev2]
-  return Condition(ev1.env, eval_or, events)
+  return Condition(environment(ev1), eval_or, events)
 end

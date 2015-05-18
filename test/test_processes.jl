@@ -11,6 +11,7 @@ function fib(env::Environment, a=1, b=1)
         println("At time $(now(env)) an interrupt occured")
         println(exc)
         println(cause(exc))
+        println(msg(exc))
         return "An interrupt occured"
       end
     end
@@ -24,7 +25,7 @@ function interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event
   while true
     yield(Timeout(env, when))
     println("Before interrupt")
-    yield(Interrupt(env, proc))
+    yield(Interrupt(env, proc, "My interrupt"))
     println("After interrupt")
     yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))

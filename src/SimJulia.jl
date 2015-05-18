@@ -7,9 +7,9 @@ module SimJulia
   export Environment, Event, Timeout, Process
   export Interrupt, InterruptException
   export Condition, AllOf, AnyOf
-  export run, succeed, fail, yield
-  export triggered, processed
-  export now, append_callback, value, cause
+  export run, now
+  export succeed, fail, yield, triggered, processed, value, append_callback, environment
+  export cause, msg
   export (&), (|)
   include("base.jl")
   include("core.jl")

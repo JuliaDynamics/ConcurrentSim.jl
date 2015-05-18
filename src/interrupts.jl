@@ -28,3 +28,7 @@ end
 function cause(inter::InterruptException)
   return inter.cause
 end
+
+function msg(inter::InterruptException)
+  return inter.msg
+end
