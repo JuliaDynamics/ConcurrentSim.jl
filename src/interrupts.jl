@@ -21,7 +21,7 @@ function Interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
   return inter
 end
 
-function show(io::IO, inter::InterruptException)
+function show(io::IO, inter::SimInterruptException)
   print(io, "Interrupt caused by $(inter.cause): $(inter.msg)")
 end
 

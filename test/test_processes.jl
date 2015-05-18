@@ -39,6 +39,7 @@ end
 
 function wait_fib(env::Environment, proc::Process, ev::Event)
   println("Start waiting at $(now(env))")
+  println("Is process triggered? $(triggered(proc))")
   value = yield(proc)
   println("Value is $value")
   println("Stop waiting at $(now(env))")
