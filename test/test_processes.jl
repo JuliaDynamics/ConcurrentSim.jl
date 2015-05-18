@@ -7,7 +7,7 @@ function fib(env::Environment, a=1, b=1)
     try
       yield(Timeout(env, 3.0))
     catch exc
-      if isa(exc, InterruptException)
+      if isa(exc, SimInterruptException)
         println("At time $(now(env)) an interrupt occured")
         println(exc)
         println(cause(exc))
