@@ -13,7 +13,7 @@ function car(env::Environment)
     try
       yield(charge_proc)
     catch exc
-      if isa(exc, SimJulia.InterruptException)
+      if isa(exc, InterruptException)
         println("Was interrupted. Hope, the battery is full enough ...")
       end
     end

@@ -1,7 +1,7 @@
 module SimJulia
   import Base.show, Base.isless, Base.interrupt, Base.yield, Base.run
   if VERSION >= v"0.4-"
-    import Base.now
+    import Base.now, Base.Condition, Base.InterruptException
   end
   export BaseEvent
   export Environment, Event, Timeout, Process

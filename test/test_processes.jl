@@ -7,7 +7,7 @@ function fib(env::Environment, a=1, b=1)
     try
       yield(Timeout(env, 3.0))
     catch exc
-      if isa(exc, SimJulia.InterruptException)
+      if isa(exc, InterruptException)
         println("At time $(now(env)) an interrupt occured")
         println(exc)
         println(cause(exc))
@@ -25,7 +25,6 @@ function interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event
     yield(Timeout(env, when))
     println("Before interrupt")
     yield(Interrupt(env, proc))
-    #interrupt(env, proc)
     println("After interrupt")
     yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))

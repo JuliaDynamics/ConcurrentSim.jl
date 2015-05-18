@@ -19,8 +19,6 @@ type Event <: BaseEvent
   end
 end
 
-typealias Timeout Event
-
 type Process <: BaseEvent
   env :: BaseEnvironment
   task :: Task

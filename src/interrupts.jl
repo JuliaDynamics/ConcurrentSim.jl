@@ -1,5 +1,3 @@
-typealias Interrupt Event
-
 type InterruptException <: Exception
   cause :: Process
   msg :: ASCIIString

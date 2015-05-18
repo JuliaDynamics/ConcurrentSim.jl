@@ -1,5 +1,3 @@
-typealias Condition Event
-
 function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
   cond = Event(env)
   if isempty(events)
@@ -33,7 +31,7 @@ function condition_values(events::Vector{BaseEvent})
   return values
 end
 
-function check(ev::BaseEvent, cond::Condition, eval::Function, events::Vector{BaseEvent})
+function check(ev::BaseEvent, cond::Event, eval::Function, events::Vector{BaseEvent})
   if !triggered(cond) && !processed(cond)
     if isa(ev.value, Exception)
       fail(cond, ev.value)

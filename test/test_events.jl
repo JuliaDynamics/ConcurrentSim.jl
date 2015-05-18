@@ -1,18 +1,18 @@
 using SimJulia
 using Base.Test
-function my_callback(ev::BaseEvent, succeed_ev::Event)
+function my_callback(ev::Event, succeed_ev::Event)
   println("Callback of $(ev)")
   println("Succeed is triggered: $(triggered(succeed_ev))")
   println("Succeed is processed: $(processed(succeed_ev))")
   succeed(succeed_ev, "Yes we can")
 end
 
-function my_callback2(ev::BaseEvent, fail_ev::Event)
+function my_callback2(ev::Event, fail_ev::Event)
   println("Callback of $(ev)")
   fail(fail_ev, ErrorException("No we can't"))
 end
 
-function succeed_callback(ev::BaseEvent)
+function succeed_callback(ev::Event)
   println("Succeed is triggered: $(triggered(ev))")
   println("Succeed is processed: $(processed(ev))")
   println(value(ev))

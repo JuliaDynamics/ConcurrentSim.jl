@@ -32,7 +32,7 @@ end
 
 env = Environment()
 events = BaseEvent[Timeout(env, 1.0)]
-cond = SimJulia.Condition(env, evaluate, events)
+cond = Condition(env, evaluate, events)
 ev = Event(env)
 Process(env, test_conditions, ev)
 Process(env, failure_ev, ev)
