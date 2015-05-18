@@ -1,7 +1,7 @@
 using SimJulia
 using Base.Test
 
-function fib(env::BaseEnvironment, a=1, b=1)
+function fib(env::Environment, a=1, b=1)
   while a < 10
     println("At time $(now(env)) the value is $b")
     try
@@ -20,7 +20,7 @@ function fib(env::BaseEnvironment, a=1, b=1)
   end
 end
 
-function interrupt_fib(env::BaseEnvironment, proc::Process, when::Float64, ev::Event)
+function interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event)
   while true
     yield(Timeout(env, when))
     println("Before interrupt")
@@ -37,7 +37,7 @@ function interrupt_fib(env::BaseEnvironment, proc::Process, when::Float64, ev::E
   end
 end
 
-function wait_fib(env::BaseEnvironment, proc::Process, ev::Event)
+function wait_fib(env::Environment, proc::Process, ev::Event)
   println("Start waiting at $(now(env))")
   value = yield(proc)
   println("Value is $value")
@@ -49,7 +49,7 @@ function wait_fib(env::BaseEnvironment, proc::Process, ev::Event)
   end
 end
 
-function ev_too_late(env::BaseEnvironment, ev::Event, when::Float64)
+function ev_too_late(env::Environment, ev::Event, when::Float64)
   yield(Timeout(env, when))
   println("Processed: $(processed(ev))")
   try
@@ -60,7 +60,7 @@ function ev_too_late(env::BaseEnvironment, ev::Event, when::Float64)
   end
 end
 
-function die(env::BaseEnvironment, proc::Process)
+function die(env::Environment, proc::Process)
   try
     println("I wait for a died process")
     value = yield(proc)

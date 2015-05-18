@@ -1,6 +1,6 @@
 using SimJulia
 
-function car(env::BaseEnvironment)
+function car(env::Environment)
   while true
     println("Start parking at $(now(env))")
     parking_duration = 5.0

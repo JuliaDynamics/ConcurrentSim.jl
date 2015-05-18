@@ -3,7 +3,7 @@ module SimJulia
   if VERSION >= v"0.4-"
     import Base.now
   end
-  export BaseEvent, BaseEnvironment
+  export BaseEvent
   export Environment, Event, Timeout, Process
   export Interrupt, InterruptException
   export Condition, AllOf, AnyOf
