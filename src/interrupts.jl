@@ -1,7 +1,7 @@
 type SimInterruptException <: Exception
   cause :: Process
-  msg :: ASCIIString
-  function SimInterruptException(cause::Process, msg::ASCIIString)
+  msg :: Any
+  function SimInterruptException(cause::Process, msg::Any)
     inter = new()
     inter.cause = cause
     inter.msg = msg
@@ -9,7 +9,7 @@ type SimInterruptException <: Exception
   end
 end
 
-function Interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
+function Interrupt(env::BaseEnvironment, proc::Process, msg::Any="")
   inter = Event(env)
   if !istaskdone(proc.task) && proc!=env.active_proc
     ev = Event(env)
