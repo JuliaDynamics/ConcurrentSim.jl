@@ -150,7 +150,7 @@ function fail(ev::Event, exc::Exception)
   schedule(ev, exc)
 end
 
-function run(env::Environment)
+function run(env::BaseEnvironment)
   ev = Event(env)
   run(env, ev)
 end
