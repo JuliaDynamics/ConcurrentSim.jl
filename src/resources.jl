@@ -1,6 +1,6 @@
 using Base.Order
 
-type ResourceValue
+type QueueElement
   ev :: Event
   proc :: Process
   preempt :: Bool
@@ -8,27 +8,36 @@ end
 
 type ResourceKey
   priority :: Int64
-  time :: Float64
+  id :: Uint16
+  usage_since :: Float64
+end
+
+type Preempt <: Exception
+  cause :: Process
+  id :: Uint16
+  usage_since :: Float64
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
-	return (a.priority < b.priority) || (a.priority == b.priority && a.time < b.time)
+	return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
 end
 
 type Resource
   env :: BaseEnvironment
-  capacity :: Int64
-  queue :: PriorityQueue{ResourceValue, ResourceKey}
+  eid :: Uint16
+  capacity :: Int
+  queue :: PriorityQueue{QueueElement, ResourceKey}
   user_list :: PriorityQueue{Process, ResourceKey}
-  function Resource(env::BaseEnvironment, capacity::Int64=1)
+  function Resource(env::BaseEnvironment, capacity::Int=1)
     res = new()
     res.env = env
+    res.eid = 0
     res.capacity = capacity
     if VERSION >= v"0.4-"
-      res.queue = PriorityQueue(ResourceValue, ResourceKey)
+      res.queue = PriorityQueue(QueueElement, ResourceKey)
       res.user_list = PriorityQueue(Process, ResourceKey, Order.Reverse)
     else
-      res.queue = PriorityQueue{ResourceValue, ResourceKey}()
+      res.queue = PriorityQueue{QueueElement, ResourceKey}()
       res.user_list = PriorityQueue{Process, ResourceKey}(Order.Reverse)
     end
     return res
@@ -37,7 +46,8 @@ end
 
 function request(res::Resource, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
-  res.queue[ResourceValue(ev, res.env.active_proc, preempt)] = ResourceKey(priority, now(res.env))
+  res.eid += 1
+  res.queue[QueueElement(ev, res.env.active_proc, preempt)] = ResourceKey(priority, res.eid, now(res.env))
   trigger_put(Event(res.env), res)
   return ev
 end
@@ -54,13 +64,14 @@ function trigger_put(ev::Event, res::Resource)
   if length(res.queue) > 0
     (val, key) = peek(res.queue)
     if length(res.user_list) >= res.capacity && val.preempt
-      (preempt, key_preempt) = peek(res.user_list)
+      (val_preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        interrupt(res.env, preempt, val.proc)
+        preempt(res.env, val_preempt, val.proc, key_preempt)
       end
     end
     if length(res.user_list) < res.capacity
+      key.usage_since = now(ev.env)
       res.user_list[val.proc] = key
       succeed(val.ev)
       dequeue!(res.queue)
@@ -69,7 +80,31 @@ function trigger_put(ev::Event, res::Resource)
 end
 
 function trigger_get(ev::Event, res::Resource, proc::Process)
-  res.user_list[proc] = ResourceKey(typemax(Int64), 0)
+  id::Uint16 = 0
+  res.user_list[proc] = ResourceKey(typemax(Int64), id, 0.0)
   dequeue!(res.user_list)
 end
 
+function preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
+  ev = Event(env)
+  push!(ev.callbacks, proc.execute)
+  schedule(ev, true, Preempt(cause, key.id, key.usage_since))
+  delete!(proc.target.callbacks, proc.execute)
+  schedule(Event(env))
+end
+
+function show(io::IO, pre::Preempt)
+  print(io, "Preempted by $(pre.cause): $(pre.id), $(pre.usage_since)")
+end
+
+function cause(pre::Preempt)
+  return pre.cause
+end
+
+function usage_since(pre::Preempt)
+  return pre.usage_since
+end
+
+function id(pre::Preempt)
+  return pre.id
+end

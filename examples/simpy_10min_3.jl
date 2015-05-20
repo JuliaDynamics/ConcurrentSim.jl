@@ -13,9 +13,7 @@ function car(env::Environment)
     try
       yield(charge_proc)
     catch exc
-      if isa(exc, SimInterruptException)
-        println("Was interrupted. Hope, the battery is full enough ...")
-      end
+      println("Was interrupted. Hope, the battery is full enough ...")
     end
     println("Start driving at $(now(env))")
     trip_duration = 2.0

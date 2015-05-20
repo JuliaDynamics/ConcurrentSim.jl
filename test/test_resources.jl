@@ -10,18 +10,17 @@ function generator(env::Environment, res::Resource, preempt::Bool)
   end
 end
 
-function handling(env::Environment, res::Resource, id::Int64, preempt::Bool)
+function handling(env::Environment, res::Resource, nr::Int64, preempt::Bool)
   try
-    println("Number $id requests handling at time $(now(env))")
-    yield(request(res, id, preempt))
-    println("Number $id starts handling at time $(now(env))")
+    println("Number $nr requests handling at time $(now(env))")
+    yield(request(res, nr, preempt))
+    println("Number $nr starts handling at time $(now(env))")
     yield(timeout(env, 2.25*rand()))
-    println("Number $id stops handling at time $(now(env))")
+    println("Number $nr stops handling at time $(now(env))")
     yield(release(res))
-    println("Number $id is released at time $(now(env))")
+    println("Number $nr is released at time $(now(env))")
   catch exc
-    println(exc)
-    println("Number $id request is interrupted at time $(now(env)) by $(cause(exc))")
+    println("Number $nr request is preempted at time $(now(env)) by $(cause(exc)) having id $(id(exc)) in use since $(usage_since(exc))")
   end
 
 end
