@@ -9,7 +9,7 @@ type SimInterruptException <: Exception
   end
 end
 
-function Interrupt(env::BaseEnvironment, proc::Process, cause::Process, msg::ASCIIString="")
+function interrupt(env::BaseEnvironment, proc::Process, cause::Process, msg::ASCIIString="")
   inter = Event(env)
   if !istaskdone(proc.task) && proc!=env.active_proc
     ev = Event(env)
@@ -21,8 +21,8 @@ function Interrupt(env::BaseEnvironment, proc::Process, cause::Process, msg::ASC
   return inter
 end
 
-function Interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
-  return Interrupt(env, proc, env.active_proc, msg)
+function interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
+  return interrupt(env, proc, env.active_proc, msg)
 end
 
 function show(io::IO, inter::SimInterruptException)

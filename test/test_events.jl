@@ -23,8 +23,8 @@ function fail_callback(ev::Event)
 end
 
 env = Environment()
-ev = Timeout(env, 1.0)
-ev2 = Timeout(env, 2.0)
+ev = timeout(env, 1.0)
+ev2 = timeout(env, 2.0)
 succeed_ev = Event(env)
 fail_ev = Event(env)
 append_callback(ev, my_callback, succeed_ev)

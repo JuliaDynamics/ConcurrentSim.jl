@@ -35,14 +35,14 @@ type Resource
   end
 end
 
-function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
+function request(res::Resource, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
   res.queue[ResourceValue(ev, res.env.active_proc, preempt)] = ResourceKey(priority, now(res.env))
   trigger_put(Event(res.env), res)
   return ev
 end
 
-function Release(res::Resource)
+function release(res::Resource)
   ev = Event(res.env)
   schedule(ev)
   append_callback(ev, (ev)->trigger_put(ev, res))
@@ -57,7 +57,7 @@ function trigger_put(ev::Event, res::Resource)
       (preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        Interrupt(res.env, preempt, val.proc)
+        interrupt(res.env, preempt, val.proc)
       end
     end
     if length(res.user_list) < res.capacity

@@ -5,20 +5,20 @@ function evaluate(events::Vector{BaseEvent})
 end
 
 function test_conditions(env::Environment, ev::Event, p :: Process)
-  ev1 = Timeout(env, 2.0)
-  ev2 = Timeout(env, 3.0)
-  ev3 = Timeout(env, 2.5)
+  ev1 = timeout(env, 2.0)
+  ev2 = timeout(env, 3.0)
+  ev3 = timeout(env, 2.5)
   println("Time is $(now(env))")
   println(keys(yield(ev1 & ev2 | ev3)))
   println("Time is $(now(env))")
-  println(keys(yield(AnyOf(env, BaseEvent[ev1]))))
+  println(keys(yield(any_of(env, BaseEvent[ev1]))))
   println("Time is $(now(env))")
-  println(keys(yield(AllOf(env, BaseEvent[ev1, ev2, ev3]))))
+  println(keys(yield(all_of(env, BaseEvent[ev1, ev2, ev3]))))
   println("Time is $(now(env))")
-  println(keys(yield(AnyOf(env, BaseEvent[]))))
+  println(keys(yield(any_of(env, BaseEvent[]))))
   println("Time is $(now(env))")
   try
-    yield(AllOf(env, BaseEvent[ev2, ev]))
+    yield(all_of(env, BaseEvent[ev2, ev]))
   catch exc
     println(exc)
   end
@@ -28,18 +28,18 @@ function test_conditions(env::Environment, ev::Event, p :: Process)
 end
 
 function failure_ev(env::Environment, ev::Event)
-  yield(Timeout(env, 4.0))
+  yield(timeout(env, 4.0))
   fail(ev, ErrorException("Failure"))
 end
 
 function proc_cond(env::Environment)
-  yield(Timeout(env, 5.0))
+  yield(timeout(env, 5.0))
   return "Hello World!"
 end
 
 env = Environment()
-events = BaseEvent[Timeout(env, 1.0)]
-cond = Condition(env, evaluate, events)
+events = BaseEvent[timeout(env, 1.0)]
+cond = condition(env, evaluate, events)
 ev = Event(env)
 p = Process(env, proc_cond)
 Process(env, test_conditions, ev, p)

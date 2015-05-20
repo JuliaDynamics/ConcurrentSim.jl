@@ -15,7 +15,7 @@ end
 
 function bell(env::Environment, school::School)
   for i=1:2
-    yield(Timeout(env, 45.0))
+    yield(timeout(env, 45.0))
     succeed(school.class_ends)
     school.class_ends = Event(env)
     println()

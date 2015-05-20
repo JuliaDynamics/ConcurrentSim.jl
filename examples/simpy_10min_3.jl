@@ -1,8 +1,8 @@
 using SimJulia
 
 function driver(env::Environment, car_proc::Process)
-  yield(Timeout(env, 3.0))
-  yield(Interrupt(env, car_proc))
+  yield(timeout(env, 3.0))
+  yield(interrupt(env, car_proc))
 end
 
 function car(env::Environment)
@@ -19,12 +19,12 @@ function car(env::Environment)
     end
     println("Start driving at $(now(env))")
     trip_duration = 2.0
-    yield(Timeout(env, trip_duration))
+    yield(timeout(env, trip_duration))
   end
 end
 
 function charge(env::Environment, duration::Float64)
-  yield(Timeout(env, duration))
+  yield(timeout(env, duration))
 end
 
 env = Environment()

@@ -1,4 +1,4 @@
-function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
+function condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
   cond = Event(env)
   if isempty(events)
     succeed(cond, condition_values(events))
@@ -13,12 +13,12 @@ function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEven
   return cond
 end
 
-function AllOf(env::BaseEnvironment, events::Vector{BaseEvent})
-  return Condition(env, eval_and, events)
+function all_of(env::BaseEnvironment, events::Vector{BaseEvent})
+  return condition(env, eval_and, events)
 end
 
-function AnyOf(env::BaseEnvironment, events::Vector{BaseEvent})
-  return Condition(env, eval_or, events)
+  function any_of(env::BaseEnvironment, events::Vector{BaseEvent})
+  return condition(env, eval_or, events)
 end
 
 function condition_values(events::Vector{BaseEvent})
@@ -51,10 +51,10 @@ end
 
 function (&)(ev1::BaseEvent, ev2::BaseEvent)
   events = BaseEvent[ev1, ev2]
-  return Condition(environment(ev1), eval_and, events)
+  return condition(environment(ev1), eval_and, events)
 end
 
 function (|)(ev1::BaseEvent, ev2::BaseEvent)
   events = BaseEvent[ev1, ev2]
-  return Condition(environment(ev1), eval_or, events)
+  return condition(environment(ev1), eval_or, events)
 end

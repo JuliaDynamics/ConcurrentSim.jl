@@ -1,7 +1,7 @@
 using SimJulia
 
 function example(env::Environment)
-  value = yield(Timeout(env, 1.0, 42))
+  value = yield(timeout(env, 1.0, 42))
   println("now=$(now(env)), value=$value")
 end
 

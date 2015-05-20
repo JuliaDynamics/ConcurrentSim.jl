@@ -5,7 +5,7 @@ function generator(env::Environment, res::Resource, preempt::Bool)
   id = 100
   while true
     id -= 1
-    yield(Timeout(env, rand()))
+    yield(timeout(env, rand()))
     Process(env, handling, res, id, preempt)
   end
 end
@@ -13,14 +13,15 @@ end
 function handling(env::Environment, res::Resource, id::Int64, preempt::Bool)
   try
     println("Number $id requests handling at time $(now(env))")
-    yield(Request(res, id, preempt))
+    yield(request(res, id, preempt))
     println("Number $id starts handling at time $(now(env))")
-    yield(Timeout(env, 2.25*rand()))
+    yield(timeout(env, 2.25*rand()))
     println("Number $id stops handling at time $(now(env))")
-    yield(Release(res))
+    yield(release(res))
     println("Number $id is released at time $(now(env))")
   catch exc
-    println("Number $id request is interrupted at time $(now(env))")
+    println(exc)
+    println("Number $id request is interrupted at time $(now(env)) by $(cause(exc))")
   end
 
 end

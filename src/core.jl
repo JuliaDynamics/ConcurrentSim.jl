@@ -54,7 +54,7 @@ type EmptySchedule <: Exception end
 
 type EventProcessed <: Exception end
 
-function Timeout(env::BaseEnvironment, delay::Float64, value=nothing)
+function timeout(env::BaseEnvironment, delay::Float64, value=nothing)
   ev = Event(env)
   schedule(ev, delay, value)
   return ev

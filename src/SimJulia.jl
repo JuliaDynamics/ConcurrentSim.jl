@@ -1,13 +1,13 @@
 module SimJulia
-  import Base.show, Base.isless, Base.interrupt, Base.yield, Base.run
+  import Base.show, Base.isless, Base.interrupt, Base.yield, Base.run, Base.interrupt
   if VERSION >= v"0.4-"
-    import Base.now, Base.Condition
+    import Base.now
   end
   export BaseEvent
-  export Environment, Event, Timeout, Process
-  export Interrupt, SimInterruptException
-  export Condition, AllOf, AnyOf
-  export Resource, Request, Release
+  export Environment, Event, timeout, Process
+  export interrupt, SimInterruptException
+  export condition, all_of, any_of
+  export Resource, request, release
   export run, now
   export succeed, fail, yield, triggered, processed, value, append_callback, environment
   export cause, msg
