@@ -1,7 +1,7 @@
 type SimInterruptException <: Exception
   cause :: Process
-  msg :: Any
-  function SimInterruptException(cause::Process, msg::Any)
+  msg :: ASCIIString
+  function SimInterruptException(cause::Process, msg::ASCIIString)
     inter = new()
     inter.cause = cause
     inter.msg = msg
@@ -9,16 +9,20 @@ type SimInterruptException <: Exception
   end
 end
 
-function Interrupt(env::BaseEnvironment, proc::Process, msg::Any="")
+function Interrupt(env::BaseEnvironment, proc::Process, cause::Process, msg::ASCIIString="")
   inter = Event(env)
   if !istaskdone(proc.task) && proc!=env.active_proc
     ev = Event(env)
     push!(ev.callbacks, proc.execute)
-    schedule(ev, true, SimInterruptException(env.active_proc, msg))
+    schedule(ev, true, SimInterruptException(cause, msg))
     delete!(proc.target.callbacks, proc.execute)
   end
   schedule(inter)
   return inter
+end
+
+function Interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
+  return Interrupt(env, proc, env.active_proc, msg)
 end
 
 function show(io::IO, inter::SimInterruptException)

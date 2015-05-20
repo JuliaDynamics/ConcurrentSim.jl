@@ -3,6 +3,7 @@ using Base.Order
 type ResourceValue
   ev :: Event
   proc :: Process
+  preempt :: Bool
 end
 
 type ResourceKey
@@ -17,14 +18,12 @@ end
 type Resource
   env :: BaseEnvironment
   capacity :: Int64
-  preempt :: Bool
   queue :: PriorityQueue{ResourceValue, ResourceKey}
   user_list :: PriorityQueue{Process, ResourceKey}
-  function Resource(env::BaseEnvironment, capacity::Int64, preempt::Bool)
+  function Resource(env::BaseEnvironment, capacity::Int64=1)
     res = new()
     res.env = env
     res.capacity = capacity
-    res.preempt = preempt
     if VERSION >= v"0.4-"
       res.queue = PriorityQueue(ResourceValue, ResourceKey)
       res.user_list = PriorityQueue(Process, ResourceKey, Order.Reverse)
@@ -36,17 +35,9 @@ type Resource
   end
 end
 
-function Resource(env::BaseEnvironment, capacity::Int64=1)
-  return Resource(env, capacity, false)
-end
-
-function Resource(env::BaseEnvironment, preempt::Bool)
-  return Resource(env, 1, preempt)
-end
-
-function Request(res::Resource, priority::Int64=0)
+function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
-  res.queue[ResourceValue(ev, res.env.active_proc)] = ResourceKey(priority, now(res.env))
+  res.queue[ResourceValue(ev, res.env.active_proc, preempt)] = ResourceKey(priority, now(res.env))
   trigger_put(Event(res.env), res)
   return ev
 end
@@ -62,11 +53,11 @@ end
 function trigger_put(ev::Event, res::Resource)
   if length(res.queue) > 0
     (val, key) = peek(res.queue)
-    if length(res.user_list) >= res.capacity && res.preempt
+    if length(res.user_list) >= res.capacity && val.preempt
       (preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        Interrupt(res.env, preempt, key_preempt.time)
+        Interrupt(res.env, preempt, val.proc)
       end
     end
     if length(res.user_list) < res.capacity
