@@ -12,9 +12,8 @@ type ResourceKey
   time :: Float64
 end
 
-type Preempt <: Exception
+type Preempted <: Exception
   cause :: Process
-  id :: Uint16
   usage_since :: Float64
 end
 
@@ -44,7 +43,7 @@ type Resource
   end
 end
 
-function request(res::Resource, id:: Uint16, priority::Int64, preempt::Bool)
+function request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
   res.queue[QueueElement(ev, res.env.active_proc, preempt)] = ResourceKey(priority, id, now(res.env))
   trigger_put(Event(res.env), res)
@@ -54,10 +53,6 @@ end
 function request(res::Resource, priority::Int64=0, preempt::Bool=false)
   res.eid += 1
   return request(res, res.eid, priority, preempt)
-end
-
-function request(res::Resource, pre::Preempt, priority::Int64=0, preempt::Bool=false)
-  return request(res, pre.id, priority, preempt)
 end
 
 function release(res::Resource)
@@ -80,7 +75,7 @@ function trigger_put(ev::Event, res::Resource)
     if length(res.user_list) < res.capacity
       key.time = now(ev.env)
       res.user_list[val.proc] = key
-      succeed(val.ev, val)
+      succeed(val.ev, key.id)
       dequeue!(res.queue)
     end
   end
@@ -95,24 +90,20 @@ end
 function preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
   ev = Event(env)
   push!(ev.callbacks, proc.execute)
-  schedule(ev, true, Preempt(cause, key.id, key.time))
+  schedule(ev, true, Preempted(cause, key.time))
   delete!(proc.target.callbacks, proc.execute)
 end
 
-function show(io::IO, pre::Preempt)
-  print(io, "Preempted by $(pre.cause): $(pre.id), $(pre.usage_since)")
+function show(io::IO, pre::Preempted)
+  print(io, "Preempted by $(pre.cause): $(pre.usage_since)")
 end
 
-function cause(pre::Preempt)
+function cause(pre::Preempted)
   return pre.cause
 end
 
-function usage_since(pre::Preempt)
+function usage_since(pre::Preempted)
   return pre.usage_since
-end
-
-function id(pre::Preempt)
-  return pre.id
 end
 
 function count(res::Resource)

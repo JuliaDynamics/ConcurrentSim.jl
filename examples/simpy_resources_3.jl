@@ -7,12 +7,12 @@ function resource_user(env::Environment, name::Int, res::Resource, wait::Float64
   println("$name got resource at $(now(env))")
   try
     yield(timeout(env, 3.0))
-    yield(release(res))
   catch exc
     by = cause(exc)
     usage = now(env) - usage_since(exc)
     println("$name got preempted by $by at $(now(env)) after $usage")
   end
+  yield(release(res))
 end
 
 env = Environment()

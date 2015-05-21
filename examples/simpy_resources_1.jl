@@ -10,7 +10,6 @@ function resource_user(env::Environment, res::Resource)
   print_stats(res)
   yield(request(res))
   print_stats(res)
-  #yield(timeout(env, 1.0))
   yield(release(res))
   print_stats(res)
 end

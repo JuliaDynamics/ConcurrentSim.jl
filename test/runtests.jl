@@ -19,6 +19,7 @@ for example_file in [
   "simpy_events_2.jl",
   "simpy_resources_1.jl",
   "simpy_resources_2.jl",
-  "simpy_resources_3.jl"]
+  "simpy_resources_3.jl",
+  "simpy_resources_4.jl"]
   include(examplespath(example_file))
 end
