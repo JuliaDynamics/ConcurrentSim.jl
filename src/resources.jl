@@ -61,8 +61,7 @@ function request(res::Resource, pre::Preempt, priority::Int64=0, preempt::Bool=f
 end
 
 function release(res::Resource)
-  ev = Event(res.env)
-  schedule(ev)
+  ev = timeout(res.env, 0.0)
   append_callback(ev, (ev)->trigger_put(ev, res))
   trigger_get(Event(res.env), res, res.env.active_proc)
   return ev
@@ -81,7 +80,7 @@ function trigger_put(ev::Event, res::Resource)
     if length(res.user_list) < res.capacity
       key.time = now(ev.env)
       res.user_list[val.proc] = key
-      succeed(val.ev)
+      succeed(val.ev, val)
       dequeue!(res.queue)
     end
   end
@@ -114,4 +113,12 @@ end
 
 function id(pre::Preempt)
   return pre.id
+end
+
+function count(res::Resource)
+  return length(res.user_list)
+end
+
+function capacity(res::Resource)
+  return res.capacity
 end

@@ -1,5 +1,5 @@
 module SimJulia
-  import Base.show, Base.isless, Base.interrupt, Base.yield, Base.run, Base.interrupt
+  import Base.show, Base.isless, Base.interrupt, Base.yield, Base.run, Base.interrupt, Base.count
   if VERSION >= v"0.4-"
     import Base.now
   end
@@ -10,7 +10,7 @@ module SimJulia
   export Resource, Preempt, request, release
   export run, now
   export succeed, fail, yield, triggered, processed, value, append_callback, environment
-  export cause, msg, id, usage_since
+  export cause, msg, id, usage_since, count, capacity
   export (&), (|)
   include("base.jl")
   include("core.jl")
