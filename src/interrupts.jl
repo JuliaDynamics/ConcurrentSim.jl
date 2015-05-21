@@ -16,9 +16,7 @@ function interrupt(env::BaseEnvironment, proc::Process, cause::Process, msg::ASC
     schedule(ev, true, Interrupt(cause, msg))
     delete!(proc.target.callbacks, proc.execute)
   end
-  inter = Event(env)
-  schedule(inter)
-  return inter
+  return timeout(env, 0.0)
 end
 
 function interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
