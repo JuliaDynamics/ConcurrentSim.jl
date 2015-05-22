@@ -1,5 +1,3 @@
-using Base.Collections
-
 const EVENT_TRIGGERED = 1
 const EVENT_PROCESSED = 2
 
@@ -99,6 +97,10 @@ end
 
 function now(env::BaseEnvironment)
   return env.time
+end
+
+function set_active_process(env::BaseEnvironment, proc::Union(Nothing,Process))
+  env.active_proc = proc
 end
 
 function active_process(env::BaseEnvironment)
@@ -203,14 +205,14 @@ end
 
 function execute(env::BaseEnvironment, ev::Event, proc::Process)
   try
-    env.active_proc = proc
+    set_active_process(env, proc)
     value = consume(proc.task, ev.value)
-    env.active_proc = nothing
+    set_active_process(env, nothing)
     if istaskdone(proc.task)
       schedule(proc.ev, value)
     end
   catch exc
-    env.active_proc = nothing
+    set_active_process(env, nothing)
     if !isempty(proc.ev.callbacks)
       schedule(proc.ev, exc)
     else
@@ -223,8 +225,8 @@ function yield(ev::Event)
   if processed(ev)
     throw(EventProcessed())
   end
-  ev.env.active_proc.target = ev
-  push!(ev.callbacks, ev.env.active_proc.execute)
+  active_process(ev.env).target = ev
+  push!(ev.callbacks, active_process(ev.env).execute)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)

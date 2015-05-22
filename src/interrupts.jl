@@ -11,7 +11,7 @@ end
 
 function interrupt(proc::Process, msg::ASCIIString="")
   env = environment(proc)
-  if !istaskdone(proc.task) && proc!=env.active_proc
+  if !istaskdone(proc.task) && proc!=active_process(env)
     ev = Event(env)
     push!(ev.callbacks, proc.execute)
     schedule(ev, true, Interrupt(active_process(env), msg))

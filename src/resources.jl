@@ -1,5 +1,3 @@
-using Base.Order
-
 type ResourceKey
   priority :: Int64
   id :: Uint16
@@ -14,7 +12,7 @@ type Preempted <: Exception
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
-	return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
+	return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
 end
 
 type Resource
@@ -41,7 +39,7 @@ end
 
 function request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
-  res.queue[res.env.active_proc] = ResourceKey(priority, id, ev, preempt, now(res.env))
+  res.queue[active_process(res.env)] = ResourceKey(priority, id, ev, preempt, now(res.env))
   trigger_put(Event(res.env), res)
   return ev
 end
@@ -54,12 +52,12 @@ end
 function release(res::Resource)
   ev = timeout(res.env, 0.0)
   append_callback(ev, (ev)->trigger_put(ev, res))
-  trigger_get(Event(res.env), res, res.env.active_proc)
+  trigger_get(Event(res.env), res, active_process(res.env))
   return ev
 end
 
 function trigger_put(ev::Event, res::Resource)
-  if length(res.queue) > 0
+  while length(res.queue) > 0
     (proc, key) = peek(res.queue)
     if length(res.user_list) >= res.capacity && key.preempt
       (proc_preempt, key_preempt) = peek(res.user_list)
@@ -73,6 +71,8 @@ function trigger_put(ev::Event, res::Resource)
       res.user_list[proc] = key
       succeed(key.ev, key.id)
       dequeue!(res.queue)
+    else
+      break
     end
   end
 end
