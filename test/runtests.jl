@@ -4,7 +4,8 @@ for test_file in [
   "test_events.jl",
   "test_processes.jl",
   "test_conditions.jl",
-  "test_resources.jl"]
+  "test_resources.jl",
+  "test_containers.jl"]
   include(testpath(test_file))
 end
 
