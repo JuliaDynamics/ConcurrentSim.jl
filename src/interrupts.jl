@@ -9,18 +9,15 @@ type Interrupt <: Exception
   end
 end
 
-function interrupt(env::BaseEnvironment, proc::Process, cause::Process, msg::ASCIIString="")
+function interrupt(proc::Process, msg::ASCIIString="")
+  env = environment(proc)
   if !istaskdone(proc.task) && proc!=env.active_proc
     ev = Event(env)
     push!(ev.callbacks, proc.execute)
-    schedule(ev, true, Interrupt(cause, msg))
+    schedule(ev, true, Interrupt(active_process(env), msg))
     delete!(proc.target.callbacks, proc.execute)
   end
   return timeout(env, 0.0)
-end
-
-function interrupt(env::BaseEnvironment, proc::Process, msg::ASCIIString="")
-  return interrupt(env, proc, env.active_proc, msg)
 end
 
 function show(io::IO, inter::Interrupt)

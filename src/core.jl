@@ -36,7 +36,7 @@ type Environment <: BaseEnvironment
   time :: Float64
   sched :: PriorityQueue{Event, EventKey}
   eid :: Uint16
-  active_proc :: Process
+  active_proc :: Union(Nothing,Process) # replace with Nullable{Process} when version 4 is stable
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.time = initial_time
@@ -46,11 +46,14 @@ type Environment <: BaseEnvironment
       env.sched = PriorityQueue{Event, EventKey}()
     end
     env.eid = 0
+    env.active_proc = nothing
     return env
   end
 end
 
 type EmptySchedule <: Exception end
+
+type StopIteration <: Exception end
 
 type EventProcessed <: Exception end
 
@@ -96,6 +99,10 @@ end
 
 function now(env::BaseEnvironment)
   return env.time
+end
+
+function active_process(env::BaseEnvironment)
+  return env.active_proc
 end
 
 function value(ev::Event)
@@ -152,13 +159,13 @@ end
 
 function run(env::BaseEnvironment)
   ev = Event(env)
-  run(env, ev)
+  return run(env, ev)
 end
 
 function run(env::BaseEnvironment, at::Float64)
   ev = Event(env)
   schedule(ev, at)
-  run(env, ev)
+  return run(env, ev)
 end
 
 function run(env::BaseEnvironment, until::BaseEvent)
@@ -168,7 +175,9 @@ function run(env::BaseEnvironment, until::BaseEvent)
       step(env)
     end
   catch exc
-    if !isa(exc, EmptySchedule)
+    if isa(exc, StopIteration)
+      return value(until)
+    elseif !isa(exc, EmptySchedule)
       rethrow(exc)
     end
   end
@@ -189,17 +198,19 @@ function step(env::Environment)
 end
 
 function stop_simulate(ev::Event)
-  throw(EmptySchedule())
+  throw(StopIteration())
 end
 
 function execute(env::BaseEnvironment, ev::Event, proc::Process)
-  env.active_proc = proc
   try
+    env.active_proc = proc
     value = consume(proc.task, ev.value)
+    env.active_proc = nothing
     if istaskdone(proc.task)
       schedule(proc.ev, value)
     end
   catch exc
+    env.active_proc = nothing
     if !isempty(proc.ev.callbacks)
       schedule(proc.ev, exc)
     else

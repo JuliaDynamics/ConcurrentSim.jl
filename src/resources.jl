@@ -1,14 +1,10 @@
 using Base.Order
 
-type QueueElement
-  ev :: Event
-  proc :: Process
-  preempt :: Bool
-end
-
 type ResourceKey
   priority :: Int64
   id :: Uint16
+  ev :: Event
+  preempt :: Bool
   time :: Float64
 end
 
@@ -25,7 +21,7 @@ type Resource
   env :: BaseEnvironment
   eid :: Uint16
   capacity :: Int
-  queue :: PriorityQueue{QueueElement, ResourceKey}
+  queue :: PriorityQueue{Process, ResourceKey}
   user_list :: PriorityQueue{Process, ResourceKey}
   function Resource(env::BaseEnvironment, capacity::Int=1)
     res = new()
@@ -33,10 +29,10 @@ type Resource
     res.eid = 0
     res.capacity = capacity
     if VERSION >= v"0.4-"
-      res.queue = PriorityQueue(QueueElement, ResourceKey)
+      res.queue = PriorityQueue(Process, ResourceKey)
       res.user_list = PriorityQueue(Process, ResourceKey, Order.Reverse)
     else
-      res.queue = PriorityQueue{QueueElement, ResourceKey}()
+      res.queue = PriorityQueue{Process, ResourceKey}()
       res.user_list = PriorityQueue{Process, ResourceKey}(Order.Reverse)
     end
     return res
@@ -45,7 +41,7 @@ end
 
 function request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
-  res.queue[QueueElement(ev, res.env.active_proc, preempt)] = ResourceKey(priority, id, now(res.env))
+  res.queue[res.env.active_proc] = ResourceKey(priority, id, ev, preempt, now(res.env))
   trigger_put(Event(res.env), res)
   return ev
 end
@@ -64,18 +60,18 @@ end
 
 function trigger_put(ev::Event, res::Resource)
   if length(res.queue) > 0
-    (val, key) = peek(res.queue)
-    if length(res.user_list) >= res.capacity && val.preempt
-      (val_preempt, key_preempt) = peek(res.user_list)
+    (proc, key) = peek(res.queue)
+    if length(res.user_list) >= res.capacity && key.preempt
+      (proc_preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        preempt(res.env, val_preempt, val.proc, key_preempt)
+        preempt(res.env, proc_preempt, proc, key_preempt)
       end
     end
     if length(res.user_list) < res.capacity
       key.time = now(ev.env)
-      res.user_list[val.proc] = key
-      succeed(val.ev, key.id)
+      res.user_list[proc] = key
+      succeed(key.ev, key.id)
       dequeue!(res.queue)
     end
   end
@@ -83,7 +79,7 @@ end
 
 function trigger_get(ev::Event, res::Resource, proc::Process)
   id::Uint16 = 0
-  res.user_list[proc] = ResourceKey(typemax(Int64), id, 0.0)
+  res.user_list[proc] = ResourceKey(typemax(Int64), id, ev, false, 0.0)
   dequeue!(res.user_list)
 end
 
