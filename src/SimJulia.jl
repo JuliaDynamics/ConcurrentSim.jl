@@ -8,8 +8,7 @@ module SimJulia
   export BaseEvent, BaseEnvironment, now
   export Event, StopIteration, succeed, fail, triggered, processed, value, append_callback, environment, timeout, run
   export condition, all_of, any_of, (&), (|)
-  export Process, yield, active_process
-  export Interrupt, interrupt, cause, msg
+  export Process, Interrupt, yield, active_process, interrupt, cause, msg
   export Environment, step
   export start_delayed
   export Resource, Preempted, request, release, usage_since, count
@@ -18,7 +17,6 @@ module SimJulia
   include("events.jl")
   include("conditions.jl")
   include("processes.jl")
-  include("interrupts.jl")
   include("environments.jl")
   include("util.jl")
   include("resources.jl")
