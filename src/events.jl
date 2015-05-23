@@ -1,105 +1,112 @@
-type TimeEvent
-	task::Task
-	time::Float64
-	priority::Int
-	canceled::Bool
-	function TimeEvent()
-		event = new()
-		event.task = Task(()->())
-		event.time = Inf
-		event.canceled = true
-		return event
-	end
+const EVENT_TRIGGERED = 1
+const EVENT_PROCESSED = 2
+
+type Event <: BaseEvent
+  env :: BaseEnvironment
+  callbacks :: Set{Function}
+  state :: Uint16
+  id :: Uint16
+  value :: Any
+  function Event(env::BaseEnvironment)
+    ev = new()
+    ev.env = env
+    ev.callbacks = Set{Function}()
+    ev.state = 0
+    ev.id = 0
+    return ev
+  end
 end
 
-function TimeEvent(task::Task, time::Float64, priority::Int)
-	event = TimeEvent()
-	event.task = task
-	event.time = time
-	event.priority = priority
-	event.canceled = false
-	return event
+type EmptySchedule <: Exception end
+
+type StopIteration <: Exception end
+
+type EventProcessed <: Exception end
+
+function show(io::IO, ev::Event)
+  print(io, "Event id $(ev.id)")
 end
 
-function show(io::IO, event::TimeEvent)
-	print(io, "TimeEvent: $(event.task), $(event.time), $(event.priority), $(event.canceled)")
+function triggered(ev::Event)
+  return ev.state == EVENT_TRIGGERED
 end
 
-function isless(event1::TimeEvent, event2::TimeEvent)
-	return event1.time < event2.time || (event1.time == event2.time && event1.priority < event2.priority)
+function processed(ev::Event)
+  return ev.state == EVENT_PROCESSED
 end
 
-
-function push!(heap::Heap{TimeEvent}, task::Task, time::Float64, priority::Int)
-	if heap.count == length(heap.array)
-		throw("Heap overflow!")
-	end
-	heap.count += 1
-	event = TimeEvent(task, time, priority)
-	heap.array[heap.count] = event
-	percolate_up(heap)
-	return event
+function value(ev::Event)
+  return ev.value
 end
 
-function top(heap::Heap{TimeEvent})
-	while heap.count > 0
-		result = heap.array[1]
-		if ! result.canceled
-			return result.time
-		end
-		heap.array[1] = heap.array[heap.count]
-		heap.array[heap.count] = TimeEvent()
-		heap.count -= 1
-		percolate_down(heap)
-	end
-	return Inf
+function environment(ev::Event)
+  return ev.env
 end
 
-function pop!(heap::Heap{TimeEvent})
-	result = heap.array[1]
-	if heap.count > 0
-		heap.array[1] = heap.array[heap.count]
-		heap.array[heap.count] = TimeEvent()
-		heap.count -= 1
-		percolate_down(heap)
-	end
-	return result.task
+function schedule(ev::Event, priority::Bool, delay::Float64, value=nothing)
+  ev.env.eid += 1
+  ev.id = ev.env.eid
+  ev.env.sched[ev] = EventKey(ev.env.time + delay, priority, ev.id)
+  ev.value = value
+  ev.state = EVENT_TRIGGERED
 end
 
-type StateEvent
-	task::Task
-	condition::Function
-	priority::Int
+function schedule(ev::Event, priority::Bool, value=nothing)
+  schedule(ev, priority, 0.0, value)
 end
 
-function isless(event1::StateEvent, event2::StateEvent)
-	return event1.priority < event2.priority
+function schedule(ev::Event, delay::Float64, value=nothing)
+  schedule(ev, false, delay, value)
 end
 
-function check(list::Vector{StateEvent})
-	for event in list
-		if event.condition()
-			return true
-		end
-	end
-	return false
+function schedule(ev::Event, value=nothing)
+  schedule(ev, false, 0.0, value)
 end
 
-function push!(list::Vector{StateEvent}, task::Task, condition::Function, priority::Int)
-	event = StateEvent(task, condition, priority)
-	push!(list, event)
-	return event
+function append_callback(ev::Event, callback::Function, args...)
+  push!(ev.callbacks, (ev)->callback(ev, args...))
 end
 
-function pop!(list::Vector{StateEvent})
-	priority = typemin(Int)
-	index = 0
-	for i in 1:length(list)
-		if list[i].priority > priority && list[i].condition()
-			priority = list[i].priority
-			index = i
-		end
-	end
-	event = splice!(list, index)
-	return event.task
+function succeed(ev::Event, value=nothing)
+  schedule(ev, value)
+end
+
+function fail(ev::Event, exc::Exception)
+  schedule(ev, exc)
+end
+
+function run(env::BaseEnvironment)
+  ev = Event(env)
+  return run(env, ev)
+end
+
+function run(env::BaseEnvironment, at::Float64)
+  ev = Event(env)
+  schedule(ev, at)
+  return run(env, ev)
+end
+
+function run(env::BaseEnvironment, until::BaseEvent)
+  append_callback(until, stop_simulate)
+  try
+    while true
+      step(env)
+    end
+  catch exc
+    if isa(exc, StopIteration)
+      return value(until)
+    elseif !isa(exc, EmptySchedule)
+      rethrow(exc)
+    end
+  end
+end
+
+function stop_simulate(ev::Event)
+  throw(StopIteration())
+end
+
+function timeout(env::BaseEnvironment, delay::Float64, value=nothing)
+  ev = Event(env)
+  schedule(ev, delay, value)
+  return ev
 end

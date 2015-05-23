@@ -1,155 +1,111 @@
+type ResourceKey
+  priority :: Int64
+  id :: Uint16
+  ev :: Event
+  preempt :: Bool
+  time :: Float64
+end
+
+type Preempted <: Exception
+  cause :: Process
+  usage_since :: Float64
+end
+
+function isless(a::ResourceKey, b::ResourceKey)
+	return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
+end
+
 type Resource
-	name::ASCIIString
-	capacity::Uint
-	uncommitted::Uint
-	wait_queue::PriorityQueue{Process, Int}
-	active_set::Dict{Process, Int}
-	preempt_set::Dict{Process, Float64}
-	monitored::Bool
-	wait_monitor::Monitor{Int}
-	activity_monitor::Monitor{Int}
-	function Resource(simulation::Simulation, name::ASCIIString, capacity::Uint, monitored::Bool)
-		resource = new()
-		resource.name = name
-		resource.capacity = capacity
-		resource.uncommitted = capacity
-		resource.wait_queue = PriorityQueue{Process, Int}()
-		resource.active_set = Dict{Process, Int}()
-		resource.preempt_set = Dict{Process, Float64}()
-		resource.monitored = monitored
-		if monitored
-			resource.wait_monitor = Monitor{Int}("Wait monitor of $name")
-			register(simulation, resource.wait_monitor)
-			resource.activity_monitor = Monitor{Int}("Activity monitor of $name")
-			register(simulation, resource.activity_monitor)
-		end
-		return resource
-	end
+  env :: BaseEnvironment
+  eid :: Uint16
+  capacity :: Int
+  queue :: PriorityQueue{Process, ResourceKey}
+  user_list :: PriorityQueue{Process, ResourceKey}
+  function Resource(env::BaseEnvironment, capacity::Int=1)
+    res = new()
+    res.env = env
+    res.eid = 0
+    res.capacity = capacity
+    if VERSION >= v"0.4-"
+      res.queue = PriorityQueue(Process, ResourceKey)
+      res.user_list = PriorityQueue(Process, ResourceKey, Order.Reverse)
+    else
+      res.queue = PriorityQueue{Process, ResourceKey}()
+      res.user_list = PriorityQueue{Process, ResourceKey}(Order.Reverse)
+    end
+    return res
+  end
 end
 
-function occupied(resource::Resource)
-	return capacity - uncommitted
+function request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
+  ev = Event(res.env)
+  res.queue[active_process(res.env)] = ResourceKey(priority, id, ev, preempt, now(res.env))
+  trigger_put(Event(res.env), res)
+  return ev
 end
 
-function acquired(process::Process, resource::Resource)
-	result = true
-	if ! haskey(resource.active_set, process)
-		delete!(resource.wait_queue, process)
-		if resource.monitored
-			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
-		end
-		result = false
-	end
-	return result
+function request(res::Resource, priority::Int64=0, preempt::Bool=false)
+  res.eid += 1
+  return request(res, res.eid, priority, preempt)
 end
 
-function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64, signals::Set{Signal}, renege::Bool)
-	process.next_event = TimeEvent()
-	if resource.uncommitted == 0
-		min_index, min_priority = minimum(enumerate(values(resource.active_set)))
-		if preempt && priority > min_priority
-			min_process = collect(keys(resource.active_set))[min_index]
-			delete!(resource.active_set, min_process)
-			unshift!(resource.wait_queue, min_process, min_priority)
-			resource.preempt_set[min_process] = min_process.next_event.time - now(process)
-			cancel(min_process)
-			resource.active_set[process] = priority
-			post(process.simulation, process.task, now(process), true)
-		else
-			push!(resource.wait_queue, process, priority)
-			if renege
-				if waittime < Inf
-					post(process.simulation, process.task, now(process)+waittime, true)
-				else
-					return wait(process, signals)
-				end
-			end
-		end
-		if resource.monitored
-			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
-		end
-	else
-		resource.uncommitted -= 1
-		resource.active_set[process] = priority
-		if resource.monitored
-			observe(resource.activity_monitor, now(process), length(resource.active_set))
-		end
-		post(process.simulation, process.task, now(process), true)
-	end
-	produce(true)
+function release(res::Resource)
+  ev = timeout(res.env, 0.0)
+  append_callback(ev, (ev)->trigger_put(ev, res))
+  trigger_get(Event(res.env), res, active_process(res.env))
+  return ev
 end
 
-function request(process::Process, resource::Resource, priority::Int, preempt::Bool, waittime::Float64)
-	signals = Set{Signal}()
-	request(process, resource, priority, preempt, waittime, signals, true)
+function trigger_put(ev::Event, res::Resource)
+  while length(res.queue) > 0
+    (proc, key) = peek(res.queue)
+    if length(res.user_list) >= res.capacity && key.preempt
+      (proc_preempt, key_preempt) = peek(res.user_list)
+      if key_preempt > key
+        dequeue!(res.user_list)
+        preempt(res.env, proc_preempt, proc, key_preempt)
+      end
+    end
+    if length(res.user_list) < res.capacity
+      key.time = now(ev.env)
+      res.user_list[proc] = key
+      succeed(key.ev, key.id)
+      dequeue!(res.queue)
+    else
+      break
+    end
+  end
 end
 
-function request(process::Process, resource::Resource, priority::Int, preempt::Bool, signals::Set{Signal})
-	return request(process, resource, priority, preempt, Inf, signals, true)
+function trigger_get(ev::Event, res::Resource, proc::Process)
+  id::Uint16 = 0
+  res.user_list[proc] = ResourceKey(typemax(Int64), id, ev, false, 0.0)
+  dequeue!(res.user_list)
 end
 
-function request(process::Process, resource::Resource, priority::Int, waittime::Float64)
-	signals = Set{Signal}()
-	request(process, resource, priority, false, waittime, signals, true)
+function preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
+  ev = Event(env)
+  push!(ev.callbacks, proc.execute)
+  schedule(ev, true, Preempted(cause, key.time))
+  delete!(proc.target.callbacks, proc.execute)
 end
 
-function request(process::Process, resource::Resource, priority::Int, signals::Set{Signal})
-	return request(process, resource, priority, false, Inf, signals, true)
+function show(io::IO, pre::Preempted)
+  print(io, "Preempted by $(pre.cause): $(pre.usage_since)")
 end
 
-function request(process::Process, resource::Resource, priority::Int, preempt::Bool)
-	signals = Set{Signal}()
-	request(process, resource, priority, preempt, Inf, signals, false)
+function cause(pre::Preempted)
+  return pre.cause
 end
 
-function request(process::Process, resource::Resource, priority::Int)
-	return request(process, resource, priority, false, Inf, Set{Signal}(), false)
+function usage_since(pre::Preempted)
+  return pre.usage_since
 end
 
-function request(process::Process, resource::Resource, waittime::Float64)
-	signals = Set{Signal}()
-	request(process, resource, 0, false, waittime, signals, true)
+function count(res::Resource)
+  return length(res.user_list)
 end
 
-function request(process::Process, resource::Resource, signals::Set{Signal})
-	return request(process, resource, 0, false, Inf, signals, true)
-end
-
-function request(process::Process, resource::Resource)
-	signals = Set{Signal}()
-	request(process, resource, 0, false, Inf, signals, false)
-	return signals
-end
-
-function release(process::Process, resource::Resource)
-	resource.uncommitted += 1
-	delete!(resource.active_set, process)
-	if resource.monitored
-		observe(resource.activity_monitor, now(process), length(resource.active_set))
-	end
-	if length(resource.wait_queue) > 0
-		new_process, new_priority = shift!(resource.wait_queue)
-		resource.uncommitted -= 1
-		resource.active_set[new_process] = new_priority
-		if resource.monitored
-			observe(resource.wait_monitor, now(process), length(resource.wait_queue))
-			observe(resource.activity_monitor, now(process), length(resource.active_set))
-		end
-		if haskey(resource.preempt_set, new_process)
-			post(new_process.simulation, new_process.task, now(new_process)+resource.preempt_set[new_process], true)
-			delete!(resource.preempt_set, new_process)
-		else
-			post(new_process.simulation, new_process.task, now(new_process), true)
-		end
-	end
-	post(process.simulation, process.task, now(process), true)
-	produce(true)
-end
-
-function wait_monitor(resource::Resource)
-	return resource.wait_monitor
-end
-
-function activity_monitor(resource::Resource)
-	return resource.activity_monitor
+function capacity(res::Resource)
+  return res.capacity
 end

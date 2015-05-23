@@ -1,30 +1,39 @@
 testpath(f) = joinpath(Pkg.dir("SimJulia"),"test",f)
 
-# Bank problems
-for bank_file in [
-    "bank_01.jl",
-    "bank_02.jl",
-    "bank_03.jl",
-    "bank_05.jl",
-    "bank_06.jl",
-    "bank_07.jl",
-    "bank_08.jl",
-    "bank_09.jl",
-    "bank_10.jl",
-    "bank_20.jl",
-    "bank_23.jl",
-    "bank_24.jl"]
-    include(testpath(bank_file))
+for test_file in [
+  "test_events.jl",
+  "test_processes.jl",
+  "test_conditions.jl",
+  "test_resources.jl",
+  "test_containers.jl"]
+  include(testpath(test_file))
 end
 
-# Example problems
-for ex_file in 1:18
-    include(testpath("example_$(ex_file).jl"))
-end
+examplespath(f) = joinpath(Pkg.dir("SimJulia"),"examples",f)
 
-# Leftovers
-include("cellular_automata.jl")
-include("continuous_1.jl")
-include("continuous_2.jl")
-include("continuous_3.jl")
-include("continuous_5.jl")
+for example_file in [
+  "simpy_welcome.jl",
+  "simpy_10min_1.jl",
+  "simpy_10min_2.jl",
+  "simpy_10min_3.jl",
+  "simpy_10min_4.jl",
+  "simpy_basics.jl",
+  "simpy_environments_1.jl",
+  "simpy_environments_2.jl",
+  "simpy_environments_3.jl",
+  "simpy_events_1.jl",
+  "simpy_events_2.jl",
+  "simpy_events_3.jl",
+  "simpy_events_4.jl",
+  "simpy_events_5.jl",
+  "simpy_events_6.jl",
+  "simpy_processes_1.jl",
+  "simpy_processes_2.jl",
+  "simpy_processes_3.jl",
+  "simpy_resources_1.jl",
+  "simpy_resources_2.jl",
+  "simpy_resources_3.jl",
+  "simpy_resources_4.jl",
+  "simpy_resources_5.jl"]
+  include(examplespath(example_file))
+end

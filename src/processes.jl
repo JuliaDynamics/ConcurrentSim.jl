@@ -1,128 +1,89 @@
-type Process
-	name::ASCIIString
-	simulation::Simulation
-	task::Task
-	next_event::TimeEvent
-	interrupted::Bool
-	interrupt_left::Float64
-	interrupt_cause::Process
-	function Process(simulation::Simulation, name::ASCIIString)
-		process = new()
-		process.simulation = simulation
-		process.name = name
-		process.next_event = TimeEvent()
-		process.interrupted = false
-		process.interrupt_left = 0.0
-		return process
-	end
+type Process <: BaseEvent
+  task :: Task
+  target :: BaseEvent
+  ev :: Event
+  execute :: Function
+  function Process(env::BaseEnvironment, task::Task)
+    proc = new()
+    proc.task = task
+    proc.ev = Event(env)
+    return proc
+  end
 end
 
-function show(io::IO, process::Process)
-	print(io, process.name)
+function Process(env::BaseEnvironment, func::Function, args...)
+  proc = Process(env, Task(()->func(env, args...)))
+  proc.execute = (ev)->execute(env, ev, proc)
+  ev = Event(env)
+  push!(ev.callbacks, proc.execute)
+  schedule(ev, true)
+  proc.target = ev
+  return proc
 end
 
-function simulation(process::Process)
-	return process.simulation
+function show(io::IO, proc::Process)
+  print(io, "Process $(proc.task)")
 end
 
-function cancel(process::Process)
-	process.next_event.canceled = true
+function triggered(proc::Process)
+  return triggered(proc.ev)
 end
 
-function now(process::Process)
-	return copy(process.simulation.time)
+function processed(proc::Process)
+  return processed(proc.ev)
 end
 
-function terminated(process::Process)
-	return istaskdone(process.task)
+function set_active_process(env::BaseEnvironment, proc::Union(Nothing,Process))
+  env.active_proc = proc
 end
 
-function interrupted(process::Process)
-	return ! terminated(process) && process.interrupted
+function active_process(env::BaseEnvironment)
+  return env.active_proc
 end
 
-function active(process::Process)
-	return ! process.interrupted && ! process.next_event.canceled
+function value(proc::Process)
+  return value(proc.ev)
 end
 
-function passive(process::Process)
-	return ! terminated(process) && process.next_event.canceled
+function environment(proc::Process)
+  return environment(proc.ev)
 end
 
-function activate(process::Process, at::Float64, run::Function, args...)
-	if length(args) == 0
-		process.task = Task(()->run(process))
-	elseif length(args) == 1
-		process.task = Task(()->run(process, args[1]))
-	elseif length(args) == 2
-		process.task = Task(()->run(process, args[1], args[2]))
-	elseif length(args) == 3
-		process.task = Task(()->run(process, args[1], args[2], args[3]))
-	elseif length(args) == 4
-		process.task = Task(()->run(process, args[1], args[2], args[3], args[4]))
-	elseif length(args) == 5
-		process.task = Task(()->run(process, args[1], args[2], args[3], args[4], args[5]))
-	elseif length(args) == 6
-		process.task = Task(()->run(process, args[1], args[2], args[3], args[4], args[5], args[6]))
-	else
-		throw("Too many arguments!")
-	end
-	process.next_event = post(process.simulation, process.task, at, false)
+function append_callback(proc::Process, callback::Function, args...)
+  push!(proc.ev.callbacks, (ev)->callback(ev, args...))
 end
 
-function reactivate(process::Process, delay::Float64)
-	if passive(process)
-		process.next_event.canceled = true
-		process.next_event = post(process.simulation, process.task, now(process)+delay, false)
-	end
+function execute(env::BaseEnvironment, ev::Event, proc::Process)
+  try
+    set_active_process(env, proc)
+    value = consume(proc.task, ev.value)
+    set_active_process(env, nothing)
+    if istaskdone(proc.task)
+      schedule(proc.ev, value)
+    end
+  catch exc
+    set_active_process(env, nothing)
+    if !isempty(proc.ev.callbacks)
+      schedule(proc.ev, exc)
+    else
+      rethrow(exc)
+    end
+  end
 end
 
-function interrupt(victim::Process, cause::Process)
-	if active(victim)
-		victim.next_event.canceled = true
-		victim.interrupted = true
-		victim.interrupt_left = victim.next_event.time - now(victim)
-		victim.interrupt_cause = cause
-		victim.next_event = post(victim.simulation, victim.task, now(victim), true)
-	end
+function yield(ev::Event)
+  if processed(ev)
+    throw(EventProcessed())
+  end
+  active_process(environment(ev)).target = ev
+  push!(ev.callbacks, active_process(environment(ev)).execute)
+  value = produce(ev)
+  if isa(value, Exception)
+    throw(value)
+  end
+  return value
 end
 
-function interrupt_left(process::Process)
-	return copy(process.interrupt_left)
-end
-
-function interrupt_cause(process::Process)
-	return process.interrupt_cause
-end
-
-function interrupt_reset(process::Process)
-	process.interrupted = false
-end
-
-function sleep(process::Process)
-	process.next_event = TimeEvent()
-	produce(true)
-end
-
-function hold(process::Process, delay::Float64)
-	process.next_event = post(process.simulation, process.task, now(process)+delay, false)
-	produce(true)
-end
-
-function waituntil(process::Process, condition::Function, priority::Bool=false)
-	process.next_event = TimeEvent()
-	post(process.simulation, process.task, condition, priority)
-	produce(true)
-end
-
-function reset_monitors(process::Process)
-	simulation = simulation(process)
-	for monitor in simulation.monitor
-		reset(monitor, now(process))
-	end
-end
-
-function start_collection(simulation::Simulation, time::Float64)
-	process = Process(simulation, "Start collection")
-	activate(process, time, reset_monitors)
+function yield(proc::Process)
+  return yield(proc.ev)
 end
