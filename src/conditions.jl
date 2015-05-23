@@ -17,7 +17,7 @@ function all_of(env::BaseEnvironment, events::Vector{BaseEvent})
   return condition(env, eval_and, events)
 end
 
-  function any_of(env::BaseEnvironment, events::Vector{BaseEvent})
+function any_of(env::BaseEnvironment, events::Vector{BaseEvent})
   return condition(env, eval_or, events)
 end
 
