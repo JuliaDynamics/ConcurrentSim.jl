@@ -7,3 +7,4 @@ In this section, you’ll learn the basics of SimJulia in just a few minutes. Af
    :maxdepth: 1
 
    1_installation
+   2_basic_concepts

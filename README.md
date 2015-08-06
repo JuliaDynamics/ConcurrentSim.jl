@@ -21,7 +21,7 @@ SimJulia
 
 * Add the documentation.
 * Integrate the to be written QSS solver.
-* Reintroduce the **Monitor** feature of the 0.2 version.
+* Reintroduce the *Monitor* feature of the 0.2 version.
 
 #### Documentation
 
