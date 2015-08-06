@@ -1,5 +1,6 @@
+********************
 Welcome to SimJulia!
-====================
+********************
 
 **SimJulia** is a combined continuous time / discrete event process oriented simulation framework written in [Julia](http://julialang.org) inspired by the Simula library **DISCO** and the Python library [**SimPy**](http://simpy.sourceforge.net/).
 
@@ -11,12 +12,14 @@ SimJulia contains tutorials, in-depth documentation, and a large number of examp
 
 SimPy is released under the MIT License.
 
-Contents:
+
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
 
-   10_min
+   10_min/index
 
 
 Indices and tables
