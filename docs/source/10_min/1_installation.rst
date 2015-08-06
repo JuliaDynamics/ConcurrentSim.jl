@@ -6,5 +6,3 @@ SimJulia is implemented in pure Julia and has no dependencies. SimJulia runs on 
 The built-in package manager of Julia is used to install SimJulia::
 
   julia> Pkg.add("SimJulia")
-
-
