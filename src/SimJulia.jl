@@ -3,7 +3,7 @@ module SimJulia
   using Base.Collections
   import Base.show, Base.isless, Base.interrupt, Base.yield, Base.run, Base.interrupt, Base.count
   if VERSION >= v"0.4-"
-    import Base.now, Base.step, Base.get
+    import Base.now, Base.step, Base.get, Base.&, Base.|
   end
   export BaseEvent, BaseEnvironment, now
   export Event, StopIteration, succeed, fail, triggered, processed, value, append_callback, environment, timeout, run

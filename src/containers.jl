@@ -6,7 +6,7 @@ type ContainerKey{T<:Number}
 end
 
 function isless(a::ContainerKey, b::ContainerKey)
-	return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
+  return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
 end
 
 type Container{T<:Number}

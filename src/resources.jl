@@ -12,7 +12,7 @@ type Preempted <: Exception
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
-	return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
+  return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
 end
 
 type Resource

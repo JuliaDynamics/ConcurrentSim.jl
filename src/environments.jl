@@ -30,3 +30,7 @@ function step(env::Environment)
     callback(ev)
   end
 end
+
+function now(env::Environment)
+  return env.time
+end
