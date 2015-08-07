@@ -366,4 +366,4 @@ epub_exclude_files = ['search.html']
 #epub_show_urls = 'inline'
 
 # If false, no index is generated.
-#epub_use_index = True
+epub_use_index = False

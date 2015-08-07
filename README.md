@@ -25,4 +25,4 @@ SimJulia
 
 #### Documentation
 
-<http://simjuliajl.readthedocs.org/en/latest/>
+<http://simjuliajl.readthedocs.org/en/latest/welcome.html>
