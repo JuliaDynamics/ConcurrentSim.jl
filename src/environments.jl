@@ -2,7 +2,7 @@ type Environment <: BaseEnvironment
   time :: Float64
   sched :: PriorityQueue{Event, EventKey}
   eid :: Uint16
-  active_proc :: Union(Nothing,Process) # replace with Nullable{Process} when version 4 is stable
+  active_proc :: Union(Nothing, Process) # replace with Nullable{Process} when version 4 is stable
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.time = initial_time
