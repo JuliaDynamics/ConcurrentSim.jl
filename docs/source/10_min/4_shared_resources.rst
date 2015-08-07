@@ -8,7 +8,7 @@ In this section, SimPy’s :class:`Resource` type is briefly introduced.
 Basic Resource Usage
 ~~~~~~~~~~~~~~~~~~~~
 
-The electric vehicle process car that we introduced in the last sections will be slightly modified.
+The electric vehicle process car introduced in the last sections will be slightly modified.
 
 The car will now drive to a battery charging station (BCS) and request one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards::
 
@@ -57,4 +57,4 @@ Finally, the simulation can be started. Since the car processes all terminate on
   2 leaving the bcs at 10.0
   3 leaving the bcs at 12.0
 
-Note that the first two cars can start charging immediately after they arrive at the BCS, while cars 2 an 3 have to wait.
+Note that the first two cars can start charging immediately after they arrive at the BCS, while cars ``2`` an ``3`` have to wait.

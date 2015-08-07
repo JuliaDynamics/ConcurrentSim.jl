@@ -6,13 +6,13 @@ The :class:`Process` instance that is returned by the constructor :func:`Process
 Waiting for a Process
 ~~~~~~~~~~~~~~~~~~~~~
 
-As it happens, a SimJulia :class:`Process` can be used like an event (technically, a process actually inherits from a base_event). If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
+As it happens, a SimJulia :class:`Process` can be used like an event (technically, a :class:`Process` actually inherits from a :class:`BaseEvent`). If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
 
-Lets assume that the car from the last example magically became an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
+Assume that the car from the last example magically became an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
 
 This can be modeled with an additional charge process. Therefore, two process methods are created: :func:`car(env) <car>` and :func:`charge(env, duration) <charge>`.
 
-The car process is automatically started. A new charge process is started every time the vehicle starts parking. By yielding the :class:`Process` instance that :func:`Process(env, func, args...) <Process>` returns, the run process starts waiting for it to finish::
+A new charge process is started every time the vehicle starts parking. By yielding the :class:`Process` instance that :func:`Process(env, func, args...) <Process>` returns, the run process starts waiting for it to finish::
 
   julia> using SimJulia
 
@@ -89,7 +89,7 @@ Interrupts are thrown into process functions as :class:`Interrupt` exceptions th
          end
   charge (generic function with 1 method)
 
-When you compare the output of this simulation with the previous example, you’ll notice that the car now starts driving at time 3 instead of 5::
+When you compare the output of this simulation with the previous example, you’ll notice that the car now starts driving at time ``3`` instead of ``5``::
 
   julia> env = Environment()
   Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
