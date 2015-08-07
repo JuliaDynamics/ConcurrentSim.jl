@@ -21,11 +21,3 @@ Contents
 
    10_min/index
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-

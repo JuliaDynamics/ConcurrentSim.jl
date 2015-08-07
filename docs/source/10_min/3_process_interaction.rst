@@ -22,7 +22,6 @@ The car process is automatically started. A new charge process is started every 
              charge_duration = 5.0
              charge_proc = Process(env, charge, charge_duration)
              yield(charge_proc)
-
              println("Start driving at $(now(env))")
              trip_duration = 2.0
              yield(timeout(env, trip_duration))
@@ -50,4 +49,59 @@ Starting the simulation is straightforward again: create an environment, one (or
   Start driving at 12.0
   Start parking and charging at 14.0
 
+
+Interrupting Another Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
+
+SimPy allows you to interrupt a running process by calling the function :func:`interrupt(proc) <interrupt>`.
+
+Interrupts are thrown into process functions as :class:`Interrupt` exceptions that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
+
+  julia> using SimJulia
+
+  julia> function driver(env::Environment, car_proc::Process)
+           yield(timeout(env, 3.0))
+           yield(interrupt(car_proc))
+         end
+  driver (generic function with 1 method)
+
+  julia> function car(env::Environment)
+           while true
+             println("Start parking and charging at $(now(env))")
+             charge_duration = 5.0
+             charge_proc = Process(env, charge, charge_duration)
+             try
+               yield(charge_proc)
+             catch exc
+               println("Was interrupted. Hope, the battery is full enough ...")
+             end
+             println("Start driving at $(now(env))")
+             trip_duration = 2.0
+             yield(timeout(env, trip_duration))
+           end
+         end
+  car (generic function with 1 method)
+
+  julia> function charge(env::Environment, duration::Float64)
+           yield(timeout(env, duration))
+         end
+  charge (generic function with 1 method)
+
+When you compare the output of this simulation with the previous example, you’ll notice that the car now starts driving at time 3 instead of 5::
+
+  julia> env = Environment()
+  Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
+
+  julia> Process(env, car)
+  Process Task (runnable) @0x00007fcf57034400
+
+  julia> run(env, 15.0)
+  Start parking and charging at 0.0
+  Was interrupted. Hope, the battery is full enough ...
+  Start driving at 3.0
+  Start parking and charging at 5.0
+  Start driving at 10.0
+  Start parking and charging at 12.0
 
