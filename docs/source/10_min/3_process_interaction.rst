@@ -1,18 +1,18 @@
 Process Interaction
 -------------------
 
-The :class:`Process` instance that is returned by :func:`Process(env, func) <Process>` can be utilized for process interactions. The two most common examples for this are to wait for another process to finish and to interrupt another process while it is waiting for an event.
+The :type:`Process` instance that is returned by :func:`Process(env, func) <Process>` can be utilized for process interactions. The two most common examples for this are to wait for another process to finish and to interrupt another process while it is waiting for an event.
 
 Waiting for a Process
 ~~~~~~~~~~~~~~~~~~~~~
 
-As it happens, a SimJulia :class:`Process` can be used like an event (technically, a process actually inherits from a base_event). If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
+As it happens, a SimJulia :type:`Process` can be used like an event (technically, a process actually inherits from a base_event). If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
 
 Lets assume that the car from the last example magically became an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
 
 This can be modeled with an additional charge process. Therefore, two process methods are created: :func:`car(env) <car>` and :func:`charge(env, duration) <charge>`.
 
-The car process is automatically started. A new charge process is started every time the vehicle starts parking. By yielding the :class:`Process` instance that :func:`Process(env, func, args...) <Process>` returns, the run process starts waiting for it to finish::
+The car process is automatically started. A new charge process is started every time the vehicle starts parking. By yielding the :type:`Process` instance that :func:`Process(env, func, args...) <Process>` returns, the run process starts waiting for it to finish::
 
   julia> using SimJulia
 
@@ -57,7 +57,7 @@ Imagine, you don’t want to wait until your electric vehicle is fully charged b
 
 SimPy allows you to interrupt a running process by calling the function :func:`interrupt(proc) <interrupt>`.
 
-Interrupts are thrown into process functions as :class:`Interrupt` exceptions that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
+Interrupts are thrown into process functions as :type:`Interrupt` exceptions that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
 
   julia> using SimJulia
 
