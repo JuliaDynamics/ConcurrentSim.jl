@@ -8,3 +8,4 @@ In this section, you’ll learn the basics of SimJulia in just a few minutes. Af
 
    1_installation
    2_basic_concepts
+   3_process_interaction
