@@ -1,0 +1,60 @@
+Shared Resources
+----------------
+
+SimJulia offers two types of resources that help you modeling problems, where multiple processes want to use a resource of limited capacity (e.g., cars at a fuel station with a limited number of fuel pumps) or classical producer-consumer problems.
+
+In this section, SimPy’s :class:`Resource` type is briefly introduced.
+
+Basic Resource Usage
+~~~~~~~~~~~~~~~~~~~~
+
+The electric vehicle process car that we introduced in the last sections will be slightly modified.
+
+The car will now drive to a battery charging station (BCS) and request one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards::
+
+  julia> using SimJulia
+
+  julia> function car(env::Environment, name::Int, bcs::Resource, driving_time::Float64, charge_duration::Float64)
+           yield(timeout(env, driving_time))
+           println("$name arriving at $(now(env))")
+           yield(request(bcs))
+           println("$name starting to charge at $(now(env))")
+           yield(timeout(env, charge_duration))
+           println("$name leaving the bcs at $(now(env))")
+           yield(release(bcs))
+         end
+  car (generic function with 1 method)
+
+The function :func:`request(bcs) <request>` generates an event that makes the process wait until the resource becomes available again. If the process is resumed, the process “owns” the resource until it releases it. Once the process is done using the resource, the function :func:`release(bcs) <release>` must be called. When a resource is released, the next waiting process is resumed and now “owns” one of the resource’s slots. The basic :class:`Resource` sorts waiting processes in a *FIFO* (first in—first out) way.
+
+A resource needs a reference to an :class:`Environment` and a *capacity* when it is created::
+
+  julia> env = Environment()
+  Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
+
+  julia> bcs = Resource(env, 2)
+  Resource(Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing),0x0000,2,PriorityQueue{Process,ResourceKey}(),PriorityQueue{Process,ResourceKey}())
+
+The car processes can now be created and a reference to our resource as well as some additional parameters are passed to them::
+
+  julia> for i=0:3
+           Process(env, car, i, bcs, 2.0*i, 5.0)
+         end
+
+Finally, the simulation can be started. Since the car processes all terminate on their own in this simulation, an until time is not specified—the simulation will automatically stop when there are no more events left::
+
+  julia> run(env)
+  0 arriving at 0.0
+  0 starting to charge at 0.0
+  1 arriving at 2.0
+  1 starting to charge at 2.0
+  2 arriving at 4.0
+  0 leaving the bcs at 5.0
+  2 starting to charge at 5.0
+  3 arriving at 6.0
+  1 leaving the bcs at 7.0
+  3 starting to charge at 7.0
+  2 leaving the bcs at 10.0
+  3 leaving the bcs at 12.0
+
+Note that the first two cars can start charging immediately after they arrive at the BCS, while cars 2 an 3 have to wait.
