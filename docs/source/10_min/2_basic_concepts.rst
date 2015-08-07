@@ -1,18 +1,18 @@
 Discrete Event Concepts
 -----------------------------
 
-SimJulia is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with *processes*. All processes live in an *environment*. They interact with the *environment* and with each other via *events*.
+SimJulia is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with `processes`. All processes live in an `environment`. They interact with the environment and with each other via `events`.
 
-Processes are described by simple Julia functions. During their lifetime, they create events and :meth:`yield` them in order to wait for them to be triggered.
+Processes are described by simple Julia functions. During their lifetime, they create events and `yield` them in order to wait for them to be triggered.
 
 When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.
 
-An important event type is a timeout. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A timeout and all other events can be created by calling the appropriate method of the :class:`Environment` that the process lives in (:func:`timeout(env) <timeout>` for example).
+An important event type is a timeout. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A timeout and all other events can be created by calling an appropriate function having a reference to the environment that the process lives in (:func:`timeout(env) <timeout>` for example).
 
 The First Process
 ~~~~~~~~~~~~~~~~~
 
-The first example will be a *car* process. The car will alternately drive and park for a while. When it starts driving (or parking), it will print the current simulation time.
+The first example will be a `car` process. The car will alternately drive and park for a while. When it starts driving (or parking), it will print the current simulation time.
 
 So let’s start::
 
@@ -50,7 +50,7 @@ Now that the behavior of the car has been modeled, lets create an instance of it
   Start driving at 12.0
   Start parking at 14.0
 
-The first thing to do is to create an instance of :class:`Environment`. This instance is passed into the car process function. Calling :func:`Process(env, car) <Process>` creates a *Task* that needs to be started and added to the environment.
+The first thing to do is to create an instance of :class:`Environment`. This instance is passed into the car process function. Calling :func:`Process(env, car) <Process>` creates a :class:`Process` holding a :class:`Task` that needs to be started and added to the environment.
 Note, that at this time, none of the code of our process function is being executed. Its execution is merely scheduled at the current simulation time.
 The :class:`Process` returned by :func:`Process(env, car) <Process>` can be used for process interactions (this will be covered in the next section).
 Finally, the simulation starts by calling :func:`run(env, 15.0) <run>` and passing an end time to it.
