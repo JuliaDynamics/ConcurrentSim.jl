@@ -20,4 +20,8 @@ catch exc
   println("None")
 end
 step(env)
-println(active_process(env))
+try
+  println(active_process(env))
+catch exc
+  println("None")
+end

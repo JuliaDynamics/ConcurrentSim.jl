@@ -1,8 +1,10 @@
+using Compat
+
 type Environment <: BaseEnvironment
   time :: Float64
   sched :: PriorityQueue{Event, EventKey}
   eid :: Uint16
-  active_proc :: Union(Nothing, Process) # replace with Nullable{Process} when version 4 is stable
+  active_proc :: @compat Nullable{Process}
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.time = initial_time
@@ -12,7 +14,7 @@ type Environment <: BaseEnvironment
       env.sched = PriorityQueue{Event, EventKey}()
     end
     env.eid = 0
-    env.active_proc = nothing
+    env.active_proc = @compat Nullable{Process}()
     return env
   end
 end

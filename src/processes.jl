@@ -1,3 +1,5 @@
+using Compat
+
 type Process <: BaseEvent
   task :: Task
   target :: BaseEvent
@@ -48,12 +50,8 @@ function processed(proc::Process)
   return processed(proc.ev)
 end
 
-function set_active_process(env::BaseEnvironment, proc::Union(Nothing,Process))
-  env.active_proc = proc
-end
-
 function active_process(env::BaseEnvironment)
-  return env.active_proc
+  return get(env.active_proc)
 end
 
 function value(proc::Process)
@@ -78,14 +76,14 @@ end
 
 function execute(env::BaseEnvironment, ev::Event, proc::Process)
   try
-    set_active_process(env, proc)
+    env.active_proc = @compat Nullable(proc)
     value = consume(proc.task, ev.value)
-    set_active_process(env, nothing)
+    env.active_proc = @compat Nullable{Process}()
     if istaskdone(proc.task)
       schedule(proc.ev, value)
     end
   catch exc
-    set_active_process(env, nothing)
+    env.active_proc = @compat Nullable{Process}()
     if !isempty(proc.ev.callbacks)
       schedule(proc.ev, exc)
     else
