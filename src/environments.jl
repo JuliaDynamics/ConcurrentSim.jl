@@ -43,7 +43,3 @@ function peek(env::Environment)
   end
   return time
 end
-
-function now(env::Environment)
-  return env.time
-end
