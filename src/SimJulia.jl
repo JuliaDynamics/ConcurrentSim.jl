@@ -5,11 +5,12 @@ module SimJulia
   if VERSION >= v"0.4-"
     import Base.now, Base.step, Base.&, Base.|
   end
-  export BaseEvent, BaseEnvironment, now
+  import Base.Collections.peek
+  export BaseEvent, BaseEnvironment
   export Event, Timeout, StopIteration, succeed, fail, triggered, processed, value, append_callback, environment, Timeout, run
   export Condition, AllOf, AnyOf, (&), (|)
   export Process, Interrupt, InterruptException, yield, active_process, cause, msg
-  export Environment, step
+  export Environment, step, peek, now
   export start_delayed
   export Resource, Preempted, Request, Release, usage_since, count
   export Container, Get, Put, capacity, level

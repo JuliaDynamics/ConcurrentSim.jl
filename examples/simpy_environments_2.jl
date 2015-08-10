@@ -5,11 +5,9 @@ function subfunc(env::Environment)
 end
 
 function my_proc(env::Environment)
-  while true
-    println(active_process(env))
-    subfunc(env)
-    yield(Timeout(env, 1.0))
-  end
+  println(active_process(env))
+  subfunc(env)
+  yield(Timeout(env, 1.0))
 end
 
 env = Environment()
@@ -19,9 +17,15 @@ try
 catch exc
   println("None")
 end
+println("$(peek(env))")
 step(env)
+println("$(peek(env))")
 try
   println(active_process(env))
 catch exc
   println("None")
 end
+step(env)
+println("$(peek(env))")
+step(env)
+println("$(peek(env))")

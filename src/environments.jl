@@ -33,6 +33,17 @@ function step(env::Environment)
   end
 end
 
+function peek(env::Environment)
+  time = 0.0
+  if isempty(env.sched)
+    time = Inf
+  else
+    (ev, key) = peek(env.sched)
+    time = key.time
+  end
+  return time
+end
+
 function now(env::Environment)
   return env.time
 end
