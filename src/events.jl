@@ -105,8 +105,6 @@ function stop_simulate(ev::Event)
   throw(StopIteration())
 end
 
-typealias Timeout Event
-
 function Timeout(env::BaseEnvironment, delay::Float64, value=nothing)
   ev = Event(env)
   schedule(ev, delay, value)

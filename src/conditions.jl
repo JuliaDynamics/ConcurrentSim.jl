@@ -1,5 +1,3 @@
-typealias Condition Event
-
 function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
   cond = Event(env)
   if isempty(events)
@@ -15,13 +13,9 @@ function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEven
   return cond
 end
 
-typealias AllOf Condition
-
 function AllOf(env::BaseEnvironment, events::Vector{BaseEvent})
   return Condition(env, eval_and, events)
 end
-
-typealias AnyOf Condition
 
 function AnyOf(env::BaseEnvironment, events::Vector{BaseEvent})
   return Condition(env, eval_or, events)
@@ -37,7 +31,7 @@ function condition_values(events::Vector{BaseEvent})
   return values
 end
 
-function check(ev::BaseEvent, cond::Condition, eval::Function, events::Vector{BaseEvent})
+function check(ev::BaseEvent, cond::Event, eval::Function, events::Vector{BaseEvent})
   if !triggered(cond) && !processed(cond)
     if isa(value(ev), Exception)
       fail(cond, value(ev))

@@ -33,8 +33,6 @@ type Container{T<:Number}
   end
 end
 
-typealias Put Event
-
 function Put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
   ev = Event(cont.env)
@@ -43,8 +41,6 @@ function Put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   trigger_put(Event(cont.env), cont)
   return ev
 end
-
-typealias Get Event
 
 function Get{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1

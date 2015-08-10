@@ -34,7 +34,7 @@ function car(env::Environment, name::Int, gs::GasStation)
   yield(Request(gs.fuel_dispensers))
   println("Car $name starts refueling at $(now(env))")
   yield(Get(gs.gas_tank, 40.0))
-  yield(Timeout(env, 5.0))
+  yield(Timeout(env, 15.0))
   yield(Release(gs.fuel_dispensers))
   println("Car $name done refueling at $(now(env))")
 end

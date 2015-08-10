@@ -109,8 +109,6 @@ function yield(proc::Process)
   return yield(proc.ev)
 end
 
-typealias Interrupt Timeout
-
 function Interrupt(proc::Process, msg::ASCIIString="")
   env = environment(proc)
   if !istaskdone(proc.task) && proc!=active_process(env)

@@ -37,8 +37,6 @@ type Resource
   end
 end
 
-typealias Request Event
-
 function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
   res.queue[active_process(res.env)] = ResourceKey(priority, id, ev, preempt, now(res.env))
@@ -50,8 +48,6 @@ function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
   res.eid += 1
   return Request(res, res.eid, priority, preempt)
 end
-
-typealias Release Event
 
 function Release(res::Resource)
   ev = Timeout(res.env, 0.0)
