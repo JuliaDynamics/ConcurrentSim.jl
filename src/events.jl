@@ -86,7 +86,7 @@ function run(env::BaseEnvironment, at::Float64)
   return run(env, ev)
 end
 
-function run(env::BaseEnvironment, until::Event)
+function run(env::BaseEnvironment, until::BaseEvent)
   append_callback(until, stop_simulate)
   try
     while true
