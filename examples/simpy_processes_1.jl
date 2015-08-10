@@ -13,11 +13,11 @@ end
 
 function drive(env::Environment, ev::EV)
   while true
-    yield(timeout(env, 20.0*rand()+20.0))
+    yield(Timeout(env, 20.0*rand()+20.0))
     println("Start parking at $(now(env))")
     succeed(ev.bat_ctrl_reactivate)
     ev.bat_ctrl_reactivate = Event(env)
-    yield(timeout(env, 300.0*rand()+60.0))
+    yield(Timeout(env, 300.0*rand()+60.0))
     println("Stop parking at $(now(env))")
   end
 end
@@ -27,7 +27,7 @@ function bat_ctrl(env::Environment, ev::EV)
     println("Bat. ctrl. passivating at $(now(env))")
     yield(ev.bat_ctrl_reactivate)
     println("Bat. ctrl. reactivated at $(now(env))")
-    yield(timeout(env, 60*rand()+30))
+    yield(Timeout(env, 60*rand()+30))
   end
 end
 

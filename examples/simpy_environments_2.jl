@@ -8,7 +8,7 @@ function my_proc(env::Environment)
   while true
     println(active_process(env))
     subfunc(env)
-    yield(timeout(env, 1.0))
+    yield(Timeout(env, 1.0))
   end
 end
 

@@ -1,13 +1,13 @@
 using SimJulia
 
 function car(env::Environment, name::Int, bcs::Resource, driving_time::Float64, charge_duration::Float64)
-  yield(timeout(env, driving_time))
+  yield(Timeout(env, driving_time))
   println("$name arriving at $(now(env))")
-  yield(request(bcs))
+  yield(Request(bcs))
   println("$name starting to charge at $(now(env))")
-  yield(timeout(env, charge_duration))
+  yield(Timeout(env, charge_duration))
   println("$name leaving the bcs at $(now(env))")
-  yield(release(bcs))
+  yield(Release(bcs))
 end
 
 env = Environment()

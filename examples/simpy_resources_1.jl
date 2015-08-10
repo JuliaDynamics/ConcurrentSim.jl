@@ -8,9 +8,9 @@ end
 
 function resource_user(env::Environment, res::Resource)
   print_stats(res)
-  yield(request(res))
+  yield(Request(res))
   print_stats(res)
-  yield(release(res))
+  yield(Release(res))
   print_stats(res)
 end
 

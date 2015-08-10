@@ -1,7 +1,7 @@
 Process Interaction
 -------------------
 
-The :class:`Process` instance that is returned by the constructor :func:`Process(env, func) <Process>` can be utilized for process interactions. The two most common examples for this are to wait for another process to finish and to interrupt another process while it is waiting for an event.
+The :class:`Process` instance that is returned by the constructor :func:`Process(env, func) <Process>` can be utilized for process interactions. The two most common examples for this are to wait for another process to finish and to Interrupt another process while it is waiting for an event.
 
 Waiting for a Process
 ~~~~~~~~~~~~~~~~~~~~~
@@ -53,17 +53,17 @@ Starting the simulation is straightforward again: create an environment, one (or
 Interrupting Another Process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
+Imagine, you don’t want to wait until your electric vehicle is fully charged but want to Interrupt the charging process and just start driving instead.
 
-SimPy allows you to interrupt a running process by calling the function :func:`interrupt(proc) <interrupt>`.
+SimPy allows you to interrupt a running process by calling the constructor :func:`Interrupt(proc) <Interrupt>` that returns an interrupt event.
 
-Interrupts are thrown into process functions as :class:`Interrupt` exceptions that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
+Interrupts are thrown into process functions as :class:`InterruptException` that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
 
   julia> using SimJulia
 
   julia> function driver(env::Environment, car_proc::Process)
-           yield(timeout(env, 3.0))
-           yield(interrupt(car_proc))
+           yield(Timeout(env, 3.0))
+           yield(Interrupt(car_proc))
          end
   driver (generic function with 1 method)
 
@@ -85,7 +85,7 @@ Interrupts are thrown into process functions as :class:`Interrupt` exceptions th
   car (generic function with 1 method)
 
   julia> function charge(env::Environment, duration::Float64)
-           yield(timeout(env, duration))
+           yield(Timeout(env, duration))
          end
   charge (generic function with 1 method)
 

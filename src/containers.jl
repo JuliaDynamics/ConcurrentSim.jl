@@ -33,7 +33,9 @@ type Container{T<:Number}
   end
 end
 
-function put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
+typealias Put Event
+
+function Put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
   ev = Event(cont.env)
   cont.put_queue[active_process(cont.env)] = ContainerKey{T}(priority, cont.eid, ev, amount)
@@ -42,7 +44,9 @@ function put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   return ev
 end
 
-function get{T<:Number}(cont::Container, amount::T, priority::Int64=0)
+typealias Get Event
+
+function Get{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
   ev = Event(cont.env)
   cont.get_queue[active_process(cont.env)] = ContainerKey{T}(priority, cont.eid, ev, amount)

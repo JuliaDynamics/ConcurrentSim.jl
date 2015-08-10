@@ -9,12 +9,12 @@ function car(env::Environment)
 
     println("Start driving at $(now(env))")
     trip_duration = 2.0
-    yield(timeout(env, trip_duration))
+    yield(Timeout(env, trip_duration))
   end
 end
 
 function charge(env::Environment, duration::Float64)
-  yield(timeout(env, duration))
+  yield(Timeout(env, duration))
 end
 
 env = Environment()

@@ -1,7 +1,7 @@
 using SimJulia
 
 function sub(env::Environment)
-  yield(timeout(env, 1.0))
+  yield(Timeout(env, 1.0))
   return 23
 end
 

@@ -1,15 +1,15 @@
 using SimJulia
 
 function user(env::Environment, name::ASCIIString, res::Resource, wait::Float64, prio::Int, preempt::Bool)
-  println("$name requesting at $(now(env))")
-  yield(request(res, prio, preempt))
+  println("$name Requesting at $(now(env))")
+  yield(Request(res, prio, preempt))
   println("$name got resource at $(now(env))")
   try
-    yield(timeout(env, 3.0))
+    yield(Timeout(env, 3.0))
   catch exc
     println("$name got preempted at $(now(env))")
   end
-  yield(release(res))
+  yield(Release(res))
 end
 
 env = Environment()

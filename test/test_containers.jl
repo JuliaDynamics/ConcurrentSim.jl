@@ -1,16 +1,16 @@
 using SimJulia
 
 function putter(env::Environment, delay::Float64, cont::Container)
-  yield(timeout(env, delay))
+  yield(Timeout(env, delay))
   println("Putting start at $(now(env)), level=$(level(cont))")
-  yield(put(cont, 400))
+  yield(Put(cont, 400))
   println("Putting stop at $(now(env)), level=$(level(cont))")
 end
 
 function getter(env::Environment, delay::Float64, cont::Container)
-  yield(timeout(env, delay))
+  yield(Timeout(env, delay))
   println("Getting start at $(now(env)), level=$(level(cont))")
-  yield(get(cont, 500))
+  yield(Get(cont, 500))
   println("Getting stop at $(now(env)), level=$(level(cont))")
 end
 

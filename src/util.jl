@@ -1,5 +1,5 @@
 function starter(env::BaseEnvironment, delay::Float64, func::Function, args...)
-  yield(timeout(env, delay))
+  yield(Timeout(env, delay))
   return Process(env, func, args...)
 end
 

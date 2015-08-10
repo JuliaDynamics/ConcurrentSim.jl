@@ -1,4 +1,6 @@
-function condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
+typealias Condition Event
+
+function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
   cond = Event(env)
   if isempty(events)
     succeed(cond, condition_values(events))
@@ -13,12 +15,16 @@ function condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEven
   return cond
 end
 
-function all_of(env::BaseEnvironment, events::Vector{BaseEvent})
-  return condition(env, eval_and, events)
+typealias AllOf Condition
+
+function AllOf(env::BaseEnvironment, events::Vector{BaseEvent})
+  return Condition(env, eval_and, events)
 end
 
-function any_of(env::BaseEnvironment, events::Vector{BaseEvent})
-  return condition(env, eval_or, events)
+typealias AnyOf Condition
+
+function AnyOf(env::BaseEnvironment, events::Vector{BaseEvent})
+  return Condition(env, eval_or, events)
 end
 
 function condition_values(events::Vector{BaseEvent})
@@ -31,7 +37,7 @@ function condition_values(events::Vector{BaseEvent})
   return values
 end
 
-function check(ev::BaseEvent, cond::Event, eval::Function, events::Vector{BaseEvent})
+function check(ev::BaseEvent, cond::Condition, eval::Function, events::Vector{BaseEvent})
   if !triggered(cond) && !processed(cond)
     if isa(value(ev), Exception)
       fail(cond, value(ev))
@@ -51,10 +57,10 @@ end
 
 function (&)(ev1::BaseEvent, ev2::BaseEvent)
   events = BaseEvent[ev1, ev2]
-  return condition(environment(ev1), eval_and, events)
+  return Condition(environment(ev1), eval_and, events)
 end
 
 function (|)(ev1::BaseEvent, ev2::BaseEvent)
   events = BaseEvent[ev1, ev2]
-  return condition(environment(ev1), eval_or, events)
+  return Condition(environment(ev1), eval_or, events)
 end

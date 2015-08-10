@@ -1,8 +1,8 @@
 using SimJulia
 
 function driver(env::Environment, car_proc::Process)
-  yield(timeout(env, 3.0))
-  yield(interrupt(car_proc))
+  yield(Timeout(env, 3.0))
+  yield(Interrupt(car_proc))
 end
 
 function car(env::Environment)
@@ -13,16 +13,16 @@ function car(env::Environment)
     try
       yield(charge_proc)
     catch exc
-      println("Was interrupted. Hope, the battery is full enough ...")
+      println("Was Interrupted. Hope, the battery is full enough ...")
     end
     println("Start driving at $(now(env))")
     trip_duration = 2.0
-    yield(timeout(env, trip_duration))
+    yield(Timeout(env, trip_duration))
   end
 end
 
 function charge(env::Environment, duration::Float64)
-  yield(timeout(env, duration))
+  yield(Timeout(env, duration))
 end
 
 env = Environment()

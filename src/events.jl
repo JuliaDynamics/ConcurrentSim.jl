@@ -86,7 +86,7 @@ function run(env::BaseEnvironment, at::Float64)
   return run(env, ev)
 end
 
-function run(env::BaseEnvironment, until::BaseEvent)
+function run(env::BaseEnvironment, until::Event)
   append_callback(until, stop_simulate)
   try
     while true
@@ -105,7 +105,9 @@ function stop_simulate(ev::Event)
   throw(StopIteration())
 end
 
-function timeout(env::BaseEnvironment, delay::Float64, value=nothing)
+typealias Timeout Event
+
+function Timeout(env::BaseEnvironment, delay::Float64, value=nothing)
   ev = Event(env)
   schedule(ev, delay, value)
   return ev

@@ -5,13 +5,13 @@ function fib(env::Environment, a=1, b=1)
   while a < 10
     println("At time $(now(env)) the value is $b")
     try
-      yield(timeout(env, 3.0))
+      yield(Timeout(env, 3.0))
     catch exc
-      println("At time $(now(env)) an interrupt occured")
+      println("At time $(now(env)) an Interrupt occured")
       println(exc)
       println(cause(exc))
       println(msg(exc))
-      return "An interrupt occured"
+      return "An Interrupt occured"
     end
     tmp = a+b
     a = b
@@ -19,13 +19,13 @@ function fib(env::Environment, a=1, b=1)
   end
 end
 
-function interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event)
+function Interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event)
   while true
-    yield(timeout(env, when))
-    println("Before interrupt")
-    yield(interrupt(proc, "My interrupt"))
-    println("After interrupt")
-    yield(timeout(env, when))
+    yield(Timeout(env, when))
+    println("Before Interrupt")
+    yield(Interrupt(proc, "My Interrupt"))
+    println("After Interrupt")
+    yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))
     try
       yield(ev)
@@ -49,7 +49,7 @@ function wait_fib(env::Environment, proc::Process, ev::Event)
 end
 
 function ev_too_late(env::Environment, ev::Event, when::Float64)
-  yield(timeout(env, when))
+  yield(Timeout(env, when))
   println("Processed: $(processed(ev))")
   try
     value = yield(ev)
@@ -73,7 +73,7 @@ env = Environment()
 ev = Event(env)
 proc = Process(env, fib)
 proc2 = Process(env, fib, 2, 3)
-proc_interrupt = Process(env, interrupt_fib, proc, 4.0, ev)
+proc_Interrupt = Process(env, Interrupt_fib, proc, 4.0, ev)
 proc_wait = Process(env, wait_fib, proc, ev)
 proc_too_late = Process(env, ev_too_late, ev, 16.0)
 proc_die = Process(env, die, proc_too_late)

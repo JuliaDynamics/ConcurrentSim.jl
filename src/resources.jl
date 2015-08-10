@@ -37,20 +37,24 @@ type Resource
   end
 end
 
-function request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
+typealias Request Event
+
+function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
   res.queue[active_process(res.env)] = ResourceKey(priority, id, ev, preempt, now(res.env))
   trigger_put(Event(res.env), res)
   return ev
 end
 
-function request(res::Resource, priority::Int64=0, preempt::Bool=false)
+function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
   res.eid += 1
-  return request(res, res.eid, priority, preempt)
+  return Request(res, res.eid, priority, preempt)
 end
 
-function release(res::Resource)
-  ev = timeout(res.env, 0.0)
+typealias Release Event
+
+function Release(res::Resource)
+  ev = Timeout(res.env, 0.0)
   append_callback(ev, (ev)->trigger_put(ev, res))
   trigger_get(Event(res.env), res, active_process(res.env))
   return ev
