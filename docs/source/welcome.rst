@@ -7,6 +7,6 @@ It's event dispatcher is based on a :class:`Task`. This is a control flow featur
 
 The continuous time simulation is still under development and will be based on a quantized state system solver that naturally integrates in the discrete event framework.
 
-SimJulia contains tutorials, in-depth documentation, and a large number of examples. The tutorals and the examples are borrowed from the SimPy distribution to allow a direct comparison and an easy migration path for users. The differences between SimJulia and SimPy are clearly documented.
+SimJulia contains tutorials, in-depth documentation, and a large number of examples. The tutorials and the examples are borrowed from the SimPy distribution to allow a direct comparison and an easy migration path for users. The differences between SimJulia and SimPy are clearly documented.
 
-SimJulia is Released under the MIT License.
+SimJulia is released under the MIT License. The source code is freely available at the GitHub page of `SimJulia <https://github.com/BenLauwens/SimJulia.jl>`_.
