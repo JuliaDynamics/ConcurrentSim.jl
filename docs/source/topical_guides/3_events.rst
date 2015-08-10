@@ -8,7 +8,7 @@ SimJulia includes an extensive set of event constructors for various purposes. T
   - :func:`Event(env::BaseEnvironment) <Event>`
   - :func:`Timeout(env::BaseEnvironment, delay::Float64, value=nothing) <Timeout>`
 
-- composite events that are created by the next constructors:
+- compound events that are created by the next constructors:
 
   - :func:`Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent}) <Condition>`
   - :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`

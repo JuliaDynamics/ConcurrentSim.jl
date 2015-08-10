@@ -117,8 +117,8 @@ Other event constructors are:
 - :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>`
 - :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>`
 - :func:`Release(res::Resource) <Release>`
-- :func:`Put{T<:Number}(cont::Container, amount::T, priority::Int64=0) <Put>`
-- :func:`Get{T<:Number}(cont::Container, amount::T, priority::Int64=0) <Get>
+- :func:`Put{T}(cont::Container, amount::T, priority::Int64=0) <Put>`
+- :func:`Get{T}(cont::Container, amount::T, priority::Int64=0) <Get>`
 - :func:`Process(env::BaseEnvironment, func::Function, args...) <Process>`
 
 Technically, a :class:`Process` is not an :class:`Event` but it is a subtype of :class:`BaseEvent` having a field of type :class:`Event`.
@@ -127,7 +127,7 @@ More details on what events do can be found in the next sections.
 
 
 Miscellaneous
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 A process function can have a return value::
 
