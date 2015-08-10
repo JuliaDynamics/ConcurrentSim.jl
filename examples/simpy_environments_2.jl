@@ -1,31 +1,31 @@
 using SimJulia
 
 function subfunc(env::Environment)
-  println(active_process(env))
+  println("Active process: $(active_process(env))")
 end
 
 function my_proc(env::Environment)
-  println(active_process(env))
-  subfunc(env)
+  println("Active process: $(active_process(env))")
   yield(Timeout(env, 1.0))
+  subfunc(env)
 end
 
 env = Environment()
-p1 = Process(env, my_proc)
+Process(env, my_proc)
+println("Time: $(peek(env))")
 try
   println(active_process(env))
 catch exc
-  println("None")
+  println("No active process")
 end
-println("$(peek(env))")
 step(env)
-println("$(peek(env))")
+println("Time: $(peek(env))")
 try
   println(active_process(env))
 catch exc
-  println("None")
+  println("No active process")
 end
 step(env)
-println("$(peek(env))")
+println("Time: $(peek(env))")
 step(env)
-println("$(peek(env))")
+println("Time: $(peek(env))")

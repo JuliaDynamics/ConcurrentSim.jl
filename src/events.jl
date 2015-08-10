@@ -19,7 +19,7 @@ end
 
 type EmptySchedule <: Exception end
 
-type StopIteration <: Exception end
+type StopSimulation <: Exception end
 
 type EventProcessed <: Exception end
 
@@ -87,13 +87,13 @@ function run(env::BaseEnvironment, at::Float64)
 end
 
 function run(env::BaseEnvironment, until::BaseEvent)
-  append_callback(until, stop_simulate)
+  append_callback(until, stop_simulation)
   try
     while true
       step(env)
     end
   catch exc
-    if isa(exc, StopIteration)
+    if isa(exc, StopSimulation)
       return value(until)
     elseif !isa(exc, EmptySchedule)
       rethrow(exc)
@@ -101,8 +101,12 @@ function run(env::BaseEnvironment, until::BaseEvent)
   end
 end
 
-function stop_simulate(ev::Event)
-  throw(StopIteration())
+function exit(env::BaseEnvironment)
+  throw(StopSimulation())
+end
+
+function stop_simulation(ev::Event)
+  exit(ev.env)
 end
 
 function Timeout(env::BaseEnvironment, delay::Float64, value=nothing)

@@ -1,13 +1,13 @@
 module SimJulia
   using Base.Order
   using Base.Collections
-  import Base.show, Base.isless, Base.yield, Base.run, Base.count
+  import Base.show, Base.isless, Base.yield, Base.run, Base.count, Base.exit
   if VERSION >= v"0.4-"
     import Base.now, Base.step, Base.&, Base.|
   end
   import Base.Collections.peek
   export BaseEvent, BaseEnvironment
-  export Event, Timeout, StopIteration, succeed, fail, triggered, processed, value, append_callback, environment, Timeout, run
+  export Event, Timeout, StopIteration, succeed, fail, triggered, processed, value, append_callback, environment, run, exit
   export Condition, AllOf, AnyOf, (&), (|)
   export Process, Interrupt, InterruptException, yield, active_process, cause, msg
   export Environment, step, peek, now

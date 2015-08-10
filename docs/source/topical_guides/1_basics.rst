@@ -40,7 +40,7 @@ Once all process functions are defined, you can instantiate the objects for your
 
 You have to call the constructor :func:`Process(env::Environment, func::Function, args...) <Process>` to wrap the process function into the :class:`Task`. This will not execute any code of the process function yet but will schedule an event at the current simulation time which starts the execution of the process function. An instance of the :class:`Process can also be yielded and is triggered when its process function returns.
 
-Finally, you start SimJulia’s event loop by calling :func:`run(env) <run>`. By default, it will run as long as there are events in the event list, but you can also let it stop earlier by providing an until argument :func:`run(env:: Environment, until::Float64) <run>` or :func:`run(env, ev::Event) <run>`.
+Finally, you start SimJulia’s event loop by calling :func:`run(env) <run>`. By default, it will run as long as there are events in the event list, but you can also let it stop earlier by providing an until argument.
 
 “Best practice” version of the example above::
 
