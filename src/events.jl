@@ -1,3 +1,4 @@
+const EVENT_NOT_TRIGGERED = 0
 const EVENT_TRIGGERED = 1
 const EVENT_PROCESSED = 2
 
@@ -11,7 +12,7 @@ type Event <: BaseEvent
     ev = new()
     ev.env = env
     ev.callbacks = Set{Function}()
-    ev.state = 0
+    ev.state = EVENT_NOT_TRIGGERED
     ev.id = 0
     return ev
   end
