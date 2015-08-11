@@ -64,7 +64,7 @@ The environment allows you to get the current simulation time via the function :
 
 By default, the constructor :func:`Environment()` starts the simulation time at ``0.0``, but you can pass an initial value, :func:`Environment(initial_value::Float64)` to use something else.
 
-The function :func:`active_process(env::Environment) <active_process>` is comparable to :func:`base.getpid()` and returns the currently active :class:`Process`. A process is *active* when its process function is being executed. It becomes *inactive* (or suspended) when it yields an event.
+The function :func:`active_process(env::Environment) <active_process>` is comparable to :func:`Base.getpid()` and returns the currently active :class:`Process`. A process is *active* when its process function is being executed. It becomes *inactive* (or suspended) when it yields an event.
 
 Thus, it only makes sense to call this function from within a process function or a function that is called by your process function, otherwise, a :class:`NullException` is thrown::
 
