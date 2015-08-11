@@ -59,3 +59,17 @@ However, you can add a function to the list of callbacks as long as it accepts a
   succeed(event)
   run(env)
 
+If an event has been processed, all of its callbacks have been called. Adding more callbacks – these would of course never get called because the event has already happened results in the throwing of a :class:`EventProcessed` exception.
+
+
+Triggering events
+~~~~~~~~~~~~~~~~~
+
+When events are triggered, they can either succeed or fail. For example, if an event is to be triggered at the end of a computation and everything works out fine, the event will succeed. If an exceptions occurs during that computation, the event will fail.
+
+To trigger an event and mark it as successful, you can use :func:`succeed(ev::Event, value=nothing) <succeed>`. You can optionally pass a value to it (e.g., the results of a computation).
+
+To trigger an event and mark it as failed, call :func:`fail(ev::Event, exc::Exception) <fail>` and pass an :class:`Exception` instance to it (e.g., the exception you caught during your failed computation).
+
+
+
