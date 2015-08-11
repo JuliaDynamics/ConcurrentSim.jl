@@ -7,7 +7,7 @@ Processes are described by simple Julia functions. During their lifetime, they c
 
 When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.
 
-An important event type is a timeout. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A timeout and all other events can be created by calling an appropriate function having a reference to the environment that the process lives in (:func:`timeout(env, duration) <timeout>` for example).
+An important event is a timeout. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A timeout and all other events can be created by calling an appropriate constructor having a reference to the environment that the process lives in (:func:`Timeout(env, duration) <Timeout>` for example).
 
 
 The First Process
