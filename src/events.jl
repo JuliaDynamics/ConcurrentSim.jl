@@ -64,6 +64,9 @@ function schedule(ev::Event, value=nothing)
 end
 
 function append_callback(ev::Event, callback::Function, args...)
+  if processed(ev)
+    throw(EventProcessed())
+  end
   push!(ev.callbacks, (ev)->callback(ev, args...))
 end
 

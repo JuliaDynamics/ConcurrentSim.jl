@@ -4,7 +4,7 @@ type Process <: BaseEvent
   task :: Task
   target :: BaseEvent
   ev :: Event
-  execute :: Function
+  resume :: Function
   function Process(env::BaseEnvironment, task::Task)
     proc = new()
     proc.task = task
@@ -26,9 +26,9 @@ end
 
 function Process(env::BaseEnvironment, func::Function, args...)
   proc = Process(env, Task(()->func(env, args...)))
-  proc.execute = (ev)->execute(env, ev, proc)
+  proc.resume = (ev)->execute(env, ev, proc)
   ev = Event(env)
-  push!(ev.callbacks, proc.execute)
+  push!(ev.callbacks, proc.resume)
   schedule(ev, true)
   proc.target = ev
   return proc
@@ -97,7 +97,7 @@ function yield(ev::Event)
     throw(EventProcessed())
   end
   active_process(environment(ev)).target = ev
-  push!(ev.callbacks, active_process(environment(ev)).execute)
+  push!(ev.callbacks, active_process(environment(ev)).resume)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)
@@ -113,9 +113,9 @@ function Interrupt(proc::Process, msg::ASCIIString="")
   env = environment(proc)
   if !istaskdone(proc.task) && proc!=active_process(env)
     ev = Event(env)
-    push!(ev.callbacks, proc.execute)
+    push!(ev.callbacks, proc.resume)
     schedule(ev, true, InterruptException(active_process(env), msg))
-    delete!(proc.target.callbacks, proc.execute)
+    delete!(proc.target.callbacks, proc.resume)
   end
   return Timeout(env, 0.0)
 end

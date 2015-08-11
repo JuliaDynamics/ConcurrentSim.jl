@@ -85,9 +85,9 @@ end
 
 function preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
   ev = Event(env)
-  push!(ev.callbacks, proc.execute)
+  push!(ev.callbacks, proc.resume)
   schedule(ev, true, Preempted(cause, key.time))
-  delete!(proc.target.callbacks, proc.execute)
+  delete!(proc.target.callbacks, proc.resume)
 end
 
 function show(io::IO, pre::Preempted)

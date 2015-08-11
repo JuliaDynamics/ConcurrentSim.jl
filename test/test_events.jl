@@ -38,4 +38,10 @@ println("End of simulation at time $(now(env))")
 
 env = Environment(10.0)
 run(env, 12.0)
+try
+  append_callback(ev, my_callback, succeed_ev)
+catch exc
+  println("Append callback not possible")
+end
+
 println("End of simulation at time $(now(env))")
