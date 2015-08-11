@@ -147,4 +147,4 @@ A process function can have a return value::
   Process(env, other_proc)
   run(env)
 
-The simulation can be stopped by throwing a :class:`StopIteration` exception in a process function. To keep your code more readable, the function :func:`exit(env::BaseEnvironment) <exit>` does exactly this.
+The simulation can be stopped by throwing a :class:`StopSimulation` exception in a process function. To keep your code more readable, the function :func:`exit(env::BaseEnvironment) <exit>` does exactly this.
