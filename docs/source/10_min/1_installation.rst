@@ -10,7 +10,7 @@ The built-in package manager of Julia is used to install SimJulia::
 
   julia> Pkg.add("SimJulia")
 
-You can now optionally run SimJulia’s tests to see if everything works fine::
+You can now optionally run SimJulia’s tests to see if everything is working fine::
 
   julia> Pkg.test("SimJulia")
   ...
