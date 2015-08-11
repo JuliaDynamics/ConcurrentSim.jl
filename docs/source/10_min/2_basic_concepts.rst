@@ -33,7 +33,7 @@ So let’s start::
 
 The car process function requires a reference to an :class:`Environment` (env) in order to create new events. The car‘s behavior is described in an infinite loop. Though it will never terminate, it will pass the control flow back to the simulation once a :func:`yield(ev) <yield>` statement is reached. If the yielded event is triggered (“it occurs”), the simulation will resume the function at this statement.
 
-The car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function :func:`now(env) <now>`). It then calls the contructor:func:`Timeout(env, parking_duration) <Timeout>` to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.
+The car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function :func:`now(env) <now>`). It then calls the contructor :func:`Timeout(env, parking_duration) <Timeout>` to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.
 
 Now that the behavior of the car has been modeled, create an instance of it and see how it behaves::
 
