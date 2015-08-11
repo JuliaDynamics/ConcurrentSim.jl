@@ -72,4 +72,52 @@ To trigger an event and mark it as successful, you can use :func:`succeed(ev::Ev
 To trigger an event and mark it as failed, call :func:`fail(ev::Event, exc::Exception) <fail>` and pass an :class:`Exception` instance to it (e.g., the exception you caught during your failed computation).
 
 
+Example usages for :class:`Event`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The simple mechanics outlined above provide a great flexibility in the way events can be used.
+
+One example for this is that events can be shared. They can be created by a process or outside of the context of a process. They can be passed to other processes and chained::
+
+  using SimJulia
+
+  type School
+    class_ends :: Event
+    pupil_procs :: Vector{Process}
+    bell_proc :: Process
+    function School(env::Environment)
+      school = new()
+      school.class_ends = Event(env)
+      school.pupil_procs = Process[Process(env, pupil, school) for i=1:3]
+      school.bell_proc = Process(env, bell, school)
+      return school
+    end
+  end
+
+  function bell(env::Environment, school::School)
+    for i=1:2
+      yield(Timeout(env, 45.0))
+      succeed(school.class_ends)
+      school.class_ends = Event(env)
+      println()
+    end
+  end
+
+  function pupil(env::Environment, school::School)
+    for i=1:2
+      print(" \\o/")
+      yield(school.class_ends)
+    end
+  end
+
+  env = Environment()
+  school = School(env)
+  run(env)
+
+
+Let time pass by
+~~~~~~~~~~~~~~~~
+
+To actually let time pass in a simulation, there is the timeout event. A timeout constructor has three arguments: :func:`Timeout(env::BaseEnvironment, delay::Float64, value=nothing) <Timeout>`. It is triggered automatically and is scheduled at ``now + delay``. Thus, the succeed() and fail() methods cannot be called again and you have to pass the event value to it when you create the timeout.
+
 
