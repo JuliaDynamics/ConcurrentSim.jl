@@ -20,7 +20,7 @@ function Condition(env::BaseEnvironment, eval::Function, events::Vector{Event})
     succeed(cond, condition_values(events))
   end
   for ev in events
-    if processing_or_processed(ev)
+    if ev.state >= EVENT_PROCESSING
       check(ev, cond, eval, events)
     else
       append_callback(ev, check, cond, eval, events)
@@ -40,7 +40,7 @@ end
 function condition_values(events::Vector{Event})
   values = Dict{Event, Any}()
   for ev in events
-    if processing_or_processed(ev)
+    if ev.state >= EVENT_PROCESSING
       values[ev] = value(ev)
     end
   end
