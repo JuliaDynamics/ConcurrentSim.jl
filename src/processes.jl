@@ -85,7 +85,7 @@ function execute(env::BaseEnvironment, ev::Event, proc::Process)
   catch exc
     env.active_proc = @compat Nullable{Process}()
     if !isempty(proc.ev.callbacks)
-      schedule(proc.ev, exc)
+      fail(proc.ev, exc)
     else
       rethrow(exc)
     end

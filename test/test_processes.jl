@@ -51,12 +51,11 @@ end
 function ev_too_late(env::Environment, ev::Event, when::Float64)
   yield(Timeout(env, when))
   println("Processed: $(processed(ev))")
-  try
-    value = yield(ev)
-  catch exc
-    println(exc)
-    rethrow(exc)
-  end
+  throw(EventProcessed())
+end
+
+function callback_too_late(ev::Event)
+  println("Too late ...")
 end
 
 function die(env::Environment, proc::Process)
@@ -76,6 +75,7 @@ proc2 = Process(env, fib, 2, 3)
 proc_Interrupt = Process(env, Interrupt_fib, proc, 4.0, ev)
 proc_wait = Process(env, wait_fib, proc, ev)
 proc_too_late = Process(env, ev_too_late, ev, 16.0)
+append_callback(proc_too_late, callback_too_late)
 proc_die = Process(env, die, proc_too_late)
 try
   run(env, 20.0)
