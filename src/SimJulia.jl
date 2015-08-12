@@ -1,7 +1,7 @@
 module SimJulia
   using Base.Order
   using Base.Collections
-  import Base.show, Base.isless, Base.yield, Base.run, Base.count, Base.exit, Base.done
+  import Base.show, Base.isless, Base.yield, Base.run, Base.count, Base.exit, Base.done, Base.convert
   if VERSION >= v"0.4-"
     import Base.now, Base.step, Base.&, Base.|
   end

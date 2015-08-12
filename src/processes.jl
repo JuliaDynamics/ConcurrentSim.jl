@@ -58,10 +58,6 @@ function msg(inter::InterruptException)
   return inter.msg
 end
 
-function append_callback(proc::Process, callback::Function, args...)
-  append_callback(proc.ev, callback, args...)
-end
-
 function execute(env::BaseEnvironment, ev::Event, proc::Process)
   try
     env.active_proc = @compat Nullable(proc)
@@ -80,7 +76,8 @@ function execute(env::BaseEnvironment, ev::Event, proc::Process)
   end
 end
 
-function yield(ev::Event)
+function yield(ev::BaseEvent)
+  ev = convert(Event, ev)
   if ev.state == EVENT_PROCESSED
     return ev.value
   end
@@ -92,14 +89,6 @@ function yield(ev::Event)
     throw(value)
   end
   return value
-end
-
-function yield(proc::Process)
-  return yield(proc.ev)
-end
-
-function run(env::BaseEnvironment, until::Process)
-  return run(env, until.ev)
 end
 
 function Interrupt(proc::Process, msg::ASCIIString="")

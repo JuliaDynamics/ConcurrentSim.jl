@@ -19,6 +19,22 @@ type Event <: BaseEvent
   end
 end
 
+function convert(::Type{Event}, ev::BaseEvent)
+  if isa(ev, Event)
+    return ev
+  else
+    return ev.ev
+  end
+end
+
+function convert(::Type{Vector{Event}}, base_events::Vector{BaseEvent})
+  events = Event[]
+  for event in base_events
+    push!(events, convert(Event, event))
+  end
+  return events
+end
+
 type EmptySchedule <: Exception end
 
 type StopSimulation <: Exception end
@@ -62,7 +78,8 @@ function schedule(ev::Event, value=nothing)
   schedule(ev, false, 0.0, value)
 end
 
-function append_callback(ev::Event, callback::Function, args...)
+function append_callback(ev::BaseEvent, callback::Function, args...)
+  ev = convert(Event, ev)
   if processed(ev)
     throw(EventProcessed())
   end
@@ -92,7 +109,8 @@ function run(env::BaseEnvironment, at::Float64)
   return run(env, ev)
 end
 
-function run(env::BaseEnvironment, until::Event)
+function run(env::BaseEnvironment, until::BaseEvent)
+  until = convert(Event, until)
   append_callback(until, stop_simulation)
   try
     while true
@@ -100,7 +118,7 @@ function run(env::BaseEnvironment, until::Event)
     end
   catch exc
     if isa(exc, StopSimulation)
-      return value(until)
+      return until.value
     elseif !isa(exc, EmptySchedule)
       rethrow(exc)
     end

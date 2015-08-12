@@ -1,20 +1,5 @@
-function from_base_events_to_events(base_events::Vector{BaseEvent})
-  events = Event[]
-  for event in base_events
-    if isa(event, Event)
-      push!(events, event)
-    else
-      push!(events, event.ev)
-    end
-  end
-  return events
-end
-
-function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
-  return Condition(env, eval, from_base_events_to_events(events))
-end
-
-function Condition(env::BaseEnvironment, eval::Function, events::Vector{Event})
+function Condition(env::BaseEnvironment, eval::Function, base_events::Vector{BaseEvent})
+  events = convert(Vector{Event}, base_events)
   cond = Event(env)
   if isempty(events)
     succeed(cond, condition_values(events))
@@ -66,11 +51,11 @@ function eval_or(events::Vector{Event})
 end
 
 function (&)(ev1::BaseEvent, ev2::BaseEvent)
-  events = from_base_events_to_events(BaseEvent[ev1, ev2])
-  return Condition(events[1].env, eval_and, events)
+  events = BaseEvent[ev1, ev2]
+  return Condition(convert(Event, ev1).env, eval_and, events)
 end
 
 function (|)(ev1::BaseEvent, ev2::BaseEvent)
-  events = from_base_events_to_events(BaseEvent[ev1, ev2])
-  return Condition(events[1].env, eval_or, events)
+  events = BaseEvent[ev1, ev2]
+  return Condition(convert(Event, ev1).env, eval_or, events)
 end
