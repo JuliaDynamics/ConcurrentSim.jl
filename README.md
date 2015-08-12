@@ -16,12 +16,12 @@ SimJulia
 * Version 0.3 synchronizes the API with SimPy v3.
 * It is a complete rewrite allowing a more powerful and unified discrete event approach.
 * All examples of the SimPy distribution are implemented.
-* 10 min tutorial is included to start using SimJulia
+* 10 min tutorial is included to give users a taste of discrete event simulation with SimJulia.
 
 #### ToDo
 
 * Add further documentation.
-* Integrate the to be written QSS solver.
+* Implement the QSS solver for continuous system simulation.
 * Reintroduce the *Monitor* feature of the 0.2 version.
 
 #### Documentation
