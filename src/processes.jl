@@ -84,8 +84,9 @@ function yield(ev::Event)
   if ev.state == EVENT_PROCESSED
     return ev.value
   end
-  active_process(environment(ev)).target = ev
-  push!(ev.callbacks, active_process(environment(ev)).resume)
+  proc = active_process(ev.env)
+  proc.target = ev
+  push!(ev.callbacks, proc.resume)
   value = produce(ev)
   if isa(value, Exception)
     throw(value)

@@ -41,9 +41,6 @@ function value(ev::Event)
   return ev.value
 end
 
-function environment(ev::Event)
-  return ev.env
-end
 
 function schedule(ev::Event, priority::Bool, delay::Float64, value=nothing)
   ev.env.eid += 1
