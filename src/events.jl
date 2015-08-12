@@ -29,12 +29,12 @@ function show(io::IO, ev::Event)
   print(io, "Event id $(ev.id)")
 end
 
-function is_initial(ev::Event)
-  return ev.state == EVENT_INITIAL
-end
-
 function triggered(ev::Event)
   return ev.state == EVENT_TRIGGERED
+end
+
+function processing_or_processed(ev::Event)
+  return ev.state >= EVENT_PROCESSING
 end
 
 function processed(ev::Event)
@@ -77,13 +77,13 @@ function append_callback(ev::Event, callback::Function, args...)
 end
 
 function succeed(ev::Event, value=nothing)
-  if is_initial(ev)
+  if ev.state == EVENT_INITIAL
     schedule(ev, value)
   end
 end
 
 function fail(ev::Event, exc::Exception)
-  if is_initial(ev)
+  if ev.state == EVENT_INITIAL
     schedule(ev, exc)
   end
 end

@@ -4,7 +4,7 @@ function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEven
     succeed(cond, condition_values(events))
   end
   for ev in events
-    if processed(ev)
+    if processing_or_processed(ev)
       check(ev, cond, eval, events)
     else
       append_callback(ev, check, cond, eval, events)
@@ -24,7 +24,7 @@ end
 function condition_values(events::Vector{BaseEvent})
   values = Dict{BaseEvent, Any}()
   for ev in events
-    if processed(ev)
+    if processing_or_processed(ev)
       values[ev] = value(ev)
     end
   end
@@ -32,7 +32,7 @@ function condition_values(events::Vector{BaseEvent})
 end
 
 function check(ev::Event, cond::Event, eval::Function, events::Vector{BaseEvent})
-  if is_initial(cond)
+  if cond.state == EVENT_INITIAL
     if isa(value(ev), Exception)
       fail(cond, value(ev))
     elseif eval(events)
@@ -42,11 +42,11 @@ function check(ev::Event, cond::Event, eval::Function, events::Vector{BaseEvent}
 end
 
 function eval_and(events::Vector{BaseEvent})
-  return all(map((ev)->processed(ev), events))
+  return all(map((ev)->processing_or_processed(ev), events))
 end
 
 function eval_or(events::Vector{BaseEvent})
-  return any(map((ev)->processed(ev), events))
+  return any(map((ev)->processing_or_processed(ev), events))
 end
 
 function (&)(ev1::BaseEvent, ev2::BaseEvent)

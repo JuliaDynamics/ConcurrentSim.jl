@@ -46,12 +46,16 @@ function triggered(proc::Process)
   return triggered(proc.ev)
 end
 
+function processing_or_processed(proc::Process)
+  return processing_or_processed(proc.ev)
+end
+
 function processed(proc::Process)
   return processed(proc.ev)
 end
 
 function active_process(env::BaseEnvironment)
-  return get(env.active_proc)
+  return @compat get(env.active_proc)
 end
 
 function value(proc::Process)
@@ -71,7 +75,7 @@ function msg(inter::InterruptException)
 end
 
 function append_callback(proc::Process, callback::Function, args...)
-  push!(proc.ev.callbacks, (ev)->callback(ev, args...))
+  append_callback(proc.ev, callback, args...)
 end
 
 function execute(env::BaseEnvironment, ev::Event, proc::Process)
@@ -94,7 +98,7 @@ end
 
 function yield(ev::Event)
   if processed(ev)
-    throw(EventProcessed())
+    return value(ev)
   end
   active_process(environment(ev)).target = ev
   push!(ev.callbacks, active_process(environment(ev)).resume)
