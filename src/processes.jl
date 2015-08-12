@@ -94,7 +94,7 @@ end
 
 function yield(ev::Event)
   if ev.state == EVENT_PROCESSED
-    return value(ev)
+    return ev.value
   end
   active_process(environment(ev)).target = ev
   push!(ev.callbacks, active_process(environment(ev)).resume)
