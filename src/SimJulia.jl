@@ -1,7 +1,7 @@
 module SimJulia
   using Base.Order
   using Base.Collections
-  import Base.show, Base.isless, Base.yield, Base.run, Base.count, Base.exit
+  import Base.show, Base.isless, Base.yield, Base.run, Base.count, Base.exit, Base.done
   if VERSION >= v"0.4-"
     import Base.now, Base.step, Base.&, Base.|
   end
@@ -9,7 +9,7 @@ module SimJulia
   export BaseEvent, BaseEnvironment, StopSimulation, EmptySchedule
   export Event, Timeout, EventProcessed, succeed, fail, triggered, processed, value, append_callback, environment, run, exit
   export Condition, AllOf, AnyOf, (&), (|)
-  export Process, Interrupt, InterruptException, yield, active_process, cause, msg
+  export Process, Interrupt, InterruptException, yield, active_process, cause, msg, done
   export Environment, step, peek, now
   export start_delayed
   export Resource, Preempted, Request, Release, usage_since, count

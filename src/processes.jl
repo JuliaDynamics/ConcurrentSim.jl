@@ -42,16 +42,12 @@ function show(io::IO, proc::Process)
   print(io, "Process $(proc.task)")
 end
 
-function triggered(proc::Process)
-  return triggered(proc.ev)
+function done(proc::Process)
+  return istaskdone(proc.task)
 end
 
 function processing_or_processed(proc::Process)
   return processing_or_processed(proc.ev)
-end
-
-function processed(proc::Process)
-  return processed(proc.ev)
 end
 
 function active_process(env::BaseEnvironment)
@@ -97,7 +93,7 @@ function execute(env::BaseEnvironment, ev::Event, proc::Process)
 end
 
 function yield(ev::Event)
-  if processed(ev)
+  if ev.state == EVENT_PROCESSED
     return value(ev)
   end
   active_process(environment(ev)).target = ev
