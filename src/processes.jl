@@ -46,20 +46,8 @@ function done(proc::Process)
   return istaskdone(proc.task)
 end
 
-function processing_or_processed(proc::Process)
-  return processing_or_processed(proc.ev)
-end
-
 function active_process(env::BaseEnvironment)
   return @compat get(env.active_proc)
-end
-
-function value(proc::Process)
-  return value(proc.ev)
-end
-
-function environment(proc::Process)
-  return environment(proc.ev)
 end
 
 function cause(inter::InterruptException)
@@ -109,8 +97,12 @@ function yield(proc::Process)
   return yield(proc.ev)
 end
 
+function run(env::BaseEnvironment, until::Process)
+  return run(env, until.ev)
+end
+
 function Interrupt(proc::Process, msg::ASCIIString="")
-  env = environment(proc)
+  env = proc.ev.env
   if !istaskdone(proc.task) && proc!=active_process(env)
     ev = Event(env)
     push!(ev.callbacks, proc.resume)

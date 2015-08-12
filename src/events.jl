@@ -33,10 +33,6 @@ function triggered(ev::Event)
   return ev.state == EVENT_TRIGGERED
 end
 
-function processing_or_processed(ev::Event)
-  return ev.state >= EVENT_PROCESSING
-end
-
 function processed(ev::Event)
   return ev.state == EVENT_PROCESSED
 end
@@ -99,7 +95,7 @@ function run(env::BaseEnvironment, at::Float64)
   return run(env, ev)
 end
 
-function run(env::BaseEnvironment, until::BaseEvent)
+function run(env::BaseEnvironment, until::Event)
   append_callback(until, stop_simulation)
   try
     while true

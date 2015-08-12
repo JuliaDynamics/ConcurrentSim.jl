@@ -1,6 +1,6 @@
 using SimJulia
 
-function evaluate(events::Vector{BaseEvent})
+function evaluate(events::Vector{Event})
   return true
 end
 

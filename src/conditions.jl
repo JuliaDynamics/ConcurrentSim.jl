@@ -1,4 +1,20 @@
+function from_base_events_to_events(base_events::Vector{BaseEvent})
+  events = Event[]
+  for event in base_events
+    if isa(event, Event)
+      push!(events, event)
+    else
+      push!(events, event.ev)
+    end
+  end
+  return events
+end
+
 function Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent})
+  return Condition(env, eval, from_base_events_to_events(events))
+end
+
+function Condition(env::BaseEnvironment, eval::Function, events::Vector{Event})
   cond = Event(env)
   if isempty(events)
     succeed(cond, condition_values(events))
@@ -21,8 +37,8 @@ function AnyOf(env::BaseEnvironment, events::Vector{BaseEvent})
   return Condition(env, eval_or, events)
 end
 
-function condition_values(events::Vector{BaseEvent})
-  values = Dict{BaseEvent, Any}()
+function condition_values(events::Vector{Event})
+  values = Dict{Event, Any}()
   for ev in events
     if processing_or_processed(ev)
       values[ev] = value(ev)
@@ -31,7 +47,7 @@ function condition_values(events::Vector{BaseEvent})
   return values
 end
 
-function check(ev::Event, cond::Event, eval::Function, events::Vector{BaseEvent})
+function check(ev::Event, cond::Event, eval::Function, events::Vector{Event})
   if cond.state == EVENT_INITIAL
     if isa(value(ev), Exception)
       fail(cond, value(ev))
@@ -41,20 +57,20 @@ function check(ev::Event, cond::Event, eval::Function, events::Vector{BaseEvent}
   end
 end
 
-function eval_and(events::Vector{BaseEvent})
-  return all(map((ev)->processing_or_processed(ev), events))
+function eval_and(events::Vector{Event})
+  return all(map((ev)->ev.state >= EVENT_PROCESSING, events))
 end
 
-function eval_or(events::Vector{BaseEvent})
-  return any(map((ev)->processing_or_processed(ev), events))
+function eval_or(events::Vector{Event})
+  return any(map((ev)->ev.state >= EVENT_PROCESSING, events))
 end
 
 function (&)(ev1::BaseEvent, ev2::BaseEvent)
-  events = BaseEvent[ev1, ev2]
-  return Condition(environment(ev1), eval_and, events)
+  events = from_base_events_to_events(BaseEvent[ev1, ev2])
+  return Condition(environment(events[1]), eval_and, events)
 end
 
 function (|)(ev1::BaseEvent, ev2::BaseEvent)
-  events = BaseEvent[ev1, ev2]
-  return Condition(environment(ev1), eval_or, events)
+  events = from_base_events_to_events(BaseEvent[ev1, ev2])
+  return Condition(environment(events[1]), eval_or, events)
 end
