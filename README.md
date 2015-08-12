@@ -2,6 +2,7 @@ SimJulia
 ========
 
 [![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=master)](https://travis-ci.org/BenLauwens/SimJulia.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
 [![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=master)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_release.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=release)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_nightly.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=nightly)
