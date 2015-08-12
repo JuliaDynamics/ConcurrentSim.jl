@@ -2,7 +2,7 @@ using Compat
 
 type Process <: BaseEvent
   task :: Task
-  target :: BaseEvent
+  target :: Event
   ev :: Event
   resume :: Function
   function Process(env::BaseEnvironment, task::Task)
@@ -93,10 +93,11 @@ end
 
 function Interrupt(proc::Process, msg::ASCIIString="")
   env = proc.ev.env
-  if !istaskdone(proc.task) && proc!=active_process(env)
+  active_proc = active_process(env)
+  if !istaskdone(proc.task) && !is(proc, active_proc)
     ev = Event(env)
     push!(ev.callbacks, proc.resume)
-    schedule(ev, true, InterruptException(active_process(env), msg))
+    schedule(ev, true, InterruptException(active_proc, msg))
     delete!(proc.target.callbacks, proc.resume)
   end
   return Timeout(env, 0.0)

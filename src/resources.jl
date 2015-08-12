@@ -63,7 +63,7 @@ function trigger_put(ev::Event, res::Resource)
       (proc_preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        preempt(res.env, proc_preempt, proc, key_preempt)
+        Preempt(res.env, proc_preempt, proc, key_preempt)
       end
     end
     if length(res.user_list) < res.capacity
@@ -83,11 +83,12 @@ function trigger_get(ev::Event, res::Resource, proc::Process)
   dequeue!(res.user_list)
 end
 
-function preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
+function Preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
   ev = Event(env)
   push!(ev.callbacks, proc.resume)
   schedule(ev, true, Preempted(cause, key.time))
   delete!(proc.target.callbacks, proc.resume)
+  return ev
 end
 
 function show(io::IO, pre::Preempted)

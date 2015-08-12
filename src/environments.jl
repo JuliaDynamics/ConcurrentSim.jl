@@ -19,6 +19,11 @@ type Environment <: BaseEnvironment
   end
 end
 
+
+function now(env::Environment)
+  return env.time
+end
+
 function step(env::Environment)
   if isempty(env.sched)
     throw(EmptySchedule())
