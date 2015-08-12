@@ -1,6 +1,7 @@
-const EVENT_NOT_TRIGGERED = 0
+const EVENT_INITIAL = 0
 const EVENT_TRIGGERED = 1
-const EVENT_PROCESSED = 2
+const EVENT_PROCESSING = 2
+const EVENT_PROCESSED = 3
 
 type Event <: BaseEvent
   env :: BaseEnvironment
@@ -12,7 +13,7 @@ type Event <: BaseEvent
     ev = new()
     ev.env = env
     ev.callbacks = Set{Function}()
-    ev.state = EVENT_NOT_TRIGGERED
+    ev.state = EVENT_INITIAL
     ev.id = 0
     return ev
   end
@@ -26,6 +27,10 @@ type EventProcessed <: Exception end
 
 function show(io::IO, ev::Event)
   print(io, "Event id $(ev.id)")
+end
+
+function is_initial(ev::Event)
+  return ev.state == EVENT_INITIAL
 end
 
 function triggered(ev::Event)
@@ -72,11 +77,15 @@ function append_callback(ev::Event, callback::Function, args...)
 end
 
 function succeed(ev::Event, value=nothing)
-  schedule(ev, value)
+  if is_initial(ev)
+    schedule(ev, value)
+  end
 end
 
 function fail(ev::Event, exc::Exception)
-  schedule(ev, exc)
+  if is_initial(ev)
+    schedule(ev, exc)
+  end
 end
 
 function run(env::BaseEnvironment)

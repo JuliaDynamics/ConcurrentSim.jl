@@ -26,11 +26,12 @@ function step(env::Environment)
   (ev, key) = peek(env.sched)
   dequeue!(env.sched)
   env.time = key.time
-  ev.state = EVENT_PROCESSED
+  ev.state = EVENT_PROCESSING
   while !isempty(ev.callbacks)
     callback = pop!(ev.callbacks)
     callback(ev)
   end
+  ev.state = EVENT_PROCESSED
 end
 
 function peek(env::Environment)

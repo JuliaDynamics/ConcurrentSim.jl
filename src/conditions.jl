@@ -31,8 +31,8 @@ function condition_values(events::Vector{BaseEvent})
   return values
 end
 
-function check(ev::BaseEvent, cond::Event, eval::Function, events::Vector{BaseEvent})
-  if !triggered(cond) && !processed(cond)
+function check(ev::Event, cond::Event, eval::Function, events::Vector{BaseEvent})
+  if is_initial(cond)
     if isa(value(ev), Exception)
       fail(cond, value(ev))
     elseif eval(events)
