@@ -11,7 +11,7 @@ module SimJulia
   export Condition, AllOf, AnyOf, (&), (|)
   export Process, Interrupt, InterruptException, yield, active_process, cause, msg, done
   export Environment, step, peek, now
-  export start_delayed
+  export DelayedProcess
   export Resource, Preempted, Request, Release, usage_since, count
   export Container, Get, Put, capacity, level
   include("base.jl")

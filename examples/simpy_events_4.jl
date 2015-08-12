@@ -7,7 +7,7 @@ end
 
 function parent(env::Environment)
   start = now(env)
-  sub_proc = yield(start_delayed(env, 3.0, sub))
+  sub_proc = yield(DelayedProcess(env, 3.0, sub))
   @assert(now(env) - start == 3.0)
   ret = yield(sub_proc)
 end
