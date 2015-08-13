@@ -3,7 +3,7 @@ Shared Resources
 
 Shared resources are another way to model process interaction. They form a congestion point where processes queue up in order to use them.
 
-SimJulia defines two categories of resources::
+SimJulia defines two categories of resources:
 
   - :class:`Resource`: Resources that can be used by a limited number of processes at a time (e.g., a gas station with a limited number of fuel pumps).
   - :class:`Container`: Resources that model the production and consumption of a homogeneous, undifferentiated bulk. It may either be continuous (like water) or discrete (like apples).
@@ -14,7 +14,7 @@ The basic concept of resources
 
 All resources share the same basic concept: The resource itself is some kind of a container with a, usually limited, capacity. Processes can either try to put something into the resource or try to get something out. If the resource is full or empty, they have to queue up and wait.
 
-While a process is waiting for a resource, it may be interrupted by another process. After catching the interrupt, the process has two possibilities::
+While a process is waiting for a resource, it may be interrupted by another process. After catching the interrupt, the process has two possibilities:
 
   - It may continue to wait for the request (by yielding the request event again).
   - It may stop waiting for the request (by yielding a release event).
