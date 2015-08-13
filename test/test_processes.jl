@@ -28,9 +28,16 @@ function Interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event
     yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))
     try
-      yield(ev)
+      value = yield(ev)
     catch exc
-      println(exc)
+      println("Exception: $exc")
+    end
+    yield(Timeout(env, when))
+    try
+       value = yield(ev)
+       println("Value: $value")
+    catch exc
+       println("Exception: $exc")
     end
   end
 end
