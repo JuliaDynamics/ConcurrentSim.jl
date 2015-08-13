@@ -9,3 +9,5 @@ This sections covers various aspects of SimJulia more in-depth. It assumes that 
    1_basics
    2_environments
    3_events
+   4_process_interactions
+
