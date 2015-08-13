@@ -3,7 +3,7 @@ Shared Resources
 
 SimJulia offers two types of resources that help you modeling problems, where multiple processes want to use a resource of limited capacity (e.g., cars at a fuel station with a limited number of fuel pumps) or classical producer-consumer problems.
 
-In this section, SimPy’s :class:`Resource` type is briefly introduced.
+In this section, SimJulia’s :class:`Resource` type is briefly introduced.
 
 Basic Resource Usage
 ~~~~~~~~~~~~~~~~~~~~
