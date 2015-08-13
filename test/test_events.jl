@@ -5,11 +5,27 @@ function my_callback(ev::Event, succeed_ev::Event)
   println("Succeed is triggered: $(triggered(succeed_ev))")
   println("Succeed is processed: $(processed(succeed_ev))")
   succeed(succeed_ev, "Yes we can")
+  try
+    succeed(succeed_ev, "Yes we can twice")
+  catch exc
+    println(exc)
+  end
 end
 
-function my_callback2(ev::Event, fail_ev::Event)
+function my_callback2(ev::Event, fail_ev::Event, trigger_ev::Event)
   println("Callback of $(ev)")
   fail(fail_ev, ErrorException("No we can't"))
+  try
+    fail(fail_ev, ErrorException("No we can't twice"))
+  catch exc
+    println(exc)
+  end
+  trigger(trigger_ev, fail_ev)
+  try
+    trigger(trigger_ev, fail_ev)
+  catch exc
+    println(exc)
+  end
 end
 
 function succeed_callback(ev::Event)
@@ -22,15 +38,21 @@ function fail_callback(ev::Event)
   println(value(ev))
 end
 
+function trigger_callback(ev::Event)
+  println(value(ev))
+end
+
 env = Environment()
 ev = Timeout(env, 1.0)
 ev2 = Timeout(env, 2.0)
 succeed_ev = Event(env)
 fail_ev = Event(env)
+trigger_ev = Event(env)
 append_callback(ev, my_callback, succeed_ev)
-append_callback(ev2, my_callback2, fail_ev)
+append_callback(ev2, my_callback2, fail_ev, trigger_ev)
 append_callback(succeed_ev, succeed_callback)
 append_callback(fail_ev, fail_callback)
+append_callback(trigger_ev, trigger_callback)
 run(env)
 println("Succeed is triggered: $(triggered(succeed_ev))")
 println("Succeed is processed: $(processed(succeed_ev))")

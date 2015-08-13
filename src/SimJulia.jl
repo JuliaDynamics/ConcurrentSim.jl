@@ -7,7 +7,7 @@ module SimJulia
   end
   import Base.Collections.peek
   export BaseEvent, BaseEnvironment, StopSimulation, EmptySchedule
-  export Event, Timeout, EventProcessed, succeed, fail, triggered, processed, value, append_callback, run, exit
+  export Event, Timeout, EventTriggered, EventProcessed, succeed, fail, trigger, triggered, processed, value, append_callback, run, exit
   export Condition, AllOf, AnyOf, (&), (|)
   export Process, Interrupt, InterruptException, yield, active_process, cause, msg, done
   export Environment, step, peek, now

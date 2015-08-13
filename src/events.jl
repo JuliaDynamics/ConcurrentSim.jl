@@ -39,6 +39,8 @@ type EmptySchedule <: Exception end
 
 type StopSimulation <: Exception end
 
+type EventTriggered <: Exception end
+
 type EventProcessed <: Exception end
 
 function show(io::IO, ev::Event)
@@ -86,15 +88,28 @@ function append_callback(ev::BaseEvent, callback::Function, args...)
 end
 
 function succeed(ev::Event, value=nothing)
-  if ev.state == EVENT_INITIAL
-    schedule(ev, value)
+  if ev.state > EVENT_INITIAL
+    throw(EventTriggered())
   end
+  schedule(ev, value)
+  return ev
 end
 
 function fail(ev::Event, exc::Exception)
-  if ev.state == EVENT_INITIAL
-    schedule(ev, exc)
+  if ev.state > EVENT_INITIAL
+    throw(EventTriggered())
   end
+  schedule(ev, exc)
+  return ev
+end
+
+function trigger(ev::Event, cause::BaseEvent)
+  cause = convert(Event, cause)
+  if ev.state > EVENT_INITIAL
+    throw(EventTriggered())
+  end
+  schedule(ev, cause.value)
+  return ev
 end
 
 function run(env::BaseEnvironment)

@@ -14,10 +14,8 @@ SimJulia includes an extensive set of event constructors for various purposes. T
   - :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`
   - :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>`
 
-- process events that are created by the constructor:
 
-  - :func:`Process(env::BaseEnvironment, func::Function, args...) <Process>`
-
+Processes that are created by the constructor :func:`Process(env::BaseEnvironment, func::Function, args...) <Process>` are also discussed. Technically speaking they are not proper events but they can also be yielded as a subtype of :class:`BaseEvent`.
 
 The resource and container event constructors are discussed in a later section.
 
@@ -25,17 +23,18 @@ The resource and container event constructors are discussed in a later section.
 Event basics
 ~~~~~~~~~~~~
 
-SimJulia events are very similar – if not identical — to deferreds, futures or promises. Instances of the type :class:`BaseEvent` are used to describe any kind of events. Events can be in one of the following states:
+SimJulia events are very similar – if not identical — to deferreds, futures or promises. Instances of the type :class:`Event` are used to describe any kind of events. Events can be in one of the following states:
 
   - *not triggered*: an event may happen
   - *triggered*: is going to happen
+  - *processing*: is happening
   - *processed*: has happened
 
 They traverse these states exactly once in that order. Events are also tightly bound to time and time causes events to advance their state. Initially, events are not triggered and just objects in memory.
 
-If an event gets triggered, it is scheduled at a given time and inserted into SimJulia’s event list. The function :func:`triggered(ev::BaseEvent) <triggered>` returns ``true``. As long as the event is not processed, you can add callbacks to an event. Callbacks are functions that accept a single event as argument and are stored in the callbacks list of that event. An event becomes processed when SimJulia pops it from the event list and calls all of its callbacks. It is now no longer possible to add callbacks. The function :func:`processed(ev::BaseEvent) <processed>` returns at that moment ``true``.
+If an event gets triggered, it is scheduled at a given time and inserted into SimJulia’s event list. The function :func:`triggered(ev::Event) <triggered>` returns ``true``. As long as the event is not processed, you can add callbacks to an event. Callbacks are functions that have as first argument an :class:`Event` and are stored in the callbacks list of that event. An event becomes processed when SimJulia has popped it from the event list and has called all of its callbacks. It is no longer possible to add callbacks. The function :func:`processed(ev::Event) <processed>` returns at that moment ``true``.
 
-Events also have a value. The value can be set before or when the event is triggered and can be retrieved via the function :func:`value(ev::BaseEvent) <value>` or, within a process, via the return value of the function :func:`yield(ev::BaseEvent) <yield>`.
+Events also have a value. The value can be set before or when the event is triggered and can be retrieved via the function :func:`value(ev::Event) <value>` or, within a process, via the return value of the function :func:`yield(ev::BaseEvent) <yield>`.
 
 
 Adding callbacks to an event
@@ -59,7 +58,7 @@ However, you can add a function to the list of callbacks as long as it accepts a
   succeed(event)
   run(env)
 
-If an event has been processed, all of its callbacks have been called. Adding more callbacks – these would of course never get called because the event has already happened results in the throwing of a :class:`EventProcessed` exception.
+If an event has been processed, all of its callbacks have been called. Adding more callbacks – these would of course never get called because the event has already happened - results in the throwing of a :class:`EventProcessed` exception.
 
 
 Triggering events
@@ -70,6 +69,14 @@ When events are triggered, they can either succeed or fail. For example, if an e
 To trigger an event and mark it as successful, you can use :func:`succeed(ev::Event, value=nothing) <succeed>`. You can optionally pass a value to it (e.g., the results of a computation).
 
 To trigger an event and mark it as failed, call :func:`fail(ev::Event, exc::Exception) <fail>` and pass an :class:`Exception` instance to it (e.g., the exception you caught during your failed computation).
+
+There is also a generic way to trigger an event: :func:`trigger(ev::Event, cause::BaseEvent) <trigger>`. This will take the value and outcome (success or failure) of the event passed to it.
+
+All three methods return the event instance they are bound to. This allows you to do things like::
+
+  yield succeed(Event(env))
+
+Triggering an event that was already triggered before results in the throwing of a :class:`EventTriggered` exception.
 
 
 Example usages for :class:`Event`
@@ -118,6 +125,6 @@ One example for this is that events can be shared. They can be created by a proc
 Let time pass by
 ~~~~~~~~~~~~~~~~
 
-To actually let time pass in a simulation, there is the timeout event. A timeout constructor has three arguments: :func:`Timeout(env::BaseEnvironment, delay::Float64, value=nothing) <Timeout>`. It is triggered automatically and is scheduled at ``now + delay``. Thus, the succeed() and fail() methods cannot be called again and you have to pass the event value to it when you create the timeout.
+To actually let time pass in a simulation, there is the timeout event. A timeout constructor has three arguments: :func:`Timeout(env::BaseEnvironment, delay::Float64, value=nothing) <Timeout>`. It is triggered automatically and is scheduled at ``now + delay``. Thus, the :func:`succeed(ev::Event, value=nothing) <succeed>`, :func:`fail(ev::Event, exc::Exception) <fail>` and :func:`trigger(ev::Event, cause::BaseEvent) <trigger>` functions cannot be called again and you have to pass the event value to it when you create the timeout event.
 
 
