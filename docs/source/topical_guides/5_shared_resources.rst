@@ -39,8 +39,6 @@ Here is as basic example for using a resource::
 
   function print_stats(res::Resource)
     println("$(count(res)) of $(capacity(res)) are allocated.")
-    println("  Users: $(res.user_list)")
-    println("  Queued processes: $(res.queue)")
   end
 
   function resource_user(env::Environment, res::Resource)
@@ -57,3 +55,160 @@ Here is as basic example for using a resource::
   Process(env, resource_user, res)
   run(env)
 
+The functions :func:`count(res::Resource) <count>` and :func:`capacity(res::Resource) <capacity>` return respectively the number of processes using the resource and the capacity of the resource.
+
+
+Priority resource
+~~~~~~~~~~~~~~~~~
+
+As you may know from the real world, not every one is equally important. To map that to SimJulia, the constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` lets requesting processes provide a priority for each request. More important requests will gain access to the resource earlier than less important ones. Priority is expressed by integer numbers; smaller numbers mean a higher priority::
+
+  using SimJulia
+
+  function resource_user(env::Environment, name::Int, res::Resource, wait::Float64, prio::Int)
+    yield(Timeout(env, wait))
+    println("$name Requesting at $(now(env)) with priority=$prio")
+    yield(Request(res, prio))
+    println("$name got resource at $(now(env))")
+    yield(Timeout(env, 3.0))
+    yield(Release(res))
+  end
+
+  env = Environment()
+  res = Resource(env, 1)
+  p1 = Process(env, resource_user, 1, res, 0.0, 0)
+  p2 = Process(env, resource_user, 2, res, 1.0, 0)
+  p3 = Process(env, resource_user, 3, res, 2.0, -1)
+  run(env)
+
+Although ``p3`` requested the resource later than ``p2``, it could use it earlier because its priority was higher.
+
+
+Preemptive resource
+~~~~~~~~~~~~~~~~~~~
+
+Sometimes, new requests are so important that queue-jumping is not enough and they need to kick existing users out of the resource (this is called preemption). As before the constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` allows you to do exactly this::
+
+  using SimJulia
+
+  function resource_user(env::Environment, name::Int, res::Resource, wait::Float64, prio::Int)
+    yield(Timeout(env, wait))
+    println("$name Requesting at $(now(env)) with priority=$prio")
+    yield(Request(res, prio, true))
+    println("$name got resource at $(now(env))")
+    try
+      yield(Timeout(env, 3.0))
+    catch exc
+      by = cause(exc)
+      usage = now(env) - usage_since(exc)
+      println("$name got preempted by $by at $(now(env)) after $usage")
+    end
+    yield(Release(res))
+  end
+
+  env = Environment()
+  res = Resource(env, 1)
+  p1 = Process(env, resource_user, 1, res, 0.0, 0)
+  p2 = Process(env, resource_user, 2, res, 1.0, 0)
+  p3 = Process(env, resource_user, 3, res, 2.0, -1)
+  run(env)
+
+The functions :func:`cause(pre::Preempted) <cause>` and :func:`usage_since(pre::Preempted) <usage_since>` return respectively the preempting process and the duration that the preempted process has hold the resource.
+
+.. warning::
+   Every ``yield(Request(res))`` has to be followed by ``yield(Release(res))``, even if a :class:`Preempted` exception has been thrown.
+
+The implementation values priorities higher than preemption. That means preempt request are not allowed to cheat and jump over a higher prioritized request. The following example shows that preemptive low priority requests cannot queue-jump over high priority requests::
+
+  using SimJulia
+
+  function user(env::Environment, name::ASCIIString, res::Resource, wait::Float64, prio::Int, preempt::Bool)
+    println("$name Requesting at $(now(env))")
+    yield(Request(res, prio, preempt))
+    println("$name got resource at $(now(env))")
+    try
+      yield(Timeout(env, 3.0))
+    catch exc
+      println("$name got preempted at $(now(env))")
+    end
+    yield(Release(res))
+  end
+
+  env = Environment()
+  res = Resource(env, 1)
+  A = Process(env, user, "A", res, 0.0, 0, true)
+  run(env, 1.0)
+  B = Process(env, user, "B", res, 1.0, -2, false)
+  C = Process(env, user, "C", res, 2.0, -1, true)
+  run(env)
+
+- Process ``A`` requests the resource with priority ``0``. It immediately becomes a user.
+- Process ``B`` requests the resource with priority ``-2`` but sets preempt to ``false``. It will queue up and wait.
+- Process ``C`` requests the resource with priority ``-1`` but sets preempt to ``true``. Normally, it would preempt ``A`` but in this case, ``B`` is queued up before ``C`` and prevents ``C`` from preempting ``A``. ``C`` can also not preempt ``B`` since its priority is not high enough.
+
+Thus, the behavior in the example is the same as if no preemption was used at all. Be careful when using mixed preemption! Due to the higher priority of process ``B``, no preemption occurs in this example. Note that an additional request with a priority of ``-3`` would be able to preempt ``A``.
+
+
+Containers
+~~~~~~~~~~
+
+Containers help you modelling the production and consumption of a homogeneous, undifferentiated bulk. It may either be continuous (like water) or discrete (like apples).
+
+You can use this, for example, to model the gas / petrol tank of a gas station. Tankers increase the amount of gasoline in the tank while cars decrease it.
+
+The following example is a very simple model of a gas station with a limited number of fuel dispensers (modeled as :class:``Resource``) and a tank modeled as :class:``Container``::
+
+  using SimJulia
+
+  type GasStation
+    fuel_dispensers :: Resource
+    gas_tank :: Container{Float64}
+    function GasStation(env::Environment)
+      gs = new()
+      gs.fuel_dispensers = Resource(env, 2)
+      gs.gas_tank = Container{Float64}(env, 1000.0, 100.0)
+      Process(env, monitor_tank, gs)
+      return gs
+    end
+  end
+
+  function monitor_tank(env::Environment, gs::GasStation)
+    while true
+      if level(gs.gas_tank) < 100.0
+        println("Calling tanker at $(now(env))")
+        Process(env, tanker, gs)
+      end
+      yield(Timeout(env, 15.0))
+    end
+  end
+
+  function tanker(env::Environment, gs::GasStation)
+    yield(Timeout(env, 10.0))
+    println("Tanker arriving at $(now(env))")
+    amount = capacity(gs.gas_tank) - level(gs.gas_tank)
+    yield(Put(gs.gas_tank, amount))
+  end
+
+  function car(env::Environment, name::Int, gs::GasStation)
+    println("Car $name arriving at $(now(env))")
+    yield(Request(gs.fuel_dispensers))
+    println("Car $name starts refueling at $(now(env))")
+    yield(Get(gs.gas_tank, 40.0))
+    yield(Timeout(env, 15.0))
+    yield(Release(gs.fuel_dispensers))
+    println("Car $name done refueling at $(now(env))")
+  end
+
+  function car_generator(env::Environment, gs::GasStation)
+    for i = 0:3
+      Process(env, car, i, gs)
+      yield(Timeout(env, 5.0))
+    end
+  end
+
+  env = Environment()
+  gs = GasStation(env)
+  Process(env, car_generator, gs)
+  run(env, 55.0)
+
+The constructors :func:`Put(cont::Container, amount::T, priority::Int64=0) <Put>` and :func:`Get(cont::Container, amount::T, priority::Int64=0) <Get>` create respectively events to put and to get an amount of fuel. The function :func:`level(cont::Container) <level>` returns the amount of fuel still in the tank.
