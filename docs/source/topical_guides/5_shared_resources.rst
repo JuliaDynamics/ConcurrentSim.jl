@@ -212,3 +212,5 @@ The following example is a very simple model of a gas station with a limited num
   run(env, 55.0)
 
 The constructors :func:`Put(cont::Container, amount::T, priority::Int64=0) <Put>` and :func:`Get(cont::Container, amount::T, priority::Int64=0) <Get>` create respectively events to put and to get an amount of fuel. The function :func:`level(cont::Container) <level>` returns the amount of fuel still in the tank.
+
+Priorities can be given to a put or a get event by setting the argument ``priority``.
