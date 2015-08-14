@@ -51,8 +51,14 @@ end
 
 function Release(res::Resource)
   ev = Timeout(res.env, 0.0)
-  append_callback(ev, (ev)->trigger_put(ev, res))
-  trigger_get(Event(res.env), res, active_process(res.env))
+  if in(active_process(res.env), keys(res.user_list))
+    append_callback(ev, (ev)->trigger_put(ev, res))
+    trigger_get(Event(res.env), res, active_process(res.env))
+  else
+    id::Uint16 = 0
+    res.queue[active_process(res.env)] =  ResourceKey(typemin(Int64), id, ev, false, 0.0)
+    dequeue!(res.queue)
+  end
   return ev
 end
 
