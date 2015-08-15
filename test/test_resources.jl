@@ -15,13 +15,14 @@ function handling(env::Environment, res::Resource, nr::Int64, preempt::Bool)
   println("Number $nr Requests handling at time $(now(env))")
   token = yield(Request(res, nr, preempt))
   println("Number $nr starts handling at time $(now(env))")
+  start_time = now(env)
   try
     yield(Timeout(env, duration))
   catch exc
     println(exc)
-    println("Number $nr Request is preempted at time $(now(env)) by $(cause(exc)) in use since $(usage_since(exc))")
+    println("Number $nr Request is preempted at time $(now(env))")
     while duration > 0.0
-      duration -= now(env) - usage_since(exc)
+      duration -= now(env) - start_time
       println("Number $nr reRequests handling at time $(now(env))")
       yield(Request(res, token, nr, preempt))
       println("Number $nr restarts handling at time $(now(env))")

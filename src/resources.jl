@@ -51,13 +51,12 @@ end
 
 function Release(res::Resource)
   ev = Timeout(res.env, 0.0)
-  if in(active_process(res.env), keys(res.user_list))
-    append_callback(ev, (ev)->trigger_put(ev, res))
-    trigger_get(Event(res.env), res, active_process(res.env))
-  else
-    id::Uint16 = 0
-    res.queue[active_process(res.env)] =  ResourceKey(typemin(Int64), id, ev, false, 0.0)
-    dequeue!(res.queue)
+  proc = active_process(res.env)
+  if in(proc, keys(res.user_list))
+    push!(ev.callbacks, (ev)->trigger_put(ev, res))
+    dequeue!(res.user_list, proc)
+  elseif in(proc, keys(res.queue))
+    dequeue!(res.queue, proc)
   end
   return ev
 end
@@ -75,18 +74,12 @@ function trigger_put(ev::Event, res::Resource)
     if length(res.user_list) < res.capacity
       key.time = now(ev.env)
       res.user_list[proc] = key
-      succeed(key.ev, key.id)
+      schedule(key.ev, key.id)
       dequeue!(res.queue)
     else
       break
     end
   end
-end
-
-function trigger_get(ev::Event, res::Resource, proc::Process)
-  id::Uint16 = 0
-  res.user_list[proc] = ResourceKey(typemax(Int64), id, ev, false, 0.0)
-  dequeue!(res.user_list)
 end
 
 function Preempt(env::BaseEnvironment, proc::Process, cause::Process, key::ResourceKey)
