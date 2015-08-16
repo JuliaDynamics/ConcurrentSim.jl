@@ -4,8 +4,8 @@ type ResourceKey
   preempt :: Bool
 end
 
-type Preempted <: Exception
-  cause :: Process
+type Preempted
+  by :: Process
   usage_since :: Float64
 end
 
@@ -55,7 +55,7 @@ end
 function Release(res::Resource)
   ev = Timeout(res.env, 0.0)
   proc = active_process(res.env)
-  push!(ev.callbacks, (ev)->trigger_put(ev, res))
+  append_callback(ev, trigger_put, res)
   dequeue!(res.user_list, proc)
   delete!(res.process_time, proc)
   return ev
@@ -73,14 +73,14 @@ function trigger_put(event::Event, res::Resource)
       (proc_preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        Preempt(res.env, proc_preempt, proc, pop!(res.process_time, proc_preempt))
+        Interrupt(proc_preempt, Preempted(proc, pop!(res.process_time, proc_preempt)))
       end
     end
     if length(res.user_list) < res.capacity
       res.process_time[proc] = now(res.env)
       res.user_list[proc] = key
       delete!(res.event_process, ev)
-      schedule(ev, key.id)
+      succeed(ev, key.id)
       dequeue!(res.queue)
     else
       break
@@ -88,20 +88,12 @@ function trigger_put(event::Event, res::Resource)
   end
 end
 
-function Preempt(env::BaseEnvironment, proc::Process, cause::Process, usage_since::Float64)
-  ev = Event(env)
-  push!(ev.callbacks, proc.resume)
-  schedule(ev, true, Preempted(cause, usage_since))
-  delete!(proc.target.callbacks, proc.resume)
-  return ev
-end
-
 function show(io::IO, pre::Preempted)
-  print(io, "Preempted by $(pre.cause): $(pre.usage_since)")
+  print(io, "Preempted by $(pre.by) in use since $(pre.usage_since)")
 end
 
-function cause(pre::Preempted)
-  return pre.cause
+function by(pre::Preempted)
+  return pre.by
 end
 
 function usage_since(pre::Preempted)

@@ -14,12 +14,10 @@ type Process <: BaseEvent
 end
 
 type InterruptException <: Exception
-  cause :: Process
-  msg :: ASCIIString
-  function InterruptException(cause::Process, msg::ASCIIString)
+  cause :: Any
+  function InterruptException(cause::Any)
     inter = new()
     inter.cause = cause
-    inter.msg = msg
     return inter
   end
 end
@@ -35,7 +33,7 @@ function Process(env::BaseEnvironment, func::Function, args...)
 end
 
 function show(io::IO, inter::InterruptException)
-  print(io, "InterruptException caused by $(inter.cause): $(inter.msg)")
+  print(io, "InterruptException caused by $(inter.cause)")
 end
 
 function show(io::IO, proc::Process)
@@ -91,13 +89,13 @@ function yield(ev::BaseEvent)
   return value
 end
 
-function Interrupt(proc::Process, msg::ASCIIString="")
+function Interrupt(proc::Process, cause::Any=nothing)
   env = proc.ev.env
   active_proc = active_process(env)
   if !istaskdone(proc.task) && !is(proc, active_proc)
     ev = Event(env)
     push!(ev.callbacks, proc.resume)
-    schedule(ev, true, InterruptException(active_proc, msg))
+    schedule(ev, true, InterruptException(cause))
     delete!(proc.target.callbacks, proc.resume)
   end
   return Timeout(env, 0.0)

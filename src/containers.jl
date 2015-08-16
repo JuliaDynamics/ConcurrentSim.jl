@@ -36,7 +36,7 @@ function Put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
   ev = Event(cont.env)
   cont.put_queue[ev] = ContainerKey{T}(priority, cont.eid, amount)
-  push!(ev.callbacks, (ev)->trigger_get(ev, cont))
+  append_callback(ev, trigger_get, cont)
   trigger_put(Event(cont.env), cont)
   return ev
 end
@@ -45,7 +45,7 @@ function Get{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
   ev = Event(cont.env)
   cont.get_queue[ev] = ContainerKey{T}(priority, cont.eid, amount)
-  push!(ev.callbacks, (ev)->trigger_put(ev, cont))
+  append_callback(ev, trigger_put, cont)
   trigger_get(Event(cont.env), cont)
   return ev
 end

@@ -10,7 +10,6 @@ function fib(env::Environment, a=1, b=1)
       println("At time $(now(env)) an Interrupt occured")
       println(exc)
       println(cause(exc))
-      println(msg(exc))
       return "An Interrupt occured"
     end
     tmp = a+b

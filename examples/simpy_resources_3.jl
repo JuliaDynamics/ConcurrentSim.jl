@@ -9,9 +9,9 @@ function resource_user(env::Environment, name::Int, res::Resource, wait::Float64
     yield(Timeout(env, 3.0))
     yield(Release(res))
   catch exc
-    by = cause(exc)
-    usage = now(env) - usage_since(exc)
-    println("$name got preempted by $by at $(now(env)) after $usage")
+    pre = cause(exc)
+    usage = now(env) - usage_since(pre)
+    println("$name got preempted by $(by(pre)) at $(now(env)) after $usage")
   end
 end
 
