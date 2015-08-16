@@ -1,6 +1,8 @@
 using SimJulia
+using SimJulia.Resources
 using Distributions
 using Compat
+
 
 const RANDOM_SEED = 158
 const TICKETS = 50  # Number of tickets per movie
@@ -26,7 +28,7 @@ type Theater
   end
 end
 
-function moviegoer(env::BaseEnvironment, movie::ASCIIString, num_tickets::Int64, theater::Theater)
+function moviegoer(env::Environment, movie::ASCIIString, num_tickets::Int64, theater::Theater)
   req = Request(theater.counter)
   result = yield(req | theater.sold_out[movie])
   if in(theater.sold_out[movie], keys(result))
@@ -47,7 +49,7 @@ function moviegoer(env::BaseEnvironment, movie::ASCIIString, num_tickets::Int64,
   end
 end
 
-function customer_arrivals(env::BaseEnvironment, theater::Theater)
+function customer_arrivals(env::Environment, theater::Theater)
   t = Exponential(0.5)
   d = DiscreteUniform(1, 3)
   n = DiscreteUniform(1, 6)

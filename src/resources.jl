@@ -14,14 +14,14 @@ function isless(a::ResourceKey, b::ResourceKey)
 end
 
 type Resource
-  env :: BaseEnvironment
+  env :: Environment
   eid :: Uint16
   capacity :: Int
   queue :: PriorityQueue{Event, ResourceKey}
   user_list :: PriorityQueue{Process, ResourceKey}
   event_process :: Dict{Event, Process}
   process_time :: Dict{Process, Float64}
-  function Resource(env::BaseEnvironment, capacity::Int=1)
+  function Resource(env::Environment, capacity::Int=1)
     res = new()
     res.env = env
     res.eid = 0

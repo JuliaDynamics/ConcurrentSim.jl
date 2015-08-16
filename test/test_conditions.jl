@@ -11,14 +11,14 @@ function test_conditions(env::Environment, ev::Event, p :: Process)
   println("Time is $(now(env))")
   println(keys(yield(ev1 & ev2 | ev3)))
   println("Time is $(now(env))")
-  println(keys(yield(AnyOf(env, BaseEvent[ev1]))))
+  println(keys(yield(AnyOf(env, [ev1]))))
   println("Time is $(now(env))")
-  println(keys(yield(AllOf(env, BaseEvent[ev1, ev2, ev3]))))
+  println(keys(yield(AllOf(env, [ev1, ev2, ev3]))))
   println("Time is $(now(env))")
-  println(keys(yield(AnyOf(env, BaseEvent[]))))
+  println(keys(yield(AnyOf(env, Event[]))))
   println("Time is $(now(env))")
   try
-    yield(AllOf(env, BaseEvent[ev2, ev]))
+    yield(AllOf(env, [ev2, ev]))
   catch exc
     println(exc)
   end
@@ -38,7 +38,7 @@ function proc_cond(env::Environment)
 end
 
 env = Environment()
-events = BaseEvent[Timeout(env, 1.0)]
+events = [Timeout(env, 1.0)]
 cond = SimJulia.Condition(env, evaluate, events)
 ev = Event(env)
 p = Process(env, proc_cond)

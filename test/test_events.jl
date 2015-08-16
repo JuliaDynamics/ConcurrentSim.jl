@@ -1,5 +1,5 @@
 using SimJulia
-using Base.Test
+
 function my_callback(ev::Event, succeed_ev::Event)
   println("Callback of $(ev)")
   println("Succeed is triggered: $(triggered(succeed_ev))")

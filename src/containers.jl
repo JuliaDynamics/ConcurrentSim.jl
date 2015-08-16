@@ -9,13 +9,13 @@ function isless(a::ContainerKey, b::ContainerKey)
 end
 
 type Container{T<:Number}
-  env :: BaseEnvironment
+  env :: Environment
   eid :: Uint16
   level :: T
   capacity :: T
   put_queue :: PriorityQueue{Event, ContainerKey{T}}
   get_queue :: PriorityQueue{Event, ContainerKey{T}}
-  function Container(env::BaseEnvironment, capacity::T, level::T=zero(T))
+  function Container(env::Environment, capacity::T, level::T=zero(T))
     cont = new()
     cont.env = env
     cont.eid = 0
@@ -55,7 +55,7 @@ function trigger_put(event::Event, cont::Container)
     (ev, key) = peek(cont.put_queue)
     if cont.level + key.amount <= cont.capacity
       cont.level += key.amount
-      schedule(ev)
+      succeed(ev)
       dequeue!(cont.put_queue)
     else
       break
@@ -68,7 +68,7 @@ function trigger_get{T}(event::Event, cont::Container{T})
     (ev, key) = peek(cont.get_queue)
     if cont.level - key.amount >= zero(T)
       cont.level -= key.amount
-      schedule(ev)
+      succeed(ev)
       dequeue!(cont.get_queue)
     else
       break

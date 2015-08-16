@@ -1,4 +1,6 @@
 using SimJulia
+using SimJulia.Resources
+using SimJulia.Containers
 
 type GasStation
   fuel_dispensers :: Resource

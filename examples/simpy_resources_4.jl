@@ -1,4 +1,5 @@
 using SimJulia
+using SimJulia.Resources
 
 function user(env::Environment, name::ASCIIString, res::Resource, wait::Float64, prio::Int, preempt::Bool)
   println("$name Requesting at $(now(env))")

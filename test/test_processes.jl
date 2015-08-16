@@ -1,5 +1,4 @@
 using SimJulia
-using Base.Test
 
 function fib(env::Environment, a=1, b=1)
   while a < 10

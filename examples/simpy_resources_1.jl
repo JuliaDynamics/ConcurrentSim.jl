@@ -1,4 +1,5 @@
 using SimJulia
+using SimJulia.Resources
 
 function print_stats(res::Resource)
   println("$(count(res)) of $(capacity(res)) are allocated.")

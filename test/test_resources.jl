@@ -1,5 +1,5 @@
 using SimJulia
-using Base.Test
+using SimJulia.Resources
 
 function generator(env::Environment, res::Resource, preempt::Bool)
   id = 100

@@ -27,14 +27,6 @@ function convert(::Type{Event}, ev::BaseEvent)
   end
 end
 
-function convert(::Type{Vector{Event}}, base_events::Vector{BaseEvent})
-  events = Event[]
-  for event in base_events
-    push!(events, convert(Event, event))
-  end
-  return events
-end
-
 type EmptySchedule <: Exception end
 
 type StopSimulation <: Exception end

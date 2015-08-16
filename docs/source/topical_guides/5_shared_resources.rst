@@ -8,6 +8,8 @@ SimJulia defines two categories of resources:
   - :class:`Resource`: Resources that can be used by a limited number of processes at a time (e.g., a gas station with a limited number of fuel pumps).
   - :class:`Container`: Resources that model the production and consumption of a homogeneous, undifferentiated bulk. It may either be continuous (like water) or discrete (like apples).
 
+.. note::
+   Both :class:`Resource` and :class:`Container` are implemented using only the exported functions of SimJulia and are showcases of the functionalities of the previous chapters.
 
 The basic concept of resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,7 +115,8 @@ Sometimes, new requests are so important that queue-jumping is not enough and th
   p3 = Process(env, resource_user, 3, res, 2.0, -1)
   run(env)
 
-The functions :func:`cause(pre::Preempted) <cause>` and :func:`usage_since(pre::Preempted) <usage_since>` return respectively the preempting process and the duration that the preempted process has hold the resource.
+
+An :class:`InterruptException` is generated. Its cause is of type :class:`Preempted`, so that the functions :func:`by(pre::Preempted) <by>` and :func:`usage_since(pre::Preempted) <usage_since>` return respectively the preempting process and the duration that the preempted process has hold the resource.
 
 The implementation values priorities higher than preemption. That means preempt request are not allowed to cheat and jump over a higher prioritized request. The following example shows that preemptive low priority requests cannot queue-jump over high priority requests::
 

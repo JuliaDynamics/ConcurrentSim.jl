@@ -1,4 +1,5 @@
 using SimJulia
+using SimJulia.Resources
 using Distributions
 
 const RANDOM_SEED = 150
@@ -7,7 +8,7 @@ const INTERVAL_CUSTOMERS = 10.0  # Generate new customers roughly every x second
 const MIN_PATIENCE = 1.0  # Min. customer patience
 const MAX_PATIENCE = 3.0  # Max. customer patience
 
-function source(env::BaseEnvironment, number::Int64, interval::Float64, counter::Resource)
+function source(env::Environment, number::Int64, interval::Float64, counter::Resource)
   d = Exponential(interval)
   for i in 1:number
     Process(env, customer, "Customer$i", counter, 12.0)
@@ -15,7 +16,7 @@ function source(env::BaseEnvironment, number::Int64, interval::Float64, counter:
   end
 end
 
-function customer(env::BaseEnvironment, name::ASCIIString, counter::Resource, time_in_bank::Float64)
+function customer(env::Environment, name::ASCIIString, counter::Resource, time_in_bank::Float64)
   arrive = now(env)
   println("$arrive $name: Here I am")
   req = Request(counter)
