@@ -185,7 +185,7 @@ Waiting for multiple events at once
 
 Sometimes, you want to wait for more than one event at the same time. For example, you may want to wait for a resource, but not for an unlimited amount of time. Or you may want to wait until all a set of events has happened.
 
-SimJulia therefore offers the event constructors :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>` and :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. They are specific constructors for the more general :func:`Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent}) <Condition>`. The function :func:`eval(events::Vector{Event})` takes one argument a :class:`Vector{Event}` and returns true when the condition is fulfilled.
+SimJulia therefore offers the event constructors :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>` and :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. There is a specific constructors for the more general :func:`Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent}) <Condition>`. The function :func:`eval(events::Vector{Event})` takes one argument a :class:`Vector{Event}` and returns true when the condition is fulfilled.
 
 As a shorthand for :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>` and :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>`, you can also use the logical operators ``&`` (and) and ``|`` (or)::
 
@@ -209,7 +209,7 @@ As a shorthand for :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent})
   run(env)
 
 
-The order of condition results is identical to the order in which the condition events were specified. This allows the following idiom for conveniently fetching the values of multiple events specified in an and condition (including :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`)::
+The result of the ``yield`` of a multiple events is of type :class:`Dict` with as keys the processed (processing) events and as values their values. This allows the following idiom for conveniently fetching the values of multiple events specified in an and condition (including :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`)::
 
   using SimJulia
   using Compat
