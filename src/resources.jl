@@ -88,10 +88,6 @@ function trigger_put(event::Event, res::Resource)
   end
 end
 
-function show(io::IO, pre::Preempted)
-  print(io, "Preempted by $(pre.by) in use since $(pre.usage_since)")
-end
-
 function by(pre::Preempted)
   return pre.by
 end
