@@ -2,7 +2,6 @@ type ResourceKey
   priority :: Int64
   id :: Uint16
   preempt :: Bool
-  time :: Float64
 end
 
 type Preempted <: Exception
@@ -21,6 +20,7 @@ type Resource
   queue :: PriorityQueue{Event, ResourceKey}
   user_list :: PriorityQueue{Process, ResourceKey}
   event_process :: Dict{Event, Process}
+  process_time :: Dict{Process, Float64}
   function Resource(env::BaseEnvironment, capacity::Int=1)
     res = new()
     res.env = env
@@ -34,13 +34,14 @@ type Resource
       res.user_list = PriorityQueue{Process, ResourceKey}(Order.Reverse)
     end
     res.event_process = Dict{Event, Process}()
+    res.process_time = Dict{Process, Float64}()
     return res
   end
 end
 
 function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
   ev = Event(res.env)
-  res.queue[ev] = ResourceKey(priority, id, preempt, now(res.env))
+  res.queue[ev] = ResourceKey(priority, id, preempt)
   res.event_process[ev] = active_process(res.env)
   trigger_put(ev, res)
   return ev
@@ -53,8 +54,10 @@ end
 
 function Release(res::Resource)
   ev = Timeout(res.env, 0.0)
+  proc = active_process(res.env)
   push!(ev.callbacks, (ev)->trigger_put(ev, res))
-  dequeue!(res.user_list, active_process(res.env))
+  dequeue!(res.user_list, proc)
+  delete!(res.process_time, proc)
   return ev
 end
 
@@ -70,11 +73,11 @@ function trigger_put(event::Event, res::Resource)
       (proc_preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        Preempt(res.env, proc_preempt, proc, key_preempt.time)
+        Preempt(res.env, proc_preempt, proc, pop!(res.process_time, proc_preempt))
       end
     end
     if length(res.user_list) < res.capacity
-      key.time = now(ev.env)
+      res.process_time[proc] = now(res.env)
       res.user_list[proc] = key
       delete!(res.event_process, ev)
       schedule(ev, key.id)
