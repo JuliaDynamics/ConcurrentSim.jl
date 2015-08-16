@@ -26,10 +26,11 @@ function customer(env::BaseEnvironment, name::ASCIIString, counter::Resource, ti
     println("$(now(env)) $name: Waited $wait")
     yield(Timeout(env, rand(Exponential(time_in_bank))))
     println("$(now(env)) $name: Finished")
+    yield(Release(counter))
   else
     println("$(now(env)) $name: RENEGED after $wait")
+    cancel(counter, req)
   end
-  yield(Release(counter))
 end
 
 # Setup and start the simulation

@@ -27,11 +27,14 @@ type Theater
 end
 
 function moviegoer(env::BaseEnvironment, movie::ASCIIString, num_tickets::Int64, theater::Theater)
-  result = yield(Request(theater.counter) | theater.sold_out[movie])
+  req = Request(theater.counter)
+  result = yield(req | theater.sold_out[movie])
   if in(theater.sold_out[movie], keys(result))
     theater.num_renegers[movie] += 1
+    cancel(theater.counter, req)
   elseif theater.available[movie] < num_tickets
     yield(Timeout(env, 0.5))
+    yield(Release(theater.counter))
   else
     theater.available[movie] -= num_tickets
     if theater.available[movie] < 2
@@ -40,8 +43,8 @@ function moviegoer(env::BaseEnvironment, movie::ASCIIString, num_tickets::Int64,
       theater.available[movie] = 0
     end
     yield(Timeout(env, 1.0))
+    yield(Release(theater.counter))
   end
-  yield(Release(theater.counter))
 end
 
 function customer_arrivals(env::BaseEnvironment, theater::Theater)

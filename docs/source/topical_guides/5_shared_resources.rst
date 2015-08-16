@@ -31,7 +31,7 @@ Requesting a resources is modeled as “putting a process’ token into the reso
 
 The :class:`Resource` is conceptually a semaphore. The only argument of its constructor – apart from the obligatory reference to an Environment – is its capacity. It must be a positive number and defaults to 1: :func:`Resource(env::BaseEnvironment, capacity::Int=1) <Resource>`.
 
-Instead of just counting its current users, it stores the request event as an “access token” for each user. This is, for example, useful for adding preemption (see further).
+Instead of just counting its current users, it stores the requesting process as an “access token” for each user. This is, for example, useful for adding preemption (see further).
 
 Here is as basic example for using a resource::
 
@@ -98,12 +98,12 @@ Sometimes, new requests are so important that queue-jumping is not enough and th
     println("$name got resource at $(now(env))")
     try
       yield(Timeout(env, 3.0))
+      yield(Release(res))
     catch exc
       by = cause(exc)
       usage = now(env) - usage_since(exc)
       println("$name got preempted by $by at $(now(env)) after $usage")
     end
-    yield(Release(res))
   end
 
   env = Environment()
@@ -115,9 +115,6 @@ Sometimes, new requests are so important that queue-jumping is not enough and th
 
 The functions :func:`cause(pre::Preempted) <cause>` and :func:`usage_since(pre::Preempted) <usage_since>` return respectively the preempting process and the duration that the preempted process has hold the resource.
 
-.. warning::
-   Every ``yield(Request(res))`` has to be followed by ``yield(Release(res))``, even if a :class:`Preempted` exception has been thrown.
-
 The implementation values priorities higher than preemption. That means preempt request are not allowed to cheat and jump over a higher prioritized request. The following example shows that preemptive low priority requests cannot queue-jump over high priority requests::
 
   using SimJulia
@@ -128,10 +125,10 @@ The implementation values priorities higher than preemption. That means preempt 
     println("$name got resource at $(now(env))")
     try
       yield(Timeout(env, 3.0))
+      yield(Release(res))
     catch exc
       println("$name got preempted at $(now(env))")
     end
-    yield(Release(res))
   end
 
   env = Environment()

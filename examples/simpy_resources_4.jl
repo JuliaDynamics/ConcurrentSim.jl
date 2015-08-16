@@ -6,10 +6,10 @@ function user(env::Environment, name::ASCIIString, res::Resource, wait::Float64,
   println("$name got resource at $(now(env))")
   try
     yield(Timeout(env, 3.0))
+    yield(Release(res))
   catch exc
     println("$name got preempted at $(now(env))")
   end
-  yield(Release(res))
 end
 
 env = Environment()
