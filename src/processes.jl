@@ -52,10 +52,6 @@ function cause(inter::InterruptException)
   return inter.cause
 end
 
-function msg(inter::InterruptException)
-  return inter.msg
-end
-
 function execute(env::BaseEnvironment, ev::Event, proc::Process)
   try
     env.active_proc = @compat Nullable(proc)

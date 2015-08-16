@@ -10,7 +10,7 @@ module SimJulia
   export StopSimulation, EmptySchedule
   export Event, Timeout, EventTriggered, EventProcessed, succeed, fail, trigger, triggered, processed, value, append_callback, run, exit
   export Condition, AllOf, AnyOf, (&), (|)
-  export Process, Interrupt, InterruptException, yield, active_process, cause, msg, done
+  export Process, Interrupt, InterruptException, yield, active_process, cause, done
   export Environment, step, peek, now
   export DelayedProcess
 
