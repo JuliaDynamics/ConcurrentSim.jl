@@ -1,4 +1,3 @@
-using SimJulia
 using SimJulia.Resources
 using Distributions
 

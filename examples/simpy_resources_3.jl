@@ -1,4 +1,3 @@
-using SimJulia
 using SimJulia.Resources
 
 function resource_user(env::Environment, name::Int, res::Resource, wait::Float64, prio::Int)

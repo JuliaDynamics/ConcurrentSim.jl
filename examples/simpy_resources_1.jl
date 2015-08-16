@@ -1,4 +1,3 @@
-using SimJulia
 using SimJulia.Resources
 
 function print_stats(res::Resource)
