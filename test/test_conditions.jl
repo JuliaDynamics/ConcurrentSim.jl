@@ -1,6 +1,6 @@
 using SimJulia
 
-function evaluate(events::Vector{Event})
+function evaluate(events::Vector{BaseEvent})
   return true
 end
 
@@ -11,14 +11,12 @@ function test_conditions(env::Environment, ev::Event, p :: Process)
   println("Time is $(now(env))")
   println(keys(yield(ev1 & ev2 | ev3)))
   println("Time is $(now(env))")
-  println(keys(yield(AnyOf(env, [ev1]))))
+  println(keys(yield(AnyOf(ev1, ev3))))
   println("Time is $(now(env))")
-  println(keys(yield(AllOf(env, [ev1, ev2, ev3]))))
-  println("Time is $(now(env))")
-  println(keys(yield(AnyOf(env, Event[]))))
+  println(keys(yield(AllOf(ev1, ev2, ev3))))
   println("Time is $(now(env))")
   try
-    yield(AllOf(env, [ev2, ev]))
+    yield(AllOf(ev2, ev))
   catch exc
     println(exc)
   end
@@ -38,8 +36,7 @@ function proc_cond(env::Environment)
 end
 
 env = Environment()
-events = [Timeout(env, 1.0)]
-cond = SimJulia.Condition(env, evaluate, events)
+oper = EventOperator(evaluate, Timeout(env, 1.0))
 ev = Event(env)
 p = Process(env, proc_cond)
 Process(env, test_conditions, ev, p)

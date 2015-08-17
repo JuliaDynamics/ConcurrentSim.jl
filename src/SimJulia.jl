@@ -7,16 +7,17 @@ module SimJulia
   end
   import Base.Collections.peek
 
+  export BaseEvent
   export StopSimulation, EmptySchedule
   export Event, Timeout, EventTriggered, EventProcessed, succeed, fail, trigger, triggered, processed, value, append_callback, run, exit
-  export Condition, AllOf, AnyOf, (&), (|)
+  export EventOperator, AllOf, AnyOf, (&), (|)
   export Process, Interrupt, InterruptException, yield, active_process, cause, done
   export Environment, step, peek, now
   export DelayedProcess
 
   include("base.jl")
   include("events.jl")
-  include("conditions.jl")
+  include("event_operators.jl")
   include("processes.jl")
   include("environments.jl")
   include("util.jl")
