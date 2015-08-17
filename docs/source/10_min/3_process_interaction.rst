@@ -24,13 +24,13 @@ A new charge process is started every time the vehicle starts parking. By yieldi
              yield(charge_proc)
              println("Start driving at $(now(env))")
              trip_duration = 2.0
-             yield(timeout(env, trip_duration))
+             yield(Timeout(env, trip_duration))
            end
          end
   car (generic function with 1 method)
 
   julia> function charge(env::Environment, duration::Float64)
-           yield(timeout(env, duration))
+           yield(Timeout(env, duration))
          end
   charge (generic function with 1 method)
 
