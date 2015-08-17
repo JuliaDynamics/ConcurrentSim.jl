@@ -94,10 +94,10 @@ When you compare the output of this simulation with the previous example, you’
   julia> env = Environment()
   Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
 
-  julia> Process(env, car)
+  julia> proc = Process(env, car)
   Process Task (runnable) @0x00007fcf57034400
   
-  julia> Process(env, driver)
+  julia> Process(env, driver, proc)
   Process Task (runnable) @0x0000000005799c70
 
   julia> run(env, 15.0)
