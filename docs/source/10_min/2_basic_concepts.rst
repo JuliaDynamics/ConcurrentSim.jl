@@ -26,7 +26,7 @@ So let’s start::
              yield(Timeout(env, parking_duration))
              println("Start driving at $(now(env))")
              trip_duration = 2.0
-             yield(timeout(env, trip_duration))
+             yield(Timeout(env, trip_duration))
            end
          end
   car (generic function with 1 method)
