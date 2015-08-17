@@ -79,7 +79,7 @@ Interrupts are thrown into process functions as :class:`InterruptException` that
              end
              println("Start driving at $(now(env))")
              trip_duration = 2.0
-             yield(timeout(env, trip_duration))
+             yield(Timeout(env, trip_duration))
            end
          end
   car (generic function with 1 method)
@@ -96,6 +96,9 @@ When you compare the output of this simulation with the previous example, you’
 
   julia> Process(env, car)
   Process Task (runnable) @0x00007fcf57034400
+  
+  julia> Process(env, driver)
+  Process Task (runnable) @0x0000000005799c70
 
   julia> run(env, 15.0)
   Start parking and charging at 0.0
