@@ -12,12 +12,14 @@ type Initialize <: AbstractEvent
 end
 
 type Process <: AbstractEvent
+  name :: ASCIIString
   task :: Task
   target :: AbstractEvent
   bev :: BaseEvent
   resume :: Function
-  function Process(env::AbstractEnvironment, func::Function, args...)
+  function Process(env::AbstractEnvironment, name::ASCIIString, func::Function, args...)
     proc = new()
+    proc.name = name
     proc.task = Task(()->func(env, args...))
     proc.bev = BaseEvent(env)
     proc.resume = (ev)->execute(env, ev, proc)
@@ -60,6 +62,19 @@ type InterruptException <: Exception
     inter.cause = cause
     return inter
   end
+end
+
+function Process(env::AbstractEnvironment, func::Function, args...)
+  name = "$func"
+  return Process(env, name, func, args...)
+end
+
+function show(io::IO, proc::Process)
+  print(io, "Process $(proc.name)")
+end
+
+function show(io::IO, inter::InterruptException)
+  print(io, "InterruptException: $(inter.cause)")
 end
 
 function is_process_done(proc::Process)

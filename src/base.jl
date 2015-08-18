@@ -29,12 +29,17 @@ type BaseEvent
     ev.callbacks = Set{Function}()
     ev.state = EVENT_INITIAL
     ev.id = 0
+    ev.value = nothing
     return ev
   end
 end
 
 function isless(a::EventKey, b::EventKey)
   return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
+end
+
+function show(io::IO, ev::AbstractEvent)
+  print(io, "$(typeof(ev)) $(ev.bev.id)")
 end
 
 function schedule(ev::AbstractEvent, priority::Bool, delay::Float64, value=nothing)
