@@ -99,7 +99,7 @@ Interrupting another process
 
 As usual, another problem can be considered: Imagine, a trip is very urgent, but with the current implementation, we always need to wait until the battery is fully charged. If we could somehow interrupt that ...
 
-Fortunate coincidence, there is indeed a way to do exactly this. You can call the event constructor :func:`Interrupt(proc::Process, msg::ASCIIString="") <Interrupt>`. This will throw an :class:`InterruptException` into that process, resuming it immediately::
+Fortunate coincidence, there is indeed a way to do exactly this. You can call the event constructor :func:`Interruption(proc::Process, cause::Any=nothing) <Interrupt>`. This will throw an :class:`InterruptException` into that process, resuming it immediately::
 
   using SimJulia
 
@@ -111,7 +111,7 @@ Fortunate coincidence, there is indeed a way to do exactly this. You can call th
       parking = Timeout(env, 60.0)
       yield(charging | parking)
       if !done(charging)
-        yield(Interrupt(charging, "Need to go!"))
+        yield(Interruption(charging, "Need to go!"))
       end
       println("Stop parking at $(now(env))")
     end
@@ -131,10 +131,10 @@ Fortunate coincidence, there is indeed a way to do exactly this. You can call th
   Process(env, drive)
   run(env, 100.0)
 
-What the event constructor :func:`Interrupt(proc::Process, msg::ASCIIString="") <Interrupt>` actually does is scheduling an interrupt event for immediate execution. If this event is executed it will remove the victim process’ :func:`proc.resume(ev::Event) <proc.resume>` from the callbacks of the event that it is currently waiting for. Following that it will throw an :class:`InterruptException` into the process function.
+What the event constructor :func:`Interruption(proc::Process, cause::Any=nothing) <Interrupt>` actually does is scheduling an interrupt event for immediate execution. If this event is executed it will remove the victim process’ :func:`proc.resume(ev::AbstractEvent) <proc.resume>` from the callbacks of the event that it is currently waiting for. Following that it will throw an :class:`InterruptException` into the process function.
 
 An interrupt event constructor must be yielded immediately. The interrupt event has a higher priority than all other events and only after the scheduling of the interrupt event, the interrupting process can be resumed.
 
-A message can be attached to the :class:`InterruptException`. This message can be recovered using the function :func:`msg(inter::InterruptException) <msg>` and the process causing the interrupt can be found by calling the function :func:`cause(inter::InterruptException) <cause>`.
+The cause of the interrupt can be found by calling the function :func:`cause(inter::InterruptException) <cause>`.
 
 Since nothing special has been done to the original target event of the process, the interrupted process can yield the same event again after catching the Interrupt – Imagine someone waiting for a shop to open. The person may get interrupted by a phone call. After finishing the call, he or she checks if the shop already opened and either enters or continues to wait.

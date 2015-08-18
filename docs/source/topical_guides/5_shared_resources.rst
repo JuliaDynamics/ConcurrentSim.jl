@@ -37,7 +37,7 @@ Instead of just counting its current users, it stores the requesting process as 
 
 Here is as basic example for using a resource::
 
-  using SimJulia.Resources
+  using SimJulia
 
   function print_stats(res::Resource)
     println("$(count(res)) of $(capacity(res)) are allocated.")
@@ -65,7 +65,7 @@ Priority resource
 
 As you may know from the real world, not every one is equally important. To map that to SimJulia, the constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` lets requesting processes provide a priority for each request. More important requests will gain access to the resource earlier than less important ones. Priority is expressed by integer numbers; smaller numbers mean a higher priority::
 
-  using SimJulia.Resources
+  using SimJulia
 
   function resource_user(env::Environment, name::Int, res::Resource, wait::Float64, prio::Int)
     yield(Timeout(env, wait))
@@ -91,7 +91,7 @@ Preemptive resource
 
 Sometimes, new requests are so important that queue-jumping is not enough and they need to kick existing users out of the resource (this is called preemption). As before the constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` allows you to do exactly this::
 
-  using SimJulia.Resources
+  using SimJulia
 
   function resource_user(env::Environment, name::Int, res::Resource, wait::Float64, prio::Int)
     yield(Timeout(env, wait))
@@ -120,7 +120,7 @@ An :class:`InterruptException` is generated. Its cause is of type :class:`Preemp
 
 The implementation values priorities higher than preemption. That means preempt request are not allowed to cheat and jump over a higher prioritized request. The following example shows that preemptive low priority requests cannot queue-jump over high priority requests::
 
-  using SimJulia.Resources
+  using SimJulia
 
   function user(env::Environment, name::ASCIIString, res::Resource, wait::Float64, prio::Int, preempt::Bool)
     println("$name Requesting at $(now(env))")
@@ -158,8 +158,7 @@ You can use this, for example, to model the gas / petrol tank of a gas station. 
 
 The following example is a very simple model of a gas station with a limited number of fuel dispensers (modeled as :class:``Resource``) and a tank modeled as :class:``Container``::
 
-  using SimJulia.Resources
-  using SimJulia.Containers
+  using SimJulia
 
   type GasStation
     fuel_dispensers :: Resource

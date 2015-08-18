@@ -3,19 +3,19 @@ Events
 
 SimJulia includes an extensive set of event constructors for various purposes. This section details the following events:
 
-- basic events that are created by the constructors:
+- basic events:
 
-  - :func:`Event(env::BaseEnvironment) <Event>`
-  - :func:`Timeout(env::BaseEnvironment, delay::Float64, value=nothing) <Timeout>`
+  - :class:`Event`
+  - :class:`Timeout`
 
-- compound events that are created by the constructors:
+- compound events:
 
-  - :func:`Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent}) <Condition>`
-  - :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`
-  - :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>`
+  - :class:`EventOperator`
+  - :class:`AllOf`
+  - :class:`AnyOf`
 
 
-Processes that are created by the constructor :func:`Process(env::BaseEnvironment, func::Function, args...) <Process>` are also discussed. Technically speaking they are not proper events but they can also be yielded as a subtype of :class:`BaseEvent`.
+A :class:`Process` is also an event and is also discussed.
 
 The resource and container event constructors are discussed in a later section.
 
@@ -23,7 +23,7 @@ The resource and container event constructors are discussed in a later section.
 Event basics
 ~~~~~~~~~~~~
 
-SimJulia events are very similar – if not identical — to deferreds, futures or promises. Instances of the type :class:`Event` are used to describe any kind of events. Events can be in one of the following states:
+SimJulia events are very similar – if not identical — to deferreds, futures or promises. Instances of the type :class:`AbstractEvent` are used to describe any kind of events. Events can be in one of the following states:
 
   - *not triggered*: an event may happen
   - *triggered*: is going to happen
@@ -34,7 +34,7 @@ They traverse these states exactly once in that order. Events are also tightly b
 
 If an event gets triggered, it is scheduled at a given time and inserted into SimJulia’s event list. The function :func:`triggered(ev::Event) <triggered>` returns ``true``. As long as the event is not processed, you can add callbacks to an event. Callbacks are functions that have as first argument an :class:`Event` and are stored in the callbacks list of that event. An event becomes processed when SimJulia has popped it from the event list and has called all of its callbacks. It is no longer possible to add callbacks. The function :func:`processed(ev::Event) <processed>` returns at that moment ``true``.
 
-Events also have a value. The value can be set before or when the event is triggered and can be retrieved via the function :func:`value(ev::Event) <value>` or, within a process, via the return value of the function :func:`yield(ev::BaseEvent) <yield>`.
+Events also have a value. The value can be set before or when the event is triggered and can be retrieved via the function :func:`value(ev::Event) <value>` or, within a process, via the return value of the function :func:`yield(ev::AbstractEvent) <yield>`.
 
 
 Adding callbacks to an event
@@ -42,9 +42,9 @@ Adding callbacks to an event
 
 “What? Callbacks? I’ve never seen no callbacks!”, you might think if you have worked your way through the tutorial.
 
-That’s on purpose. The most common way to add a callback to an event is yielding it from your process function (:func:`yield(ev::BaseEvent) <yield>`). This will add the function :func:`proc.resume(ev::Event) <proc.resume>` as a callback. That’s how your process gets resumed when it yielded an event.
+That’s on purpose. The most common way to add a callback to an event is yielding it from your process function (:func:`yield(ev::AbstractEvent) <yield>`). This will add the function :func:`proc.resume(ev::AbstractEvent) <proc.resume>` as a callback. That’s how your process gets resumed when it yielded an event.
 
-However, you can add a function to the list of callbacks as long as it accepts an instance of type :class:`Event` as its first argument using the function :func:`append_callback(ev::BaseEvent, callback::Function, args...) <append_callback>`::
+However, you can add a function to the list of callbacks as long as it accepts an instance of type :class:`Event` as its first argument using the function :func:`append_callback(ev::AbstracteEvent, callback::Function, args...) <append_callback>`::
 
   using SimJulia
 
@@ -68,11 +68,11 @@ Triggering events
 
 When events are triggered, they can either succeed or fail. For example, if an event is to be triggered at the end of a computation and everything works out fine, the event will succeed. If an exceptions occurs during that computation, the event will fail.
 
-To trigger an event and mark it as successful, you can use :func:`succeed(ev::Event, value=nothing) <succeed>`. You can optionally pass a value to it (e.g., the results of a computation).
+To trigger an event and mark it as successful, you can use :func:`succeed(ev::AbstractEvent, value=nothing) <succeed>`. You can optionally pass a value to it (e.g., the results of a computation).
 
-To trigger an event and mark it as failed, call :func:`fail(ev::Event, exc::Exception) <fail>` and pass an :class:`Exception` instance to it (e.g., the exception you caught during your failed computation).
+To trigger an event and mark it as failed, call :func:`fail(ev::AbstractEvent, exc::Exception) <fail>` and pass an :class:`Exception` instance to it (e.g., the exception you caught during your failed computation).
 
-There is also a generic way to trigger an event: :func:`trigger(ev::Event, cause::BaseEvent) <trigger>`. This will take the value and outcome (success or failure) of the event passed to it.
+There is also a generic way to trigger an event: :func:`trigger(ev::AbstractEvent, cause::BaseEvent) <trigger>`. This will take the value and outcome (success or failure) of the event passed to it.
 
 All three methods return the event instance they are bound to. This allows you to do things like::
 
@@ -127,13 +127,13 @@ One example for this is that events can be shared. They can be created by a proc
 Let time pass by
 ~~~~~~~~~~~~~~~~
 
-To actually let time pass in a simulation, there is the timeout event. A timeout constructor has three arguments: :func:`Timeout(env::BaseEnvironment, delay::Float64, value=nothing) <Timeout>`. It is triggered automatically and is scheduled at ``now + delay``. Thus, the :func:`succeed(ev::Event, value=nothing) <succeed>`, :func:`fail(ev::Event, exc::Exception) <fail>` and :func:`trigger(ev::Event, cause::BaseEvent) <trigger>` functions cannot be called again and you have to pass the event value to it when you create the timeout event.
+To actually let time pass in a simulation, there is the :class:`Timeout`. A timeout constructor has three arguments: :func:`Timeout(env::AbstractEnvironment, delay::Float64, value=nothing) <Timeout>`. It is triggered automatically and is scheduled at ``now + delay``. Thus, the :func:`succeed(ev::AbstractEvent, value=nothing) <succeed>`, :func:`fail(ev::AbstractEvent, exc::Exception) <fail>` and :func:`trigger(ev::AbstractEvent, cause::AbstractEvent) <trigger>` functions cannot be called again and you have to pass the event value to it when you create the timeout event.
 
 
 Processes are events, too
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SimJulia processes (as created by the constructor :func:`Process(env::BaseEnvironment, func::Function, args...) <Process>`) have the nice property of being a subtype of :class:`BaseEvent`, too.
+SimJulia processes (as created by the constructor :func:`Process(env::AbstractEnvironment, func::Function, args...) <Process>`) have the nice property of being a subtype of :class:`AbstractEvent`, too.
 
 That means, that a process can yield another process. It will then be resumed when the other process ends. The event’s value will be the return value of that process::
 
@@ -154,7 +154,7 @@ That means, that a process can yield another process. It will then be resumed wh
 
 When a process is created, it schedules an event which will start the execution of the process when triggered. You usually won’t have to deal with this type of event.
 
-If you don’t want a process to start immediately but after a certain delay, you can use :func:`DelayedProcess(env::BaseEnvironment, delay::Float64, func::Function, args...) <DelayedProcess>`. This method returns a helper process that uses a timeout before actually starting the process.
+If you don’t want a process to start immediately but after a certain delay, you can use :func:`DelayedProcess(env::AbstractEnvironment, delay::Float64, func::Function, args...) <DelayedProcess>`. This method returns a helper process that uses a timeout before actually starting the process.
 
 The example from above, but with a delayed start of ``sub(env::Environment)``::
 
@@ -177,7 +177,7 @@ The example from above, but with a delayed start of ``sub(env::Environment)``::
   println(ret)
 
 
-The state of the :class:`Process` can be queried with the function :func:`done(proc::Process) <done>` that returns ``true`` when the process function has returned.
+The state of the :class:`Process` can be queried with the function :func:`is_process_done(proc::Process) <done>` that returns ``true`` when the process function has returned.
 
 
 Waiting for multiple events at once
@@ -185,9 +185,9 @@ Waiting for multiple events at once
 
 Sometimes, you want to wait for more than one event at the same time. For example, you may want to wait for a resource, but not for an unlimited amount of time. Or you may want to wait until all a set of events has happened.
 
-SimJulia therefore offers the event constructors :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>` and :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. There is a specific constructors for the more general :func:`Condition(env::BaseEnvironment, eval::Function, events::Vector{BaseEvent}) <Condition>`. The function :func:`eval(events::Vector{Event})` takes one argument a :class:`Vector{Event}` and returns true when the condition is fulfilled.
+SimJulia therefore offers the event constructors :func:`AnyOf(events...) <AnyOf>` and :func:`AllOf(events...}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. There is a specific constructors for the more general :func:`EventOperator(eval::Function, events::Vector{BaseEvent}) <EventOperator>`. The function :func:`eval(events::Vector{AbstractEvent})` takes one argument a :class:`Vector{AbstractEvent}` and returns true when the condition is fulfilled.
 
-As a shorthand for :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>` and :func:`AnyOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AnyOf>`, you can also use the logical operators ``&`` (and) and ``|`` (or)::
+As a shorthand for :func:`AllOf(events...) <AllOf>` and :func:`AnyOf(events::Vector{BaseEvent}) <AnyOf>`, you can also use the logical operators ``&`` (and) and ``|`` (or)::
 
   using SimJulia
   using Compat
@@ -209,7 +209,7 @@ As a shorthand for :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent})
   run(env)
 
 
-The result of the ``yield`` of a multiple events is of type :class:`Dict` with as keys the processed (processing) events and as values their values. This allows the following idiom for conveniently fetching the values of multiple events specified in an and condition (including :func:`AllOf(env::BaseEnvironment, events::Vector{BaseEvent}) <AllOf>`)::
+The result of the ``yield`` of a multiple events is of type :class:`Dict` with as keys the processed (processing) events and as values their values. This allows the following idiom for conveniently fetching the values of multiple events specified in an and condition (including :func:`AllOf(events...) <AllOf>`)::
 
   using SimJulia
   using Compat

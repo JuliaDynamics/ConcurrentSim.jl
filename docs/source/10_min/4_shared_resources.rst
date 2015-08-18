@@ -12,7 +12,7 @@ The electric vehicle process car introduced in the last sections is slightly mod
 
 The car drive now to a battery charging station (BCS) and requests one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards::
 
-  julia> using SimJulia.Resources
+  julia> using SimJulia
 
   julia> function car(env::Environment, name::Int, bcs::Resource, driving_time::Float64, charge_duration::Float64)
            yield(Timeout(env, driving_time))
