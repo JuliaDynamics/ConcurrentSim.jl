@@ -1,4 +1,4 @@
-using SimJulia.Resources
+using SimJulia
 
 function resource_user(env::Environment, name::Int, res::Resource, wait::Float64, prio::Int)
   yield(Timeout(env, wait))

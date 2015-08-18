@@ -1,15 +1,55 @@
 using Compat
 
-type Process <: BaseEvent
+type Initialize <: AbstractEvent
+  bev :: BaseEvent
+  function Initialize(env::AbstractEnvironment, callback)
+    init = new()
+    init.bev = BaseEvent(env)
+    push!(init.bev.callbacks, callback)
+    schedule(init, true)
+    return init
+  end
+end
+
+type Process <: AbstractEvent
   task :: Task
-  target :: Event
-  ev :: Event
+  target :: AbstractEvent
+  bev :: BaseEvent
   resume :: Function
-  function Process(env::BaseEnvironment, task::Task)
+  function Process(env::AbstractEnvironment, func::Function, args...)
     proc = new()
-    proc.task = task
-    proc.ev = Event(env)
+    proc.task = Task(()->func(env, args...))
+    proc.bev = BaseEvent(env)
+    proc.resume = (ev)->execute(env, ev, proc)
+    proc.target = Initialize(env, proc.resume)
     return proc
+  end
+end
+
+type Interrupt <: AbstractEvent
+  bev :: BaseEvent
+  function Interrupt(proc::Process, cause::Any=nothing)
+    inter = new()
+    inter.bev = BaseEvent(proc.bev.env)
+    push!(inter.bev.callbacks, proc.resume)
+    schedule(inter, true, InterruptException(cause))
+    delete!(proc.target.bev.callbacks, proc.resume)
+    return inter
+  end
+end
+
+type Interruption <: AbstractEvent
+  bev :: BaseEvent
+  function Interruption(proc::Process, cause::Any=nothing)
+    inter = new()
+    env = proc.bev.env
+    inter.bev = BaseEvent(env)
+    active_proc = active_process(env)
+    if !istaskdone(proc.task) && !is(proc, active_proc)
+      Interrupt(proc, cause)
+    end
+    schedule(inter)
+    return inter
   end
 end
 
@@ -22,77 +62,42 @@ type InterruptException <: Exception
   end
 end
 
-function Process(env::BaseEnvironment, func::Function, args...)
-  proc = Process(env, Task(()->func(env, args...)))
-  proc.resume = (ev)->execute(env, ev, proc)
-  ev = Event(env)
-  push!(ev.callbacks, proc.resume)
-  schedule(ev, true)
-  proc.target = ev
-  return proc
-end
-
-function show(io::IO, inter::InterruptException)
-  print(io, "InterruptException caused by $(inter.cause)")
-end
-
-function show(io::IO, proc::Process)
-  print(io, "Process $(proc.task)")
-end
-
-function done(proc::Process)
+function is_process_done(proc::Process)
   return istaskdone(proc.task)
-end
-
-function active_process(env::BaseEnvironment)
-  return @compat get(env.active_proc)
 end
 
 function cause(inter::InterruptException)
   return inter.cause
 end
 
-function execute(env::BaseEnvironment, ev::Event, proc::Process)
+function execute(env::AbstractEnvironment, ev::AbstractEvent, proc::Process)
   try
     env.active_proc = @compat Nullable(proc)
-    value = consume(proc.task, ev.value)
+    value = consume(proc.task, ev.bev.value)
     env.active_proc = @compat Nullable{Process}()
     if istaskdone(proc.task)
-      schedule(proc.ev, value)
+      schedule(proc, value)
     end
   catch exc
     env.active_proc = @compat Nullable{Process}()
-    if !isempty(proc.ev.callbacks)
-      fail(proc.ev, exc)
+    if !isempty(proc.bev.callbacks)
+      schedule(proc, exc)
     else
       rethrow(exc)
     end
   end
 end
 
-function yield(ev::BaseEvent)
-  ev = convert(Event, ev)
-  if ev.state == EVENT_PROCESSED
-    return ev.value
+function yield(ev::AbstractEvent)
+  if ev.bev.state == EVENT_PROCESSED
+    return ev.bev.value
   end
-  proc = active_process(ev.env)
+  proc = active_process(ev.bev.env)
   proc.target = ev
-  push!(ev.callbacks, proc.resume)
-  value = produce(ev)
+  push!(ev.bev.callbacks, proc.resume)
+  value = produce(nothing)
   if isa(value, Exception)
     throw(value)
   end
   return value
-end
-
-function Interrupt(proc::Process, cause::Any=nothing)
-  env = proc.ev.env
-  active_proc = active_process(env)
-  if !istaskdone(proc.task) && !is(proc, active_proc)
-    ev = Event(env)
-    push!(ev.callbacks, proc.resume)
-    schedule(ev, true, InterruptException(cause))
-    delete!(proc.target.callbacks, proc.resume)
-  end
-  return Timeout(env, 0.0)
 end

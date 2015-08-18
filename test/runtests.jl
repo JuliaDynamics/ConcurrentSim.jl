@@ -3,7 +3,7 @@ testpath(f) = joinpath(Pkg.dir("SimJulia"),"test",f)
 for test_file in [
   "test_events.jl",
   "test_processes.jl",
-  "test_conditions.jl",
+  "test_event_operators.jl",
   "test_resources.jl",
   "test_containers.jl"]
   include(testpath(test_file))

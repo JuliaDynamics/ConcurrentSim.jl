@@ -1,4 +1,4 @@
-using SimJulia.Resources
+using SimJulia
 
 function car(env::Environment, name::Int, bcs::Resource, driving_time::Float64, charge_duration::Float64)
   yield(Timeout(env, driving_time))

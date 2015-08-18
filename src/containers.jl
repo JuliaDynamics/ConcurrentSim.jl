@@ -4,8 +4,22 @@ type ContainerKey{T<:Number}
   amount :: T
 end
 
-function isless(a::ContainerKey, b::ContainerKey)
-  return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
+type Put <: AbstractEvent
+  bev :: BaseEvent
+  function Put(env::AbstractEnvironment)
+    put = new()
+    put.bev = BaseEvent(env)
+    return put
+  end
+end
+
+type Get <: AbstractEvent
+  bev :: BaseEvent
+  function Get(env::AbstractEnvironment)
+    get = new()
+    get.bev = BaseEvent(env)
+    return get
+  end
 end
 
 type Container{T<:Number}
@@ -13,8 +27,8 @@ type Container{T<:Number}
   eid :: Uint16
   level :: T
   capacity :: T
-  put_queue :: PriorityQueue{Event, ContainerKey{T}}
-  get_queue :: PriorityQueue{Event, ContainerKey{T}}
+  put_queue :: PriorityQueue{Put, ContainerKey{T}}
+  get_queue :: PriorityQueue{Get, ContainerKey{T}}
   function Container(env::Environment, capacity::T, level::T=zero(T))
     cont = new()
     cont.env = env
@@ -22,11 +36,11 @@ type Container{T<:Number}
     cont.capacity = capacity
     cont.level = level
     if VERSION >= v"0.4-"
-      cont.put_queue = PriorityQueue(Event, ContainerKey{T})
-      cont.get_queue = PriorityQueue(Event, ContainerKey{T})
+      cont.put_queue = PriorityQueue(Put, ContainerKey{T})
+      cont.get_queue = PriorityQueue(Get, ContainerKey{T})
     else
-      cont.put_queue = PriorityQueue{Event, ContainerKey{T}}()
-      cont.get_queue = PriorityQueue{Event, ContainerKey{T}}()
+      cont.put_queue = PriorityQueue{Put, ContainerKey{T}}()
+      cont.get_queue = PriorityQueue{Get, ContainerKey{T}}()
     end
     return cont
   end
@@ -34,23 +48,27 @@ end
 
 function Put{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
-  ev = Event(cont.env)
-  cont.put_queue[ev] = ContainerKey{T}(priority, cont.eid, amount)
-  append_callback(ev, trigger_get, cont)
-  trigger_put(Event(cont.env), cont)
-  return ev
+  put = Put(cont.env)
+  cont.put_queue[put] = ContainerKey{T}(priority, cont.eid, amount)
+  append_callback(put, trigger_get, cont)
+  trigger_put(put, cont)
+  return put
 end
 
 function Get{T<:Number}(cont::Container, amount::T, priority::Int64=0)
   cont.eid += 1
-  ev = Event(cont.env)
-  cont.get_queue[ev] = ContainerKey{T}(priority, cont.eid, amount)
-  append_callback(ev, trigger_put, cont)
-  trigger_get(Event(cont.env), cont)
-  return ev
+  get = Get(cont.env)
+  cont.get_queue[get] = ContainerKey{T}(priority, cont.eid, amount)
+  append_callback(get, trigger_put, cont)
+  trigger_get(get, cont)
+  return get
 end
 
-function trigger_put(event::Event, cont::Container)
+function isless(a::ContainerKey, b::ContainerKey)
+  return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
+end
+
+function trigger_put(event::AbstractEvent, cont::Container)
   while length(cont.put_queue) > 0
     (ev, key) = peek(cont.put_queue)
     if cont.level + key.amount <= cont.capacity
@@ -63,7 +81,7 @@ function trigger_put(event::Event, cont::Container)
   end
 end
 
-function trigger_get{T}(event::Event, cont::Container{T})
+function trigger_get{T}(event::AbstractEvent, cont::Container{T})
   while length(cont.get_queue) > 0
     (ev, key) = peek(cont.get_queue)
     if cont.level - key.amount >= zero(T)

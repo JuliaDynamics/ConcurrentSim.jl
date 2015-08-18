@@ -1,9 +1,10 @@
 using SimJulia
 
-function my_callback(ev::Event, succeed_ev::Event)
+function my_callback(ev::AbstractEvent, succeed_ev::Event)
   println("Callback of $(ev)")
   println("Succeed is triggered: $(triggered(succeed_ev))")
   println("Succeed is processed: $(processed(succeed_ev))")
+  println(succeed_ev)
   succeed(succeed_ev, "Yes we can")
   try
     succeed(succeed_ev, "Yes we can twice")
@@ -12,7 +13,7 @@ function my_callback(ev::Event, succeed_ev::Event)
   end
 end
 
-function my_callback2(ev::Event, fail_ev::Event, trigger_ev::Event)
+function my_callback2(ev::AbstractEvent, fail_ev::Event, trigger_ev::Event)
   println("Callback of $(ev)")
   fail(fail_ev, ErrorException("No we can't"))
   try

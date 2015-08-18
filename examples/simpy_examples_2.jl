@@ -1,4 +1,4 @@
-using SimJulia.Resources
+using SimJulia
 using Distributions
 using Compat
 

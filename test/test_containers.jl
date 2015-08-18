@@ -1,5 +1,4 @@
 using SimJulia
-using SimJulia.Containers
 
 function putter(env::Environment, delay::Float64, cont::Container)
   yield(Timeout(env, delay))

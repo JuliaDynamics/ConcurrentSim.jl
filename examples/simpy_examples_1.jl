@@ -1,4 +1,4 @@
-using SimJulia.Resources
+using SimJulia
 using Distributions
 
 const RANDOM_SEED = 150

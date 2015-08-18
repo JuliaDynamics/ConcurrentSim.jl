@@ -21,7 +21,7 @@ function Interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event
   while true
     yield(Timeout(env, when))
     println("Before Interrupt")
-    yield(Interrupt(proc, "My Interrupt"))
+    yield(Interruption(proc, "My Interrupt"))
     println("After Interrupt")
     yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))
@@ -42,7 +42,7 @@ end
 
 function wait_fib(env::Environment, proc::Process, ev::Event)
   println("Start waiting at $(now(env))")
-  println("Is process done? $(done(proc))")
+  println("Is process done? $(is_process_done(proc))")
   value = yield(proc)
   println("Value is $value")
   println("Stop waiting at $(now(env))")
@@ -56,11 +56,11 @@ end
 function ev_too_late(env::Environment, ev::Event, when::Float64)
   yield(Timeout(env, when))
   println("Processed: $(processed(ev))")
-  throw(EventProcessed())
 end
 
-function callback_too_late(ev::Event)
+function callback_too_late(ev::Process)
   println("Too late ...")
+  throw(ErrorException("... too late"))
 end
 
 function die(env::Environment, proc::Process)

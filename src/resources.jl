@@ -2,6 +2,7 @@ type ResourceKey
   priority :: Int64
   id :: Uint16
   preempt :: Bool
+  time :: Float64
 end
 
 type Preempted
@@ -9,42 +10,44 @@ type Preempted
   usage_since :: Float64
 end
 
-function isless(a::ResourceKey, b::ResourceKey)
-  return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
+type Request <: AbstractEvent
+  bev :: BaseEvent
+  proc :: Process
+  function Request(env::AbstractEnvironment, id::Uint16, priority::Int64, preempt::Bool)
+    req = new()
+    req.bev = BaseEvent(env)
+    req.proc = active_process(env)
+    return req
+  end
 end
 
 type Resource
   env :: Environment
   eid :: Uint16
   capacity :: Int
-  queue :: PriorityQueue{Event, ResourceKey}
+  queue :: PriorityQueue{Request, ResourceKey}
   user_list :: PriorityQueue{Process, ResourceKey}
-  event_process :: Dict{Event, Process}
-  process_time :: Dict{Process, Float64}
-  function Resource(env::Environment, capacity::Int=1)
+  function Resource(env::AbstractEnvironment, capacity::Int=1)
     res = new()
     res.env = env
     res.eid = 0
     res.capacity = capacity
     if VERSION >= v"0.4-"
-      res.queue = PriorityQueue(Event, ResourceKey)
+      res.queue = PriorityQueue(Request, ResourceKey)
       res.user_list = PriorityQueue(Process, ResourceKey, Order.Reverse)
     else
-      res.queue = PriorityQueue{Event, ResourceKey}()
+      res.queue = PriorityQueue{Request, ResourceKey}()
       res.user_list = PriorityQueue{Process, ResourceKey}(Order.Reverse)
     end
-    res.event_process = Dict{Event, Process}()
-    res.process_time = Dict{Process, Float64}()
     return res
   end
 end
 
 function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
-  ev = Event(res.env)
-  res.queue[ev] = ResourceKey(priority, id, preempt)
-  res.event_process[ev] = active_process(res.env)
-  trigger_put(ev, res)
-  return ev
+  req = Request(res.env, id, priority, preempt)
+  res.queue[req] = ResourceKey(priority, id, preempt, 0.0)
+  trigger_put(req, res)
+  return req
 end
 
 function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
@@ -52,34 +55,42 @@ function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
   return Request(res, res.eid, priority, preempt)
 end
 
-function Release(res::Resource)
-  ev = Timeout(res.env, 0.0)
-  proc = active_process(res.env)
-  append_callback(ev, trigger_put, res)
-  dequeue!(res.user_list, proc)
-  delete!(res.process_time, proc)
-  return ev
+type Release <: AbstractEvent
+  bev :: BaseEvent
+  function Release(res::Resource)
+    rel = new()
+    env = res.env
+    rel.bev = BaseEvent(env)
+    proc = active_process(env)
+    append_callback(rel, trigger_put, res)
+    dequeue!(res.user_list, proc)
+    succeed(rel)
+    return rel
+  end
 end
 
-function cancel(res::Resource, req::Event)
+function isless(a::ResourceKey, b::ResourceKey)
+  return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
+end
+
+function cancel(res::Resource, req::Request)
   dequeue!(res.queue, req)
 end
 
-function trigger_put(event::Event, res::Resource)
+function trigger_put(ev::AbstractEvent, res::Resource)
   while length(res.queue) > 0
     (ev, key) = peek(res.queue)
-    proc = res.event_process[ev]
+    proc = ev.proc
     if length(res.user_list) >= res.capacity && key.preempt
       (proc_preempt, key_preempt) = peek(res.user_list)
       if key_preempt > key
         dequeue!(res.user_list)
-        Interrupt(proc_preempt, Preempted(proc, pop!(res.process_time, proc_preempt)))
+        Interruption(proc_preempt, Preempted(proc, key_preempt.time))
       end
     end
     if length(res.user_list) < res.capacity
-      res.process_time[proc] = now(res.env)
+      key.time = now(res.env)
       res.user_list[proc] = key
-      delete!(res.event_process, ev)
       succeed(ev, key.id)
       dequeue!(res.queue)
     else

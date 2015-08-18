@@ -7,8 +7,8 @@ function drive(env::Environment)
     charging = Process(env, bat_ctrl)
     parking = Timeout(env, 60.0)
     yield(charging | parking)
-    if !done(charging)
-      yield(Interrupt(charging, "Need to go!"))
+    if !is_process_done(charging)
+      yield(Interruption(charging, "Need to go!"))
     end
     println("Stop parking at $(now(env))")
   end

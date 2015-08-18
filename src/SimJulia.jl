@@ -1,48 +1,26 @@
 module SimJulia
+  using Base.Order
   using Base.Collections
 
-  import Base.show, Base.isless, Base.yield, Base.run, Base.exit, Base.done, Base.convert
+  import Base.show, Base.isless, Base.yield, Base.run, Base.count, Base.isless
   if VERSION >= v"0.4-"
     import Base.now, Base.step, Base.&, Base.|
   end
   import Base.Collections.peek
 
-  export BaseEvent
-  export StopSimulation, EmptySchedule
-  export Event, Timeout, EventTriggered, EventProcessed, succeed, fail, trigger, triggered, processed, value, append_callback, run, exit
-  export EventOperator, AllOf, AnyOf, (&), (|)
-  export Process, Interrupt, InterruptException, yield, active_process, cause, done
-  export Environment, step, peek, now
+  export AbstractEvent, run, succeed, fail, trigger, triggered, processed, value, append_callback
+  export Event, Timeout, EventOperator, AllOf, AnyOf, (&), (|)
+  export Process, Interruption, yield, is_process_done, cause
+  export Environment, step, peek, now, active_process
   export DelayedProcess
+  export Resource, Preempted, Request, Release, cancel, by, usage_since, capacity, count
+  export Container, Get, Put, level
 
   include("base.jl")
   include("events.jl")
-  include("event_operators.jl")
   include("processes.jl")
   include("environments.jl")
   include("util.jl")
-
-  module Resources
-    using Base.Order
-    using Base.Collections
-    using SimJulia
-
-    import Base.count, Base.isless
-
-    export Resource, Preempted, Request, Release, cancel, by, usage_since, capacity, count
-
-    include("resources.jl")
-  end
-
-  module Containers
-    using Base.Order
-    using Base.Collections
-    using SimJulia
-
-    import Base.isless, SimJulia.Resources.capacity
-
-    export Container, Get, Put, capacity, level
-
-    include("containers.jl")
-  end
+  include("resources.jl")
+  include("containers.jl")
 end

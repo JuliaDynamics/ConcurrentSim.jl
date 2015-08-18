@@ -3,144 +3,91 @@ const EVENT_TRIGGERED = 1
 const EVENT_PROCESSING = 2
 const EVENT_PROCESSED = 3
 
-type Event <: BaseEvent
-  env :: BaseEnvironment
-  callbacks :: Set{Function}
-  state :: Uint16
-  id :: Uint16
-  value :: Any
-  function Event(env::BaseEnvironment)
+type Event <: AbstractEvent
+  bev :: BaseEvent
+  function Event(env::AbstractEnvironment)
     ev = new()
-    ev.env = env
-    ev.callbacks = Set{Function}()
-    ev.state = EVENT_INITIAL
-    ev.id = 0
+    ev.bev = BaseEvent(env)
     return ev
   end
 end
 
-function convert(::Type{Event}, ev::BaseEvent)
-  if isa(ev, Event)
-    return ev
-  else
-    return ev.ev
+type Timeout <: AbstractEvent
+  bev :: BaseEvent
+  function Timeout(env::AbstractEnvironment, delay::Float64, value=nothing)
+    timeout = new()
+    timeout.bev = BaseEvent(env)
+    schedule(timeout, delay, value)
+    return timeout
   end
 end
 
-type EmptySchedule <: Exception end
-
-type StopSimulation <: Exception end
-
-type EventTriggered <: Exception end
-
-type EventProcessed <: Exception end
-
-function show(io::IO, ev::Event)
-  print(io, "Event id $(ev.id)")
-end
-
-function triggered(ev::Event)
-  return ev.state == EVENT_TRIGGERED
-end
-
-function processed(ev::Event)
-  return ev.state == EVENT_PROCESSED
-end
-
-function value(ev::Event)
-  return ev.value
-end
-
-function schedule(ev::Event, priority::Bool, delay::Float64, value=nothing)
-  ev.env.eid += 1
-  ev.id = ev.env.eid
-  ev.env.sched[ev] = EventKey(ev.env.time + delay, priority, ev.id)
-  ev.value = value
-  ev.state = EVENT_TRIGGERED
-end
-
-function schedule(ev::Event, priority::Bool, value=nothing)
-  schedule(ev, priority, 0.0, value)
-end
-
-function schedule(ev::Event, delay::Float64, value=nothing)
-  schedule(ev, false, delay, value)
-end
-
-function schedule(ev::Event, value=nothing)
-  schedule(ev, false, 0.0, value)
-end
-
-function append_callback(ev::BaseEvent, callback::Function, args...)
-  ev = convert(Event, ev)
-  if processed(ev)
-    throw(EventProcessed())
-  end
-  push!(ev.callbacks, (ev)->callback(ev, args...))
-end
-
-function succeed(ev::Event, value=nothing)
-  if ev.state > EVENT_INITIAL
-    throw(EventTriggered())
-  end
-  schedule(ev, value)
-  return ev
-end
-
-function fail(ev::Event, exc::Exception)
-  if ev.state > EVENT_INITIAL
-    throw(EventTriggered())
-  end
-  schedule(ev, exc)
-  return ev
-end
-
-function trigger(ev::Event, cause::BaseEvent)
-  cause = convert(Event, cause)
-  if ev.state > EVENT_INITIAL
-    throw(EventTriggered())
-  end
-  schedule(ev, cause.value)
-  return ev
-end
-
-function run(env::BaseEnvironment)
-  ev = Event(env)
-  return run(env, ev)
-end
-
-function run(env::BaseEnvironment, at::Float64)
-  ev = Event(env)
-  schedule(ev, at)
-  return run(env, ev)
-end
-
-function run(env::BaseEnvironment, until::BaseEvent)
-  until = convert(Event, until)
-  append_callback(until, stop_simulation)
-  try
-    while true
-      step(env)
+type EventOperator <: AbstractEvent
+  events :: Vector{AbstractEvent}
+  eval :: Function
+  bev :: BaseEvent
+  function EventOperator(env::AbstractEnvironment, eval::Function, ev::AbstractEvent, events...)
+    oper = new()
+    oper.bev = BaseEvent(env)
+    oper.events = AbstractEvent[ev, events...]
+    oper.eval = eval
+    for ev in oper.events
+      if ev.bev.state >= EVENT_PROCESSING
+        check(ev, oper)
+      else
+        push!(ev.bev.callbacks, (ev)->check(ev, oper))
+      end
     end
-  catch exc
-    if isa(exc, StopSimulation)
-      return until.value
-    elseif !isa(exc, EmptySchedule)
-      rethrow(exc)
+    return oper
+  end
+end
+
+function EventOperator(eval::Function, ev::AbstractEvent, events...)
+  return EventOperator(ev.bev.env, eval, ev, events...)
+end
+
+function AllOf(ev::AbstractEvent, events...)
+  return EventOperator(eval_and, ev, events...)
+end
+
+function AnyOf(ev::AbstractEvent, events...)
+  return EventOperator(eval_or, ev, events...)
+end
+
+function populate_value(oper::EventOperator, values::Dict{AbstractEvent, Any})
+  for ev in oper.events
+    if isa(ev, EventOperator)
+      populate_value(ev, values)
+    elseif ev.bev.state >= EVENT_PROCESSING
+      values[ev] = ev.bev.value
     end
   end
 end
 
-function exit(env::BaseEnvironment)
-  throw(StopSimulation())
+function check(ev::AbstractEvent, oper::EventOperator)
+  if oper.bev.state == EVENT_INITIAL
+    if isa(ev.bev.value, Exception)
+      schedule(oper, ev.bev.value)
+    elseif oper.eval(oper.events)
+      values = Dict{AbstractEvent, Any}()
+      populate_value(oper, values)
+      schedule(oper, values)
+    end
+  end
 end
 
-function stop_simulation(ev::Event)
-  exit(ev.env)
+function eval_and(events::Vector{AbstractEvent})
+  return all(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
 end
 
-function Timeout(env::BaseEnvironment, delay::Float64, value=nothing)
-  ev = Event(env)
-  schedule(ev, delay, value)
-  return ev
+function eval_or(events::Vector{AbstractEvent})
+  return any(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
+end
+
+function (&)(ev1::AbstractEvent, ev2::AbstractEvent)
+  return EventOperator(eval_and, ev1, ev2)
+end
+
+function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
+  return EventOperator(eval_or, ev1, ev2)
 end

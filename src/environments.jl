@@ -1,17 +1,17 @@
 using Compat
 
-type Environment <: BaseEnvironment
+type Environment <: AbstractEnvironment
   time :: Float64
-  sched :: PriorityQueue{Event, EventKey}
+  sched :: PriorityQueue{AbstractEvent, EventKey}
   eid :: Uint16
   active_proc :: @compat Nullable{Process}
   function Environment(initial_time::Float64=0.0)
     env = new()
     env.time = initial_time
     if VERSION >= v"0.4-"
-      env.sched = PriorityQueue(Event, EventKey)
+      env.sched = PriorityQueue(AbstractEvent, EventKey)
     else
-      env.sched = PriorityQueue{Event, EventKey}()
+      env.sched = PriorityQueue{AbstractEvent, EventKey}()
     end
     env.eid = 0
     env.active_proc = @compat Nullable{Process}()
@@ -31,12 +31,11 @@ function step(env::Environment)
   (ev, key) = peek(env.sched)
   dequeue!(env.sched)
   env.time = key.time
-  ev.state = EVENT_PROCESSING
-  while !isempty(ev.callbacks)
-    callback = pop!(ev.callbacks)
-    callback(ev)
+  ev.bev.state = EVENT_PROCESSING
+  while !isempty(ev.bev.callbacks)
+    pop!(ev.bev.callbacks)(ev)
   end
-  ev.state = EVENT_PROCESSED
+  ev.bev.state = EVENT_PROCESSED
 end
 
 function peek(env::Environment)
@@ -48,4 +47,8 @@ function peek(env::Environment)
     time = key.time
   end
   return time
+end
+
+function active_process(env::Environment)
+  return @compat get(env.active_proc)
 end
