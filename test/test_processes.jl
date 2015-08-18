@@ -56,11 +56,11 @@ end
 function ev_too_late(env::Environment, ev::Event, when::Float64)
   yield(Timeout(env, when))
   println("Processed: $(processed(ev))")
+  throw(ErrorException("... too late"))
 end
 
 function callback_too_late(ev::Process)
   println("Too late ...")
-  throw(ErrorException("... too late"))
 end
 
 function die(env::Environment, proc::Process)
