@@ -7,3 +7,4 @@ In this chapter, various practical examples are presented that demonstrate how t
    :maxdepth: 2
 
    1_condition_events
+   2_interrupts

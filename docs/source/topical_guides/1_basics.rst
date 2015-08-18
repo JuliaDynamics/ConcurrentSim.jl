@@ -38,7 +38,7 @@ Finally, the process function prints the current simulation time that is accessi
 
 Once all process functions are defined, you can instantiate the objects for your simulation. In most cases, you start by creating an instance of :class:`Environment`, because you’ll need to pass it around a lot when creating everything else.
 
-You have to call the constructor :func:`Process(env::AbstractEnvironment, func::Function, args...) <Process>` to wrap the process function into the :class:`Task`. This will not execute any code of the process function yet but will schedule an event at the current simulation time which starts the execution of the process function. An instance of the :class:`Process can also be yielded and is triggered when its process function returns.
+You have to call the constructor :func:`Process(env::AbstractEnvironment, func::Function, args...) <Process>` to wrap the process function into the :class:`Task`. This will not execute any code of the process function yet but will schedule an event at the current simulation time which starts the execution of the process function. An instance of the :class:`Process` can also be yielded and is triggered when its process function returns.
 
 Finally, you start SimJulia’s event loop by calling :func:`run(env) <run>`. By default, it will run as long as there are events in the event list, but you can also let it stop earlier by providing an until argument.
 
