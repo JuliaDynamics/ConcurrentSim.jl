@@ -70,7 +70,7 @@ function Process(env::AbstractEnvironment, func::Function, args...)
 end
 
 function show(io::IO, proc::Process)
-  print(io, "Process $(proc.name)")
+  print(io, "SimJulia.Process $(proc.bev.id): $(proc.name)")
 end
 
 function show(io::IO, inter::InterruptException)

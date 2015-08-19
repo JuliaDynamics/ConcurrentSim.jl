@@ -23,4 +23,6 @@ module SimJulia
   include("util.jl")
   include("resources.jl")
   include("containers.jl")
+#  include("resources/base.jl")
+#  include("resources/resource.jl")
 end

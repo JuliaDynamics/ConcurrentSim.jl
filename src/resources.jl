@@ -5,11 +5,6 @@ type ResourceKey
   time :: Float64
 end
 
-type Preempted
-  by :: Process
-  usage_since :: Float64
-end
-
 type Request <: AbstractEvent
   bev :: BaseEvent
   proc :: Process
@@ -43,18 +38,6 @@ type Resource
   end
 end
 
-function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
-  req = Request(res.env, id, priority, preempt)
-  res.queue[req] = ResourceKey(priority, id, preempt, 0.0)
-  trigger_put(req, res)
-  return req
-end
-
-function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
-  res.eid += 1
-  return Request(res, res.eid, priority, preempt)
-end
-
 type Release <: AbstractEvent
   bev :: BaseEvent
   function Release(res::Resource)
@@ -67,6 +50,23 @@ type Release <: AbstractEvent
     succeed(rel)
     return rel
   end
+end
+
+type Preempted
+  by :: Process
+  usage_since :: Float64
+end
+
+function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
+  req = Request(res.env, id, priority, preempt)
+  res.queue[req] = ResourceKey(priority, id, preempt, 0.0)
+  trigger_put(req, res)
+  return req
+end
+
+function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
+  res.eid += 1
+  return Request(res, res.eid, priority, preempt)
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
