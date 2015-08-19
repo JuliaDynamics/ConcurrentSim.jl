@@ -22,10 +22,10 @@ SimJulia
 * It is a complete rewrite allowing a more powerful and unified discrete event approach.
 * All examples of the SimPy distribution are implemented.
 * 10 min tutorial is included to give users a taste of discrete event simulation with SimJulia.
+* Topical guides detail all functions.
 
 #### ToDo
 
-* Add further documentation.
 * Implement the QSS solver for continuous system simulation.
 * Reintroduce the *Monitor* feature of the 0.2 version.
 
