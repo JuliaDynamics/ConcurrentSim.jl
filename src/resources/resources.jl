@@ -34,7 +34,7 @@ type Resource <: AbstractResource
     end
     return res
   end
-end type
+end
 
 type Release <: PutEvent
   bev :: BaseEvent
