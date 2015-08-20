@@ -15,6 +15,7 @@ module SimJulia
   export DelayedProcess
   export Resource, Preempted, Request, Release, cancel, by, usage_since, capacity, count
   export Container, Get, Put, level
+  export Store
 
   include("base.jl")
   include("events.jl")
@@ -24,4 +25,5 @@ module SimJulia
   include("resources/base.jl")
   include("resources/resources.jl")
   include("resources/containers.jl")
+  include("resources/stores.jl")
 end

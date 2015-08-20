@@ -6,11 +6,6 @@ abstract AbstractResource
 
 abstract AbstractResourceKey
 
-type Preempted
-  by :: Process
-  usage_since :: Float64
-end
-
 function trigger_put(ev::ResourceEvent, res::AbstractResource)
   while length(res.put_queue) > 0
     (put_ev, key) = peek(res.put_queue)
@@ -45,12 +40,4 @@ end
 
 function capacity(res::AbstractResource)
   return res.capacity
-end
-
-function by(pre::Preempted)
-  return pre.by
-end
-
-function usage_since(pre::Preempted)
-  return pre.usage_since
 end

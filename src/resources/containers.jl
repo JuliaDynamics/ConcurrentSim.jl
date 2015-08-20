@@ -1,6 +1,6 @@
 type ContainerKey <: AbstractResourceKey
   priority :: Int64
-  schedule_time :: Float64
+  id :: Int64
 end
 
 type PutContainer{T<:Number} <: PutEvent
@@ -37,6 +37,7 @@ type Container{T<:Number} <: AbstractResource
   env :: Environment
   level :: T
   capacity :: T
+  seid :: Int64
   put_queue :: PriorityQueue{PutContainer{T}, ContainerKey}
   get_queue :: PriorityQueue{GetContainer{T}, ContainerKey}
   function Container(env::Environment, capacity::T, level::T=zero(T))
@@ -44,6 +45,7 @@ type Container{T<:Number} <: AbstractResource
     cont.env = env
     cont.capacity = capacity
     cont.level = level
+    cont.seid = 0
     if VERSION >= v"0.4-"
       cont.put_queue = PriorityQueue(PutContainer{T}, ContainerKey)
       cont.get_queue = PriorityQueue(GetContainer{T}, ContainerKey)
@@ -57,7 +59,7 @@ end
 
 function Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
   put = PutContainer{T}(cont, amount)
-  cont.put_queue[put] = ContainerKey(priority, now(cont.env))
+  cont.put_queue[put] = ContainerKey(priority, cont.seid += 1)
   append_callback(put, trigger_get, cont)
   trigger_put(put, cont)
   return put
@@ -65,14 +67,14 @@ end
 
 function Get{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
   get = GetContainer{T}(cont, amount)
-  cont.get_queue[get] = ContainerKey(priority, now(cont.env))
+  cont.get_queue[get] = ContainerKey(priority, cont.seid += 1)
   append_callback(get, trigger_put, cont)
   trigger_get(get, cont)
   return get
 end
 
 function isless(a::ContainerKey, b::ContainerKey)
-  return (a.priority < b.priority) || (a.priority == b.priority && a.schedule_time < b.schedule_time)
+  return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
 end
 
 function do_put(cont::Container, ev::PutContainer, key::ContainerKey)

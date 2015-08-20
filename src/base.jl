@@ -14,14 +14,14 @@ type EventProcessed <: Exception end
 type EventKey
   time :: Float64
   priority :: Bool
-  schedule_time :: Float64
+  id :: Float64
 end
 
 type BaseEvent
   env :: AbstractEnvironment
   callbacks :: Set{Function}
   state :: Uint16
-  id :: Uint16
+  id :: Int64
   value :: Any
   function BaseEvent(env::AbstractEnvironment)
     ev = new()
@@ -35,7 +35,7 @@ type BaseEvent
 end
 
 function isless(a::EventKey, b::EventKey)
-  return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.schedule_time < b.schedule_time)
+  return (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
 
 function show(io::IO, ev::AbstractEvent)
@@ -44,7 +44,7 @@ end
 
 function schedule(ev::AbstractEvent, priority::Bool, delay::Float64, value=nothing)
   env = ev.bev.env
-  env.sched[ev] = EventKey(env.time + delay, priority, env.time)
+  env.sched[ev] = EventKey(env.time + delay, priority, env.seid += 1)
   ev.bev.value = value
   ev.bev.state = EVENT_TRIGGERED
 end

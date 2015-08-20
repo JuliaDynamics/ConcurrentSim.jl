@@ -1,6 +1,6 @@
 type ResourceKey <: AbstractResourceKey
   priority :: Int64
-  schedule_time :: Float64
+  id :: Int64
   preempt :: Bool
   since :: Float64
 end
@@ -33,14 +33,16 @@ end
 
 type Resource <: AbstractResource
   env :: AbstractEnvironment
-  capacity :: Int
+  capacity :: Int64
+  seid :: Int64
   put_queue :: PriorityQueue{PutResource, ResourceKey}
   get_queue :: PriorityQueue{GetResource, ResourceKey}
   users :: PriorityQueue{Process, ResourceKey}
-  function Resource(env::AbstractEnvironment, capacity=1)
+  function Resource(env::AbstractEnvironment, capacity::Int64=1)
     res = new()
     res.env = env
     res.capacity = capacity
+    res.seid = 0
     if VERSION >= v"0.4-"
       res.put_queue = PriorityQueue(PutResource, ResourceKey)
       res.get_queue = PriorityQueue(GetResource, ResourceKey)
@@ -54,6 +56,12 @@ type Resource <: AbstractResource
   end
 end
 
+
+type Preempted
+  by :: Process
+  usage_since :: Float64
+end
+
 function Request(res::Resource, key::ResourceKey)
   req = PutResource(res.env, res)
   res.put_queue[req] = key
@@ -63,19 +71,19 @@ function Request(res::Resource, key::ResourceKey)
 end
 
 function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
-  return Request(res, ResourceKey(priority, now(res.env), preempt, 0.0))
+  return Request(res, ResourceKey(priority, res.seid+=1, preempt, 0.0))
 end
 
 function Release(res::Resource)
   rel = GetResource(res.env, res)
-  res.get_queue[rel] = ResourceKey(0, now(res.env), false, 0.0)
+  res.get_queue[rel] = ResourceKey(0, res.seid+=1, false, 0.0)
   append_callback(rel, trigger_put, res)
   trigger_get(rel, res)
   return rel
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
-  return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.schedule_time < b.schedule_time)
+  return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
 end
 
 function show(io::IO, pre::Preempted)
@@ -104,4 +112,12 @@ end
 
 function count(res::Resource)
   return length(res.users)
+end
+
+function by(pre::Preempted)
+  return pre.by
+end
+
+function usage_since(pre::Preempted)
+  return pre.usage_since
 end

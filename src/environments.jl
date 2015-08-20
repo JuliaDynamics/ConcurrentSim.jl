@@ -3,7 +3,8 @@ using Compat
 type Environment <: AbstractEnvironment
   time :: Float64
   sched :: PriorityQueue{AbstractEvent, EventKey}
-  eid :: Uint16
+  eid :: Int64
+  seid :: Int64
   active_proc :: @compat Nullable{Process}
   function Environment(initial_time::Float64=0.0)
     env = new()
@@ -14,6 +15,7 @@ type Environment <: AbstractEnvironment
       env.sched = PriorityQueue{AbstractEvent, EventKey}()
     end
     env.eid = 0
+    env.seid = 0
     env.active_proc = @compat Nullable{Process}()
     return env
   end
