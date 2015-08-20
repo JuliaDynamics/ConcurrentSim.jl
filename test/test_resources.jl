@@ -23,7 +23,7 @@ function handling(env::Environment, res::Resource, nr::Int64, preempt::Bool)
     while duration > 0.0
       duration -= now(env) - start_time
       println("Number $nr reRequests handling at time $(now(env))")
-      yield(Request(res, token, nr, preempt))
+      yield(Request(res, token))
       println("Number $nr restarts handling at time $(now(env))")
       try
         yield(Timeout(env, duration))

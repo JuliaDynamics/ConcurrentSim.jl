@@ -32,7 +32,7 @@ function moviegoer(env::Environment, movie::ASCIIString, num_tickets::Int64, the
   result = yield(req | theater.sold_out[movie])
   if in(theater.sold_out[movie], keys(result))
     theater.num_renegers[movie] += 1
-    cancel(theater.counter, req)
+    cancel(req)
   elseif theater.available[movie] < num_tickets
     yield(Timeout(env, 0.5))
     yield(Release(theater.counter))

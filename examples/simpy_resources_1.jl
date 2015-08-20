@@ -2,8 +2,8 @@ using SimJulia
 
 function print_stats(res::Resource)
   println("$(count(res)) of $(capacity(res)) are allocated.")
-  println("  Users: $(res.user_list)")
-  println("  Queued processes: $(res.queue)")
+  println("  Users: $(res.users)")
+  println("  Queued processes: $(res.put_queue)")
 end
 
 function resource_user(env::Environment, res::Resource)

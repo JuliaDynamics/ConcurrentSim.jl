@@ -5,61 +5,73 @@ type ResourceKey <: AbstractResourceKey
   since :: Float64
 end
 
-type Request <: GetEvent
+type Request <: PutEvent
   bev :: BaseEvent
   proc :: Process
-  function Request(env::AbstractEnvironment)
+  res :: AbstractResource
+  function Request(env::AbstractEnvironment, res::AbstractResource)
     req = new()
     req.bev = BaseEvent(env)
     req.proc = active_process(env)
+    req.res = res
     return req
+  end
+end
+
+type Release <: GetEvent
+  bev :: BaseEvent
+  proc :: Process
+  res :: AbstractResource
+  function Release(env::AbstractEnvironment, res::AbstractResource)
+    rel = new()
+    rel.bev = BaseEvent(env)
+    rel.proc = active_process(env)
+    rel.res = res
+    return rel
   end
 end
 
 type Resource <: AbstractResource
   env :: AbstractEnvironment
   capacity :: Int
-  get_queue :: PriorityQueue{Request, ResourceKey}
-  user_list :: PriorityQueue{Process, ResourceKey}
+  put_queue :: PriorityQueue{Request, ResourceKey}
+  get_queue :: PriorityQueue{Release, ResourceKey}
+  users :: PriorityQueue{Process, ResourceKey}
   function Resource(env::AbstractEnvironment, capacity=1)
     res = new()
     res.env = env
     res.capacity = capacity
     if VERSION >= v"0.4-"
-      res.get_queue = PriorityQueue(Request, ResourceKey)
+      res.put_queue = PriorityQueue(Request, ResourceKey)
+      res.get_queue = PriorityQueue(Release, ResourceKey)
       res.users = PriorityQueue(Process, ResourceKey, Order.Reverse)
     else
-      res.queue = PriorityQueue{Request, ResourceKey}()
+      res.put_queue = PriorityQueue{Request, ResourceKey}()
+      res.get_queue = PriorityQueue{Release, ResourceKey}()
       res.users = PriorityQueue{Process, ResourceKey}(Order.Reverse)
     end
     return res
   end
 end
 
-type Release <: PutEvent
-  bev :: BaseEvent
-  function Release(res::Resource)
-    rel = new()
-    env = res.env
-    rel.bev = BaseEvent(env)
-    proc = active_process(env)
-    append_callback(rel, trigger_put, res)
-    dequeue!(res.user_list, proc)
-    succeed(rel)
-    return rel
-  end
-end
-
-function Request(res::Resource, id::Uint16, priority::Int64=0, preempt::Bool=false)
-  req = Request(res.env)
-  res.queue[req] = ResourceKey(priority, id, preempt, 0.0)
+function Request(res::Resource, key::ResourceKey)
+  req = Request(res.env, res)
+  res.put_queue[req] = key
+  append_callback(req, trigger_get, res)
   trigger_put(req, res)
   return req
 end
 
 function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
-  res.eid += 1
-  return Request(res, res.eid, priority, preempt)
+  return Request(res, ResourceKey(priority, now(res.env), preempt, 0.0))
+end
+
+function Release(res::Resource, priority::Int64=0, preempt::Bool=false)
+  rel = Release(res.env, res)
+  res.get_queue[rel] = ResourceKey(priority, now(res.env), preempt, 0.0)
+  append_callback(rel, trigger_put, res)
+  trigger_get(rel, res)
+  return rel
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
@@ -70,6 +82,26 @@ function show(io::IO, pre::Preempted)
   print(io, "preemption by $(pre.by)")
 end
 
-function do_put(res::Resource, put_ev::Release, key)
+function do_put(res::Resource, ev::Request, key::ResourceKey)
+  if length(res.users) >= res.capacity && key.preempt
+    (proc_preempt, key_preempt) = peek(res.users)
+    if key_preempt > key
+      dequeue!(res.users)
+      Interruption(proc_preempt, Preempted(ev.proc, key_preempt.since))
+    end
+  end
+  if length(res.users) < res.capacity
+    key.since = now(res.env)
+    res.users[ev.proc] = key
+    succeed(ev, key)
+  end
+end
 
+function do_get(res::Resource, ev::Release, key::ResourceKey)
+  dequeue!(res.users, ev.proc)
+  succeed(ev)
+end
+
+function count(res::Resource)
+  return length(res.users)
 end

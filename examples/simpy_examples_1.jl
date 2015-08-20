@@ -29,7 +29,7 @@ function customer(env::Environment, name::ASCIIString, counter::Resource, time_i
     yield(Release(counter))
   else
     println("$(now(env)) $name: RENEGED after $wait")
-    cancel(counter, req)
+    cancel(req)
   end
 end
 
