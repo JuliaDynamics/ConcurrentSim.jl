@@ -21,7 +21,7 @@ module SimJulia
   include("processes.jl")
   include("environments.jl")
   include("util.jl")
-  include("containers.jl")
   include("resources/base.jl")
   include("resources/resources.jl")
+  include("resources/containers.jl")
 end
