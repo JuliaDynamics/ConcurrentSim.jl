@@ -2,7 +2,7 @@ using Compat
 
 type Environment <: AbstractEnvironment
   time :: Float64
-  sched :: PriorityQueue{AbstractEvent, EventKey}
+  sched :: PriorityQueue{BaseEvent, EventKey}
   eid :: Int64
   seid :: Int64
   active_proc :: @compat Nullable{Process}
@@ -10,9 +10,9 @@ type Environment <: AbstractEnvironment
     env = new()
     env.time = initial_time
     if VERSION >= v"0.4-"
-      env.sched = PriorityQueue(AbstractEvent, EventKey)
+      env.sched = PriorityQueue(BaseEvent, EventKey)
     else
-      env.sched = PriorityQueue{AbstractEvent, EventKey}()
+      env.sched = PriorityQueue{BaseEvent, EventKey}()
     end
     env.eid = 0
     env.seid = 0
@@ -30,14 +30,14 @@ function step(env::Environment)
   if isempty(env.sched)
     throw(EmptySchedule())
   end
-  (ev, key) = peek(env.sched)
+  (bev, key) = peek(env.sched)
   dequeue!(env.sched)
   env.time = key.time
-  ev.bev.state = EVENT_PROCESSING
-  while !isempty(ev.bev.callbacks)
-    pop!(ev.bev.callbacks)(ev)
+  bev.state = EVENT_PROCESSING
+  while !isempty(bev.callbacks)
+    pop!(bev.callbacks)(key.ev)
   end
-  ev.bev.state = EVENT_PROCESSED
+  bev.state = EVENT_PROCESSED
 end
 
 function peek(env::Environment)
@@ -45,7 +45,7 @@ function peek(env::Environment)
   if isempty(env.sched)
     time = Inf
   else
-    (ev, key) = peek(env.sched)
+    (bev, key) = peek(env.sched)
     time = key.time
   end
   return time

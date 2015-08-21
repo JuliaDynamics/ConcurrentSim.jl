@@ -15,6 +15,7 @@ type EventKey
   time :: Float64
   priority :: Bool
   id :: Float64
+  ev :: AbstractEvent
 end
 
 type BaseEvent
@@ -44,7 +45,7 @@ end
 
 function schedule(ev::AbstractEvent, priority::Bool, delay::Float64, value=nothing)
   env = ev.bev.env
-  env.sched[ev] = EventKey(env.time + delay, priority, env.seid += 1)
+  env.sched[ev.bev] = EventKey(env.time + delay, priority, env.seid += 1, ev)
   ev.bev.value = value
   ev.bev.state = EVENT_TRIGGERED
 end
