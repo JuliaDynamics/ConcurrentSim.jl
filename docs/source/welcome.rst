@@ -3,7 +3,7 @@ Welcome to SimJulia!
 
 **SimJulia** is a combined continuous time / discrete event process oriented simulation framework written in `Julia <http://julialang.org>`_ inspired by the Simula library `DISCO <http://w.akira.ruc.dk/~keld/research/DISCO/>`_ and the Python library `SimPy <http://simpy.sourceforge.net/>`_.
 
-Its event dispatcher is based on a :class:`Task`. This is a control flow feature in Julia that allows computations to be suspended and resumed in a flexible manner. `Processes` in SimJulia are defined by functions yielding `Events`. SimJulia also provides two types of shared resources to model limited capacity congestion points: `Resources` and `Containers`. The API is modeled after the SimPy API but using some specific Julia semantics.
+Its event dispatcher is based on a :class:`Task`. This is a control flow feature in Julia that allows computations to be suspended and resumed in a flexible manner. `Processes` in SimJulia are defined by functions yielding `Events`. SimJulia also provides three types of shared resources to model limited capacity congestion points: `Resources`, `Containers` and `Stores`. The API is modeled after the SimPy API but using some specific Julia semantics.
 
 The continuous time simulation is still under development and will be based on a quantized state system solver that naturally integrates in the discrete event framework.
 
