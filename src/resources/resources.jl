@@ -103,11 +103,13 @@ function do_put(res::Resource, ev::PutResource, key::ResourceKey)
     res.users[ev.proc] = key
     succeed(ev, key)
   end
+  return false
 end
 
 function do_get(res::Resource, ev::GetResource, key::ResourceKey)
   dequeue!(res.users, ev.proc)
   succeed(ev)
+  return false
 end
 
 function count(res::Resource)

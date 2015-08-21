@@ -86,6 +86,7 @@ function do_put(sto::Store, ev::PutStore, key::StoreKey)
     push!(sto.items, ev.item)
     succeed(ev)
   end
+  return false
 end
 
 function do_get(sto::Store, ev::GetStore, key::StoreKey)
@@ -96,5 +97,6 @@ function do_get(sto::Store, ev::GetStore, key::StoreKey)
       break
     end
   end
+  return true
 end
 

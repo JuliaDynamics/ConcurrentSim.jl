@@ -7,11 +7,15 @@ abstract AbstractResource
 abstract AbstractResourceKey
 
 function trigger_put(ev::ResourceEvent, res::AbstractResource)
-  while length(res.put_queue) > 0
-    (put_ev, key) = peek(res.put_queue)
-    do_put(res, put_ev, key)
+  queue = PriorityQueue(res.put_queue)
+  while length(queue) > 0
+    (put_ev, key) = peek(queue)
+    proceed = do_put(res, put_ev, key)
     if triggered(put_ev)
-      dequeue!(res.put_queue)
+      dequeue!(res.put_queue, put_ev)
+    end
+    if proceed
+      dequeue!(queue)
     else
       break
     end
@@ -19,11 +23,15 @@ function trigger_put(ev::ResourceEvent, res::AbstractResource)
 end
 
 function trigger_get(ev::ResourceEvent, res::AbstractResource)
-  while length(res.get_queue) > 0
-    (get_ev, key) = peek(res.get_queue)
-    do_get(res, get_ev, key)
+  queue = PriorityQueue(res.get_queue)
+  while length(queue) > 0
+    (get_ev, key) = peek(queue)
+    proceed = do_get(res, get_ev, key)
     if triggered(get_ev)
-      dequeue!(res.get_queue)
+      dequeue!(res.get_queue, get_ev)
+    end
+    if proceed
+      dequeue!(queue)
     else
       break
     end

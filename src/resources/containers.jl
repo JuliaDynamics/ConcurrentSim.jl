@@ -81,14 +81,18 @@ function do_put(cont::Container, ev::PutContainer, key::ContainerKey)
   if cont.capacity - cont.level >= ev.amount
     cont.level += ev.amount
     succeed(ev)
+    return true
   end
+  return false
 end
 
 function do_get(cont::Container, ev::GetContainer, key::ContainerKey)
   if cont.level >= ev.amount
     cont.level -= ev.amount
     succeed(ev)
+    return true
   end
+  return false
 end
 
 function level(cont::Container)
