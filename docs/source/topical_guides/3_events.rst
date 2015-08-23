@@ -187,7 +187,7 @@ Sometimes, you want to wait for more than one event at the same time. For exampl
 
 SimJulia therefore offers the event constructors :func:`AnyOf(events...) <AnyOf>` and :func:`AllOf(events...}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. There is a specific constructors for the more general :func:`EventOperator(eval::Function, events::Vector{BaseEvent}) <EventOperator>`. The function :func:`eval(events::Vector{AbstractEvent})` takes one argument a :class:`Vector{AbstractEvent}` and returns true when the condition is fulfilled.
 
-As a shorthand for :func:`AllOf(events...) <AllOf>` and :func:`AnyOf(events::Vector{BaseEvent}) <AnyOf>`, you can also use the logical operators ``&`` (and) and ``|`` (or)::
+As a shorthand for :func:`AllOf(events...) <AllOf>` and :func:`AnyOf(events...) <AnyOf>`, you can also use the logical operators ``&`` (and) and ``|`` (or)::
 
   using SimJulia
   using Compat

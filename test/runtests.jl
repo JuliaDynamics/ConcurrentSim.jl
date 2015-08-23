@@ -5,7 +5,8 @@ for test_file in [
   "test_processes.jl",
   "test_event_operators.jl",
   "test_resources.jl",
-  "test_containers.jl"]
+  "test_containers.jl",
+  "test_stores.jl"]
   include(testpath(test_file))
 end
 
@@ -36,6 +37,7 @@ for example_file in [
   "simpy_resources_4.jl",
   "simpy_resources_5.jl",
   "simpy_resources_6.jl",
+  "simpy_resources_7.jl",
   "simpy_examples_1.jl",
   "simpy_examples_2.jl",
   "simpy_examples_3.jl",

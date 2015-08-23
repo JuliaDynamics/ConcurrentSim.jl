@@ -100,3 +100,6 @@ function do_get(sto::Store, ev::GetStore, key::StoreKey)
   return true
 end
 
+function items(sto::Store)
+  return sto.items
+end

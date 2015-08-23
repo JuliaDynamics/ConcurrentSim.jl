@@ -3,23 +3,30 @@ Shared Resources
 
 Shared resources are another way to model process interaction. They form a congestion point where processes queue up in order to use them.
 
-SimJulia defines two categories of resources:
+SimJulia defines three categories of resources:
 
   - :class:`Resource`: Resources that can be used by a limited number of processes at a time (e.g., a gas station with a limited number of fuel pumps).
   - :class:`Container`: Resources that model the production and consumption of a homogeneous, undifferentiated bulk. It may either be continuous (like water) or discrete (like apples).
+  - :class:`Store`: Resources that allow the production and consumption of Julia types.
 
 .. note::
-   Both :class:`Resource` and :class:`Container` are implemented using only the exported functions of SimJulia and are showcases of the functionalities of the previous chapters.
+   All resources are implemented using only the exported functions of SimJulia and are showcases of the functionalities of the previous chapters.
 
 The basic concept of resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All resources share the same basic concept: The resource itself is some kind of a container with a, usually limited, capacity. Processes can either try to put something into the resource or try to get something out. If the resource is full or empty, they have to queue up and wait.
 
+Every resources a maximum capacity and two queues, one for processes that want to put something into it and one for processes that want to get something out. The :func:`Put` and :func:`Get` constructors both return an event that is triggered when the corresponding action was successful.
+
+
+Resources and interrupts
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 While a process is waiting for a resource, it may be interrupted by another process. After catching the interrupt, the process has two possibilities:
 
-  - It may continue to wait for the request (by yielding the request event again).
-  - It may stop waiting for the request (by yielding a release event).
+  - It may continue to wait for the request (by yielding the event again).
+  - It may stop waiting for the request (by calling the :func:`cancel`).
 
 The resource system is modular and extensible. Resources can, for example, use specialized queues. This allows them to add priorities to events or to offer preemption.
 
@@ -214,3 +221,75 @@ The following example is a very simple model of a gas station with a limited num
 The constructors :func:`Put(cont::Container, amount::T, priority::Int64=0) <Put>` and :func:`Get(cont::Container, amount::T, priority::Int64=0) <Get>` create respectively events to put and to get an amount of fuel. The function :func:`level(cont::Container) <level>` returns the amount of fuel still in the tank.
 
 Priorities can be given to a put or a get event by setting the argument ``priority``.
+
+
+Stores
+~~~~~~
+
+Using a :class:`Store` you can model the production and consumption of concrete objects (in contrast to the rather abstract “amount” stored in a :class:`Container`). A single :class:`Store` can even contain multiple types of objects.
+
+A custom function can also be used to filter the objects you get out of the store.
+
+Here is a simple example modelling a generic producer/consumer scenario::
+
+  using SimJulia
+
+  function producer(env::Environment, sto::Store)
+    for i = 1:100
+      yield(Timeout(env, 2.0))
+      yield(Put(sto, "spam $i"))
+      println("Produced spam at $(now(env))")
+    end
+  end
+
+  function consumer(env::Environment, name::Int64, sto::Store)
+    while true
+      yield(Timeout(env, 1.0))
+      println("$name requesting spam at $(now(env))")
+      item = yield(Get(sto))
+      println("$name got $item at $(now(env))")
+    end
+  end
+
+  env = Environment()
+  sto = Store(env, ASCIIString, 2)
+
+  prod = Process(env, producer, sto)
+  consumers = [Process(env, consumer, i, sto) for i=1:2]
+
+  run(env, 5.0)
+
+
+As with the other resource types, you can get a store’s capacity via the function :func:`capacity(sto::Store) <capacity>`. The function :func:`items(sto::Store) <items>` returns a :class:`Set` of items currently available in the store.
+
+A store with a filter on the :class:`Get` event can, for example, be used to model machine shops where machines have varying attributes. This can be useful if the homogeneous slots of a :class:`Resource` are not what you need::
+
+  using SimJulia
+
+  type Machine
+    size :: Int64
+    duration :: Float64
+  end
+
+  function user(env::Environment, name::Int64, sto::Store, size::Int64)
+    machine = yield(Get(sto, (mach::Machine)->mach.size == size))
+    println("$name got $machine at $(now(env))")
+    yield(Timeout(env, machine.duration))
+    yield(Put(sto, machine))
+    println("$name released $machine at $(now(env))")
+  end
+
+  function machineshop(env::Environment, sto::Store)
+    m1 = Machine(1, 2.0)
+    m2 = Machine(2, 1.0)
+    yield(Put(sto, m1))
+    yield(Put(sto, m2))
+  end
+
+  env = Environment()
+  sto = Store(env, Machine, 2)
+  ms = Process(env, machineshop, sto)
+  users = [Process(env, user, i, sto, (i % 2) +1) for i=0:2]
+  run(env)
+
+
