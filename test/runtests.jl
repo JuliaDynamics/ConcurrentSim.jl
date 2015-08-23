@@ -41,6 +41,7 @@ for example_file in [
   "simpy_examples_1.jl",
   "simpy_examples_2.jl",
   "simpy_examples_3.jl",
-  "simpy_examples_4.jl"]
+  "simpy_examples_4.jl",
+  "simpy_examples_5.jl"]
   include(examplespath(example_file))
 end
