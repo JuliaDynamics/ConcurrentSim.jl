@@ -66,11 +66,13 @@ end
 
 function Process(env::AbstractEnvironment, func::Function, args...)
   name = "$func"
-  return Process(env, name, func, args...)
+  proc = Process(env, name, func, args...)
+  proc.name = "SimJulia.Process $(proc.bev.id): $func"
+  return proc
 end
 
 function show(io::IO, proc::Process)
-  print(io, "SimJulia.Process $(proc.bev.id): $(proc.name)")
+  print(io, proc.name)
 end
 
 function show(io::IO, inter::InterruptException)
