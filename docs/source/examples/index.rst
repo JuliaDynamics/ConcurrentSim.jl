@@ -12,3 +12,4 @@ In this chapter, various practical examples are presented that demonstrate how t
    4_event_latency
    5_gas_refuelling_station
    6_car_wash
+   7_process_communication

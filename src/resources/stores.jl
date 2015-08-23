@@ -57,7 +57,7 @@ type Store{T} <: AbstractResource
   end
 end
 
-function Store{T}(env::Environment, ::Type{T}, capacity::Int64=1)
+function Store{T}(env::Environment, ::Type{T}, capacity::Int64=typemax(Int64))
   return Store{T}(env, capacity)
 end
 
