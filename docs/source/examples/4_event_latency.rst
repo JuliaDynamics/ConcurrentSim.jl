@@ -29,7 +29,7 @@ Can also be used to interconnect processes sending messages.
       cable = new()
       cable.env = env
       cable.delay = delay
-      cable.store = Store(env, ASCIIString)
+      cable.store = Store{ASCIIString}(env)
       return cable
     end
   end

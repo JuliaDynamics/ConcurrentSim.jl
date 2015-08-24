@@ -252,7 +252,7 @@ Here is a simple example modelling a generic producer/consumer scenario::
   end
 
   env = Environment()
-  sto = Store(env, ASCIIString, 2)
+  sto = Store{ASCIIString}(env, 2)
 
   prod = Process(env, producer, sto)
   consumers = [Process(env, consumer, i, sto) for i=1:2]
@@ -287,7 +287,7 @@ A store with a filter on the :class:`Get` event can, for example, be used to mod
   end
 
   env = Environment()
-  sto = Store(env, Machine, 2)
+  sto = Store{Machine}(env, 2)
   ms = Process(env, machineshop, sto)
   users = [Process(env, user, i, sto, (i % 2) +1) for i=0:2]
   run(env)

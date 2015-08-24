@@ -18,7 +18,7 @@ function consumer(env::Environment, name::Int64, sto::Store)
 end
 
 env = Environment()
-sto = Store(env, ASCIIString, 2)
+sto = Store{ASCIIString}(env, 2)
 
 prod = Process(env, producer, sto)
 consumers = [Process(env, consumer, i, sto) for i=1:2]

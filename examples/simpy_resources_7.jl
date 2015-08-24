@@ -21,7 +21,7 @@ function machineshop(env::Environment, sto::Store)
 end
 
 env = Environment()
-sto = Store(env, Mach, 2)
+sto = Store{Mach}(env, 2)
 ms = Process(env, machineshop, sto)
 users = [Process(env, user, i, sto, (i % 2) +1) for i=0:2]
 run(env)

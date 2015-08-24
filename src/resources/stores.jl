@@ -40,7 +40,7 @@ type Store{T} <: AbstractResource
   seid :: Int64
   put_queue :: PriorityQueue{PutStore{T}, StoreKey}
   get_queue :: PriorityQueue{GetStore, StoreKey}
-  function Store(env::Environment, capacity::Int64)
+  function Store(env::Environment, capacity::Int64=typemax(Int64))
     sto = new()
     sto.env = env
     sto.capacity = capacity
@@ -55,10 +55,6 @@ type Store{T} <: AbstractResource
     end
     return sto
   end
-end
-
-function Store{T}(env::Environment, ::Type{T}, capacity::Int64=typemax(Int64))
-  return Store{T}(env, capacity)
 end
 
 function Put{T}(sto::Store{T}, item::T, priority::Int64=0)

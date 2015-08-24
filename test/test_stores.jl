@@ -18,7 +18,7 @@ function receiver(env::Environment, sto::Store)
 end
 
 env = Environment()
-sto = Store(env, ASCIIString, 4)
+sto = Store{ASCIIString}(env, 4)
 Process(env, sender, sto)
 Process(env, receiver, sto)
 run(env, 100.0)

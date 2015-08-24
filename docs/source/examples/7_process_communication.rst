@@ -32,17 +32,13 @@ When Useful:
     env :: Environment
     capacity :: Int64
     pipes :: Vector{Store{T}}
-    function BroadcastPipe(env::Environment, capacity::Int64)
+    function BroadcastPipe(env::Environment, capacity::Int64=typemax(Int64))
       bc_pipe = new()
       bc_pipe.env = env
       bc_pipe.capacity = capacity
-      bc_pipe.pipes = Vector{Store{T}}()
+      bc_pipe.pipes = Store{T}[]
       return bc_pipe
     end
-  end
-
-  function BroadcastPipe{T}(env::Environment, ::Type{T}, capacity::Int64=typemax(Int64))
-    return BroadcastPipe{T}(env, capacity)
   end
 
   function put{T}(bc_pipe::BroadcastPipe{T}, value::T)
@@ -50,7 +46,7 @@ When Useful:
   end
 
   function get_output_conn{T}(bc_pipe::BroadcastPipe{T})
-    pipe = Store(bc_pipe.env, T, bc_pipe.capacity)
+    pipe = Store{T}(bc_pipe.env, bc_pipe.capacity)
     push!(bc_pipe.pipes, pipe)
     return pipe
   end
@@ -82,7 +78,7 @@ When Useful:
   srand(RANDOM_SEED)
 
   env = Environment()
-  bc_pipe = BroadcastPipe(env, Message)
+  bc_pipe = BroadcastPipe{Message}(env)
   Process(env, "Generator A", message_generator, bc_pipe)
   Process(env, "Consumer A", message_consumer, get_output_conn(bc_pipe))
   Process(env, "Consumer B", message_consumer, get_output_conn(bc_pipe))
