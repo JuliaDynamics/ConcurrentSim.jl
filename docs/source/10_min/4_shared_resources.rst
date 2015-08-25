@@ -10,7 +10,7 @@ Basic Resource Usage
 
 The electric vehicle process car introduced in the last sections is slightly modified.
 
-The car drive now to a battery charging station (BCS) and requests one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards::
+The car drives now to a battery charging station (BCS) and requests one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards::
 
   julia> using SimJulia
 

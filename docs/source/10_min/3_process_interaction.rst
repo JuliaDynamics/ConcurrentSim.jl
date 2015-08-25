@@ -53,17 +53,17 @@ Starting the simulation is straightforward again: create an environment, one (or
 Interrupting Another Process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Imagine, you don’t want to wait until your electric vehicle is fully charged but want to Interrupt the charging process and just start driving instead.
+Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
 
-SimPy allows you to interrupt a running process by calling the constructor :func:`Interrupt(proc) <Interrupt>` that returns an interrupt event.
+SimJulia allows you to interrupt a running process by calling the constructor :func:`Interruption(proc) <Interrupt>` that returns an interruption event.
 
-Interrupts are thrown into process functions as :class:`InterruptException` that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
+An interrupt is thrown into process functions as an :class:`InterruptException` that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
 
   julia> using SimJulia
 
   julia> function driver(env::Environment, car_proc::Process)
            yield(Timeout(env, 3.0))
-           yield(Interrupt(car_proc))
+           yield(Interruption(car_proc))
          end
   driver (generic function with 1 method)
 
@@ -75,7 +75,7 @@ Interrupts are thrown into process functions as :class:`InterruptException` that
              try
                yield(charge_proc)
              catch exc
-               println("Was interrupted. Hope, the battery is full enough ...")
+               println("Was interrupted. Hopefully, the battery is full enough ...")
              end
              println("Start driving at $(now(env))")
              trip_duration = 2.0
@@ -96,13 +96,13 @@ When you compare the output of this simulation with the previous example, you’
 
   julia> proc = Process(env, car)
   Process Task (runnable) @0x00007fcf57034400
-  
+
   julia> Process(env, driver, proc)
   Process Task (runnable) @0x0000000005799c70
 
   julia> run(env, 15.0)
   Start parking and charging at 0.0
-  Was interrupted. Hope, the battery is full enough ...
+  Was interrupted. Hopefully, the battery is full enough ...
   Start driving at 3.0
   Start parking and charging at 5.0
   Start driving at 10.0
