@@ -44,7 +44,7 @@ Adding callbacks to an event
 
 That’s on purpose. The most common way to add a callback to an event is yielding it from your process function (:func:`yield(ev::AbstractEvent) <yield>`). This will add the function :func:`proc.resume(ev::AbstractEvent) <proc.resume>` as a callback. That’s how your process gets resumed when it yielded an event.
 
-However, you can add a function to the list of callbacks as long as it accepts an instance of type :class:`Event` as its first argument using the function :func:`append_callback(ev::AbstracteEvent, callback::Function, args...) <append_callback>`::
+However, you can add a function to the list of callbacks as long as it accepts an instance of type :class:`Event` as its first argument using the function :func:`append_callback(ev::AbstractEvent, callback::Function, args...) <append_callback>`::
 
   using SimJulia
 

@@ -10,7 +10,7 @@ Environment
 ~~~~~~~~~~~
 
 ============================  =======================================
-:class:`AbstractEnvironment`  Base type for an environment.
+:class:`AbstractEnvironment`  Parent type for an environment.
 :class:`Environment`          Execution environment for a simulation.
 ============================  =======================================
 
@@ -19,7 +19,7 @@ Events
 ~~~~~~
 
 ======================  ========================================================================================
-:class:`AbstractEvent`  Base type for all events.
+:class:`AbstractEvent`  Parent type for all events.
 :class:`Event`          An event that may happen at some point in time.
 :class:`Timeout`        An event that is triggered after a `delay` has passed.
 :class:`AllOf`          An event that is triggered if all of a tuple of events have been successfully triggered.

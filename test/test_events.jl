@@ -21,9 +21,9 @@ function my_callback2(ev::AbstractEvent, fail_ev::Event, trigger_ev::Event)
   catch exc
     println(exc)
   end
-  trigger(trigger_ev, fail_ev)
+  trigger(fail_ev, trigger_ev)
   try
-    trigger(trigger_ev, fail_ev)
+    trigger(fail_ev, trigger_ev)
   catch exc
     println(exc)
   end

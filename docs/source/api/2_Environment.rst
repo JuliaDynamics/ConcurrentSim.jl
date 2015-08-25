@@ -2,9 +2,12 @@ Environment
 -----------
 
 
+BaseEnvironment
+~~~~~~~~~~~~~~~
+
 .. type:: abstract BaseEnvironment
 
-Base type for event processing environments.
+Parent type for event processing environments.
 
 An implementation must at least provide the means to access the current time of the environment (see ``now``), to process events (see ``step`` and ``peek``) and to give a reference to the active process (see ``active_process``).
 
@@ -26,11 +29,24 @@ Executes the ``step`` function until the `until` event has been triggered and wi
 
 Stops the simulation, optionally providing an alternative return value to the ``run`` function.
 
-.. type:: Environment
+
+Environment
+~~~~~~~~~~~
+
+.. type:: Environment <: AbstractEnvironment
 
 Execution environment for a simulation. The passing of time is simulated by stepping from event to event.
 
 .. function:: Environment(initial_time::Float64=0.0) -> env::Environment
 
-Constructor of :class:`Environment`. An initial_time for the environment can be specified. By default, it starts at ``0.0``.
+Constructor of :class:`Environment`. An `initial_time` for the environment can be specified. By default, it starts at ``0.0``.
+
+.. function:: now(env::Environment) -> time::Float64
+
+Returns the current simulation time.
+
+.. function:: active_process(env::Environment) -> proc::Process
+
+Returns the active process. If no process is active throws a :class:`NullException`.
+
 

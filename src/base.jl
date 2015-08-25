@@ -135,7 +135,7 @@ function fail(ev::AbstractEvent, exc::Exception)
   return ev
 end
 
-function trigger(ev::AbstractEvent, cause::AbstractEvent)
+function trigger(cause::AbstractEvent, ev::AbstractEvent)
   if ev.bev.state > EVENT_INITIAL
     throw(EventTriggered())
   end
