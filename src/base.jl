@@ -7,7 +7,9 @@ abstract AbstractEvent
 abstract AbstractEnvironment
 
 type EmptySchedule <: Exception end
-type StopSimulation <: Exception end
+type StopSimulation <: Exception
+  value :: Any
+end
 type EventTriggered <: Exception end
 type EventProcessed <: Exception end
 
@@ -67,9 +69,9 @@ function run(env::AbstractEnvironment)
   return run(env, ev)
 end
 
-function run(env::AbstractEnvironment, at::Float64)
+function run(env::AbstractEnvironment, until::Float64)
   ev = Event(env)
-  schedule(ev, at)
+  schedule(ev, until)
   return run(env, ev)
 end
 
@@ -81,19 +83,21 @@ function run(env::AbstractEnvironment, until::AbstractEvent)
     end
   catch exc
     if isa(exc, StopSimulation)
-      return until.bev.value
-    elseif !isa(exc, EmptySchedule)
+      return exc.value
+    elseif isa(exc, EmptySchedule)
+      return nothing
+    else
       rethrow(exc)
     end
   end
 end
 
-function stop_simulation(env::AbstractEnvironment)
-  throw(StopSimulation())
+function stop_simulation(env::AbstractEnvironment, value=nothing)
+  throw(StopSimulation(value))
 end
 
 function stop_simulation(ev::AbstractEvent, env::AbstractEnvironment)
-  stop_simulation(env)
+  stop_simulation(env, ev.bev.value)
 end
 
 function triggered(ev::AbstractEvent)

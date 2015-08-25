@@ -9,9 +9,10 @@ The following tables list all of the available types in this module.
 Environment
 ~~~~~~~~~~~
 
-====================  =======================================
-:class:`Environment`  Execution environment for a simulation.
-====================  =======================================
+============================  =======================================
+:class:`AbstractEnvironment`  Base type for an environment.
+:class:`Environment`          Execution environment for a simulation.
+============================  =======================================
 
 
 Events
