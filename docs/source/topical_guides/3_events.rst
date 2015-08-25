@@ -185,7 +185,7 @@ Waiting for multiple events at once
 
 Sometimes, you want to wait for more than one event at the same time. For example, you may want to wait for a resource, but not for an unlimited amount of time. Or you may want to wait until all a set of events has happened.
 
-SimJulia therefore offers the event constructors :func:`AnyOf(events...) <AnyOf>` and :func:`AllOf(events...}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. There is a specific constructors for the more general :func:`EventOperator(eval::Function, events...) <EventOperator>`. The function :func:`eval(events...)` takes a tuple of :class:`AbstractEvent` as argument and returns true when the condition is fulfilled.
+SimJulia therefore offers the event constructors :func:`AnyOf(events...) <AnyOf>` and :func:`AllOf(events...}) <AllOf>`. Both take a list of events as an argument and are triggered if at least one or all of them of them are triggered. There is a specific constructors for the more general :func:`EventOperator(eval::Function, events...) <EventOperator>`. The function :func:`eval(events...) <eval>` takes a tuple of :class:`AbstractEvent` as argument and returns true when the condition is fulfilled.
 
 As a shorthand for :func:`AllOf(events...) <AllOf>` and :func:`AnyOf(events...) <AnyOf>`, you can also use the logical operators ``&`` (and) and ``|`` (or)::
 
