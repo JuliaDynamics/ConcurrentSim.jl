@@ -4,7 +4,7 @@ Events
 AbstractEvent
 ~~~~~~~~~~~~~
 
-.. type:: abstract AbstractEvent
+.. type:: AbstractEvent
 
 The parent type for all events is :class:`AbstractEvent`.
 
@@ -60,6 +60,6 @@ Failed events are never silently ignored and will raise an exception upon being 
 
 .. function:: Event(env::AbstractEnvironment) -> ev::Event
 
-Constructor of :class:`Event` with one argument ``env``, the environment where the events lives in.
+Constructor of :class:`Event` with one argument ``env``, the environment where the event lives in.
 
 

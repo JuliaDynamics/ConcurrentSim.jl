@@ -2,10 +2,10 @@ Environment
 -----------
 
 
-BaseEnvironment
-~~~~~~~~~~~~~~~
+AbstractEnvironment
+~~~~~~~~~~~~~~~~~~~
 
-.. type:: abstract BaseEnvironment
+.. type:: AbstractEnvironment
 
 Parent type for event processing environments.
 
@@ -13,11 +13,11 @@ An implementation must at least provide the means to access the current time of 
 
 The class is meant to be subclassed for different execution environments. For example, SimJulia defines a :class:`Environment` for simulations with a virtual time.
 
-.. function:: run(env::BaseEnvironment) -> nothing
+.. function:: run(env::AbstractEnvironment) -> nothing
 
 Executes the ``step`` function until there are no further events to be processed.
 
-.. function:: run(env::BaseEnvironment, until::Float64) -> nothing
+.. function:: run(env::AbstractEnvironment, until::Float64) -> nothing
 
 Executes the ``step`` function until the environment’s time reaches `until`.
 
