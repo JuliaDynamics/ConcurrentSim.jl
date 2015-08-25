@@ -98,7 +98,7 @@ When you compare the output of this simulation with the previous example, you’
   SimJulia.Process 1: car
 
   julia> Process(env, driver, proc)
-  SimJulia.Process 2: driver
+  SimJulia.Process 3: driver
 
   julia> run(env, 15.0)
   Start parking and charging at 0.0
