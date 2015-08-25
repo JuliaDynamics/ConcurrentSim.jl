@@ -7,3 +7,5 @@ The API reference provides detailed descriptions of SimJulia’s classes and fun
    :maxdepth: 1
 
    1_SimJulia
+   2_Environment
+

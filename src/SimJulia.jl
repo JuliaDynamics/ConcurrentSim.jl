@@ -13,8 +13,8 @@ module SimJulia
   export Process, Interruption, yield, is_process_done, cause
   export Environment, step, peek, now, active_process
   export DelayedProcess
-  export Resource, Preempted, Request, Release, cancel, by, usage_since, capacity, count
-  export Container, Get, Put, level
+  export Resource, Preempted, Get, Put, Request, Release, cancel, by, usage_since, capacity, count
+  export Container, level
   export Store, items
 
   include("base.jl")

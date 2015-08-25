@@ -62,7 +62,7 @@ type Preempted
   usage_since :: Float64
 end
 
-function Request(res::Resource, key::ResourceKey)
+function Put(res::Resource, key::ResourceKey)
   req = PutResource(res.env, res)
   res.put_queue[req] = key
   append_callback(req, trigger_get, res)
@@ -70,17 +70,23 @@ function Request(res::Resource, key::ResourceKey)
   return req
 end
 
-function Request(res::Resource, priority::Int64=0, preempt::Bool=false)
-  return Request(res, ResourceKey(priority, res.seid+=1, preempt, 0.0))
+Request(res::Resource, key::ResourceKey)=Put(res, key)
+
+function Put(res::Resource, priority::Int64=0, preempt::Bool=false)
+  return Put(res, ResourceKey(priority, res.seid+=1, preempt, 0.0))
 end
 
-function Release(res::Resource)
+Request(res::Resource, priority::Int64=0, preempt::Bool=false)=Put(res, priority, preempt)
+
+function Get(res::Resource)
   rel = GetResource(res.env, res)
   res.get_queue[rel] = ResourceKey(0, res.seid+=1, false, 0.0)
   append_callback(rel, trigger_put, res)
   trigger_get(rel, res)
   return rel
 end
+
+Release(res::Resource)=Get(res)
 
 function isless(a::ResourceKey, b::ResourceKey)
   return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
