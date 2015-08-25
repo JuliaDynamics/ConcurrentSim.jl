@@ -2,8 +2,7 @@ Environment
 -----------
 
 
-BaseEnvironment
-~~~~~~~~~~~~~~~
+.. type:: abstract BaseEnvironment
 
 Base type for event processing environments.
 
@@ -21,9 +20,17 @@ Executes the ``step`` function until the environment’s time reaches `until`.
 
 .. function:: run(env::AbstractEnvironment, until::AbstractEvent) -> value::Any
 
-Executes the ``step`` function until this event has been triggered and will return its `value`.
+Executes the ``step`` function until the `until` event has been triggered and will return its `value`.
 
+.. function:: stop_simulation(env::AbstractEnvironment, value=nothing)
 
+Stops the simulation, optionally providing an alternative return value to the ``run`` function.
 
-Environment
-~~~~~~~~~~~
+.. type:: Environment
+
+Execution environment for a simulation. The passing of time is simulated by stepping from event to event.
+
+.. function:: Environment(initial_time::Float64=0.0) -> env::Environment
+
+Constructor of :class:`Environment`. An initial_time for the environment can be specified. By default, it starts at ``0.0``.
+
