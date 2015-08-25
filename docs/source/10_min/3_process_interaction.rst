@@ -6,11 +6,11 @@ The :class:`Process` instance that is returned by the constructor :func:`Process
 Waiting for a Process
 ~~~~~~~~~~~~~~~~~~~~~
 
-As it happens, a SimJulia :class:`Process` can be used like an event (technically, a :class:`Process` actually inherits from a :class:`BaseEvent`). If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
+As it happens, a SimJulia :class:`Process` can be used like an event (technically, a :class:`Process` is a subtype of :class:`AbstractEvent`). If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
 
 Assume that the car from the last example magically became an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
 
-This can be modeled with an additional charge process. Therefore, two process methods are created: :func:`car(env) <car>` and :func:`charge(env, duration) <charge>`.
+This can be modeled with an additional charge process. Therefore, two process functions are created: :func:`car(env) <car>` and :func:`charge(env, duration) <charge>`.
 
 A new charge process is started every time the vehicle starts parking. By yielding the :class:`Process` instance that :func:`Process(env, func, args...) <Process>` returns, the run process starts waiting for it to finish::
 
@@ -37,10 +37,10 @@ A new charge process is started every time the vehicle starts parking. By yieldi
 Starting the simulation is straightforward again: create an environment, one (or more) cars and finally call :func:`run(env, 15.0) <run>`::
 
   julia> env = Environment()
-  Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
+  Environment(0.0,PriorityQueue{BaseEvent,EventKey}(),0,0,Nullable{Process}())
 
   julia> Process(env, car)
-  Process Task (runnable) @0x00007fbd32bcd280
+  SimJulia.Process 1: car
 
   julia> run(env, 15.0)
   Start parking and charging at 0.0
@@ -55,7 +55,7 @@ Interrupting Another Process
 
 Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
 
-SimJulia allows you to interrupt a running process by calling the constructor :func:`Interruption(proc) <Interrupt>` that returns an interruption event.
+SimJulia allows you to interrupt a running process by calling the constructor :func:`Interruption(proc) <Interruption>` that returns an interruption event.
 
 An interrupt is thrown into process functions as an :class:`InterruptException` that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
 
@@ -92,13 +92,13 @@ An interrupt is thrown into process functions as an :class:`InterruptException` 
 When you compare the output of this simulation with the previous example, you’ll notice that the car now starts driving at time ``3`` instead of ``5``::
 
   julia> env = Environment()
-  Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
+  Environment(0.0,PriorityQueue{BaseEvent,EventKey}(),0,0,Nullable{Process}())
 
   julia> proc = Process(env, car)
-  Process Task (runnable) @0x00007fcf57034400
+  SimJulia.Process 1: car
 
   julia> Process(env, driver, proc)
-  Process Task (runnable) @0x0000000005799c70
+  SimJulia.Process 2: driver
 
   julia> run(env, 15.0)
   Start parking and charging at 0.0

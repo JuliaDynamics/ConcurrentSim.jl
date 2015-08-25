@@ -7,7 +7,7 @@ Processes are described by simple Julia functions. During their lifetime, they c
 
 When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.
 
-An important event is a timeout. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A timeout and all other events can be created by calling an appropriate constructor having a reference to the environment that the process lives in (:func:`Timeout(env, duration) <Timeout>` for example).
+An important event is a timeout. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A timeout and all other events can be created by calling an appropriate constructor having a reference to the environment that the process lives in.
 
 
 The First Process
@@ -38,10 +38,10 @@ The car switches between the states parking and driving. It announces its new st
 Now that the behavior of the car has been modeled, create an instance of it and see how it behaves::
 
   julia> env = Environment()
-  Environment(0.0,PriorityQueue{Event,EventKey}(),0x0000,nothing)
+  Environment(0.0,PriorityQueue{BaseEvent,EventKey}(),0,0,Nullable{Process}())
 
   julia> Process(env, car)
-  Process Task (runnable) @0x00007f80926b2b20
+  SimJulia.Process 1: car
 
   julia> run(env, 15.0)
   Start parking at 0.0
@@ -50,7 +50,7 @@ Now that the behavior of the car has been modeled, create an instance of it and 
   Start driving at 12.0
   Start parking at 14.0
 
-The first thing to do is to create an instance of :class:`Environment`. This instance is passed into the car process function. Calling :func:`Process(env, car) <Process>` creates a :class:`Process` containing a :class:`Task` that needs to be started and added to the environment.
+The first thing to do is to create an instance of :class:`Environment`. This instance is passed into the car process function. Calling :func:`Process(env, car) <Process>` creates a :class:`Process` that needs to be started and added to the environment.
 Note, that at this time, none of the code of our process function is being executed. Its execution is merely scheduled at the current simulation time.
 The :class:`Process` returned by :func:`Process(env, car) <Process>` can be used for process interactions (this will be covered in the next section).
 Finally, the simulation starts by calling :func:`run(env, 15.0) <run>` where the second argument is the end time.
