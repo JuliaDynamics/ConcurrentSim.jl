@@ -92,10 +92,6 @@ function isless(a::ResourceKey, b::ResourceKey)
   return (a.priority < b.priority) || (a.priority == b.priority && a.preempt < b.preempt) || (a.priority == b.priority && a.preempt == b.preempt && a.id < b.id)
 end
 
-function show(io::IO, pre::Preempted)
-  print(io, "preemption by $(pre.by)")
-end
-
 function do_put(res::Resource, ev::PutResource, key::ResourceKey)
   if length(res.users) >= res.capacity && key.preempt
     (proc_preempt, key_preempt) = peek(res.users)
