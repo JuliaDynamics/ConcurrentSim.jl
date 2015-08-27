@@ -68,7 +68,7 @@ function check(ev::AbstractEvent, oper::EventOperator)
   if oper.bev.state == EVENT_INITIAL
     if isa(ev.bev.value, Exception)
       schedule(oper, ev.bev.value)
-    elseif oper.eval(oper.events)
+    elseif oper.eval(oper.events...)
       values = Dict{AbstractEvent, Any}()
       populate_value(oper, values)
       schedule(oper, values)
@@ -76,11 +76,11 @@ function check(ev::AbstractEvent, oper::EventOperator)
   end
 end
 
-function eval_and(events)
+function eval_and(events...)
   return all(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
 end
 
-function eval_or(events)
+function eval_or(events...)
   return any(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
 end
 
