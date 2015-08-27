@@ -29,7 +29,7 @@ type EventOperator <: AbstractEvent
   function EventOperator(env::AbstractEnvironment, eval::Function, ev::AbstractEvent, events...)
     oper = new()
     oper.bev = BaseEvent(env)
-    oper.events = (ev, events...)
+    oper.events = tuple(ev, events...)
     oper.eval = eval
     for ev in oper.events
       if ev.bev.state >= EVENT_PROCESSING
