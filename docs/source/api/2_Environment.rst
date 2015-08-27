@@ -21,7 +21,7 @@ Executes the ``step`` function until there are no further events to be processed
 
 Executes the ``step`` function until the environment’s time reaches `until`.
 
-.. function:: run(env::AbstractEnvironment, until::AbstractEvent) -> value::Any
+.. function:: run(env::AbstractEnvironment, until::AbstractEvent) -> Any
 
 Executes the ``step`` function until the `until` event has been triggered and will return its `value`.
 
@@ -37,15 +37,15 @@ Environment
 
 Execution environment for a simulation. The passing of time is simulated by stepping from event to event.
 
-.. function:: Environment(initial_time::Float64=0.0) -> env::Environment
+.. function:: Environment(initial_time::Float64=0.0) -> Environment
 
 Constructor of :class:`Environment`. An `initial_time` for the environment can be specified. By default, it starts at ``0.0``.
 
-.. function:: now(env::Environment) -> time::Float64
+.. function:: now(env::Environment) -> Float64
 
 Returns the current simulation time.
 
-.. function:: active_process(env::Environment) -> proc::Process
+.. function:: active_process(env::Environment) -> Process
 
 Returns the active process. If no process is active throws a :class:`NullException`.
 

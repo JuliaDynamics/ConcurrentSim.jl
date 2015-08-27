@@ -22,8 +22,6 @@ Events
 :class:`AbstractEvent`  Parent type for all events.
 :class:`Event`          An event that may happen at some point in time.
 :class:`Timeout`        An event that is triggered after a `delay` has passed.
-:class:`AllOf`          An event that is triggered if all of a tuple of events have been successfully triggered.
-:class:`AnyOf`          An event that is triggered if any of a tuple of events has been successfully triggered.
 :class:`EventOperator`  An event that is triggered if an `eval` functions returns true on a tuple of events.
 ======================  ========================================================================================
 
