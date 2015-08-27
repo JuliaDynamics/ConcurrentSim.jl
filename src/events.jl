@@ -23,13 +23,13 @@ type Timeout <: AbstractEvent
 end
 
 type EventOperator <: AbstractEvent
-  events :: Vector{AbstractEvent}
+  events :: Tuple
   eval :: Function
   bev :: BaseEvent
   function EventOperator(env::AbstractEnvironment, eval::Function, ev::AbstractEvent, events...)
     oper = new()
     oper.bev = BaseEvent(env)
-    oper.events = AbstractEvent[ev, events...]
+    oper.events = (ev, events...)
     oper.eval = eval
     for ev in oper.events
       if ev.bev.state >= EVENT_PROCESSING
@@ -76,11 +76,11 @@ function check(ev::AbstractEvent, oper::EventOperator)
   end
 end
 
-function eval_and(events::Vector{AbstractEvent})
+function eval_and(events)
   return all(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
 end
 
-function eval_or(events::Vector{AbstractEvent})
+function eval_or(events)
   return any(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
 end
 

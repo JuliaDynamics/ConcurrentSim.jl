@@ -87,7 +87,7 @@ If one of the events fails, the condition also fails and forwards the exception 
 
 .. function:: EventOperator(eval::Function, events...) -> EventOperator
 
-The ``eval`` function receives the list of target events: :func:`eval(events::Vector{AbstractEvent}) <eval>`. If it returns ``true``, the event is triggered.
+The ``eval`` function receives a tuple of target events: :func:`eval(events...) <eval>`. If it returns ``true``, the event is triggered.
 
 .. function:: AllOf(events...) -> EventOperator
 
