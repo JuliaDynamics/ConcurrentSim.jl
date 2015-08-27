@@ -4,7 +4,7 @@ Events
 AbstractEvent
 ~~~~~~~~~~~~~
 
-.. type:: AbstractEvent
+.. type:: abstract AbstractEvent
 
 The parent type for all events is :class:`AbstractEvent`.
 

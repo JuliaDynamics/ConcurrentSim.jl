@@ -5,7 +5,7 @@ Environment
 AbstractEnvironment
 ~~~~~~~~~~~~~~~~~~~
 
-.. type:: AbstractEnvironment
+.. type:: abstract AbstractEnvironment
 
 Parent type for event processing environments.
 

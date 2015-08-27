@@ -13,7 +13,7 @@ They are derived from the abstract type :class:`AbstractResource`. Common functi
 AbstractResource
 ~~~~~~~~~~~~~~~~
 
-.. type:: AbstractResource
+.. type:: abstract AbstractResource
 
 .. function:: capacity(res::AbstractResource)
 

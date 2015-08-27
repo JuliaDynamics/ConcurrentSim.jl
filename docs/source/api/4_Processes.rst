@@ -55,5 +55,5 @@ Interruption
 
 .. type:: Interruption <: AbstractEvent
 
-Only used internally by :class:`Interrupt`.
+Constructs an interruption event. Only used internally by :class:`Interrupt`.
 This event is automatically triggered with priority when it is created.
