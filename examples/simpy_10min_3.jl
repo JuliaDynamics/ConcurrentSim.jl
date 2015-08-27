@@ -2,7 +2,7 @@ using SimJulia
 
 function driver(env::Environment, car_proc::Process)
   yield(Timeout(env, 3.0))
-  yield(Interruption(car_proc))
+  yield(Interrupt(car_proc))
 end
 
 function car(env::Environment)

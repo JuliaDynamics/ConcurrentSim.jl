@@ -21,7 +21,7 @@ function Interrupt_fib(env::Environment, proc::Process, when::Float64, ev::Event
   while true
     yield(Timeout(env, when))
     println("Before Interrupt")
-    yield(Interruption(proc, "My Interrupt"))
+    yield(Interrupt(proc, "My Interrupt"))
     println("After Interrupt")
     yield(Timeout(env, when))
     fail(ev, ErrorException("Failed event"))

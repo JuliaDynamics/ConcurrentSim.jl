@@ -32,9 +32,9 @@ Processes
 =======================  ======================================================================================
 :class:`Process`         A model that is implemented by a process function yielding events.
 \                        An event that is triggered if the process function returns.
-:class:`DelayedProcess`  A process that starts after a `delay`.
-:class:`Interruption`    An event that is triggered immediately and that interrupts another process.
-:class:`Interrupt`       An event that is triggered with priority and has an :class:`InterruptException` value.
+:class:`Initialize`      An event that is triggered automatically to start the process function.
+:class:`Interrupt`       An event that is triggered immediately and that interrupts another process.
+:class:`Interruption`    An event that is triggered with priority and has an :class:`InterruptException` value.
 =======================  ======================================================================================
 
 

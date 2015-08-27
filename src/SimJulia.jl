@@ -10,7 +10,7 @@ module SimJulia
 
   export AbstractEvent, run, succeed, fail, trigger, triggered, processed, value, append_callback
   export Event, Timeout, EventOperator, AllOf, AnyOf, (&), (|)
-  export Process, Interruption, yield, is_process_done, cause
+  export Process, Interrupt, yield, is_process_done, cause
   export Environment, step, peek, now, active_process
   export DelayedProcess
   export Resource, Preempted, Get, Put, Request, Release, cancel, by, usage_since, capacity, count

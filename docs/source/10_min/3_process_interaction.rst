@@ -55,7 +55,7 @@ Interrupting Another Process
 
 Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
 
-SimJulia allows you to interrupt a running process by calling the constructor :func:`Interruption(proc) <Interruption>` that returns an interruption event.
+SimJulia allows you to interrupt a running process by calling the constructor :func:`Interrupt(proc) <Interrupt>` that returns an interruption event.
 
 An interrupt is thrown into process functions as an :class:`InterruptException` that can (should) be handled by the interrupted process. The process can than decide what to do next (e.g., continuing to wait for the original event or yielding a new event)::
 
@@ -63,7 +63,7 @@ An interrupt is thrown into process functions as an :class:`InterruptException` 
 
   julia> function driver(env::Environment, car_proc::Process)
            yield(Timeout(env, 3.0))
-           yield(Interruption(car_proc))
+           yield(Interrupt(car_proc))
          end
   driver (generic function with 1 method)
 

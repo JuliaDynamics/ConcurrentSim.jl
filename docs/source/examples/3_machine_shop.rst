@@ -70,7 +70,7 @@ The repairman’s other job is also a process (implemented by :func:`other_job`)
     while true
       yield(Timeout(env, rand(d)))
       if !mach.broken
-        yield(Interruption(mach.proc))
+        yield(Interrupt(mach.proc))
       end
     end
   end

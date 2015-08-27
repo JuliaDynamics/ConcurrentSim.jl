@@ -10,4 +10,5 @@ The API reference provides detailed descriptions of SimJulia’s classes and fun
    2_Environment
    3_Events
    4_Processes
+   5_Resources
    9_Low_level

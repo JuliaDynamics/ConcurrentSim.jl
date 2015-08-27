@@ -99,7 +99,7 @@ Interrupting another process
 
 As usual, another problem can be considered: Imagine, a trip is very urgent, but with the current implementation, we always need to wait until the battery is fully charged. If we could somehow interrupt that ...
 
-Fortunate coincidence, there is indeed a way to do exactly this. You can call the event constructor :func:`Interruption(proc::Process, cause::Any=nothing) <Interrupt>`. This will throw an :class:`InterruptException` into that process, resuming it immediately::
+Fortunate coincidence, there is indeed a way to do exactly this. You can call the event constructor :func:`Interrupt(proc::Process, cause::Any=nothing) <Interrupt>`. This will throw an :class:`InterruptException` into that process, resuming it immediately::
 
   using SimJulia
 
@@ -111,7 +111,7 @@ Fortunate coincidence, there is indeed a way to do exactly this. You can call th
       parking = Timeout(env, 60.0)
       yield(charging | parking)
       if !done(charging)
-        yield(Interruption(charging, "Need to go!"))
+        yield(Interrupt(charging, "Need to go!"))
       end
       println("Stop parking at $(now(env))")
     end
@@ -122,7 +122,7 @@ Fortunate coincidence, there is indeed a way to do exactly this. You can call th
     try
       yield(Timeout(env, 60*rand()+30))
       println("Bat. ctrl. done at $(now(env))")
-    catch exc
+    catch(exc)
       println("Bat. ctrl. Interrupted at $(now(env)), msg: $(msg(exc))")
     end
   end

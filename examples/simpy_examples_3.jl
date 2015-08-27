@@ -54,7 +54,7 @@ function break_machine(env::Environment, mach::Machine)
   while true
     yield(Timeout(env, rand(d)))
     if !mach.broken
-      yield(Interruption(mach.proc))
+      yield(Interrupt(mach.proc))
     end
   end
 end

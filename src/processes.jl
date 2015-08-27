@@ -28,9 +28,9 @@ type Process <: AbstractEvent
   end
 end
 
-type Interrupt <: AbstractEvent
+type Interruption <: AbstractEvent
   bev :: BaseEvent
-  function Interrupt(proc::Process, cause::Any=nothing)
+  function Interruption(proc::Process, cause::Any=nothing)
     inter = new()
     inter.bev = BaseEvent(proc.bev.env)
     push!(inter.bev.callbacks, proc.resume)
@@ -40,15 +40,15 @@ type Interrupt <: AbstractEvent
   end
 end
 
-type Interruption <: AbstractEvent
+type Interrupt <: AbstractEvent
   bev :: BaseEvent
-  function Interruption(proc::Process, cause::Any=nothing)
+  function Interrupt(proc::Process, cause::Any=nothing)
     inter = new()
     env = proc.bev.env
     inter.bev = BaseEvent(env)
     active_proc = active_process(env)
     if !istaskdone(proc.task) && !is(proc, active_proc)
-      Interrupt(proc, cause)
+      Interruption(proc, cause)
     end
     schedule(inter)
     return inter

@@ -8,7 +8,7 @@ function drive(env::Environment)
     parking = Timeout(env, 60.0)
     yield(charging | parking)
     if !is_process_done(charging)
-      yield(Interruption(charging, "Need to go!"))
+      yield(Interrupt(charging, "Need to go!"))
     end
     println("Stop parking at $(now(env))")
   end
