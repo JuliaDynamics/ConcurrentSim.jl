@@ -67,6 +67,9 @@ Resource with ``capacity`` of usage slots that can be requested by processes.
 If all slots are taken, requests are enqueued. Once a usage request is released, a pending request will be triggered.
 The ``env`` argument is the :class:`AbstractEnvironment` instance the resource is bound to.
 
+.. function:: count(res::Resource) -> Int64
+
+Returns the number of users currently using ``res``.
 
 PutResource
 ~~~~~~~~~~~
@@ -96,3 +99,49 @@ Subtype of :class:`GetEvent` for requesting to get something from a :class:`Reso
 .. function:: Release(res::Resource) -> GetResource
 
 Releases the usage of ``resource`` by the active process. This event is triggered immediately.
+
+
+Container
+~~~~~~~~~
+
+.. type:: Container{T<:Number} <: AbstractResource
+
+Resource for sharing homogeneous matter between processes, either continuous (like water) or discrete (like apples).
+
+A :class:`Container` can be used to model the fuel tank of a gasoline station. Tankers increase and refuelled cars decrease the amount of gas in the station’s fuel tanks.
+
+.. function:: Container(env::Environment, capacity::T, level::T=zero(T)) -> Container{T}
+
+Resource containing up to capacity of matter which may either be continuous (like water) or discrete (like apples). It supports requests to put or get matter into/from the container.
+
+The ``env`` argument is the :class:`AbstractEnvironment` instance the container is bound to.
+
+The ``capacity`` defines the size of the container.The initial amount of matter is specified by ``level`` and defaults to ``zero(T)``.
+
+.. function:: level(cont::Container) -> T
+
+Returns the current amount of the matter in the container.
+
+
+ContainerPut
+~~~~~~~~~~~~
+
+.. type:: ContainerPut <: PutEvent
+
+Subtype of :class:`PutEvent` for requesting to put something in a :class:`Container`.
+
+.. function:: Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0) -> ContainerPut
+
+Request to put ``amount`` of matter into the container with a given ``priority``. The request will be triggered once there is enough space in the container available.
+
+
+ContainerGet
+~~~~~~~~~~~~
+
+.. type:: ContainerGet <: GetEvent
+
+Subtype of :class:`GetEvent` for requesting to get something from a :class:`Container`.
+
+.. function:: Get{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0) -> ContainerGet
+
+Request to get ``amount`` of matter from the container with a given ``priority``. The request will be triggered once there is enough matter available in the container.
