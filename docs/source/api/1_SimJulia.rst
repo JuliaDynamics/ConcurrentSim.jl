@@ -45,10 +45,8 @@ Resources
 :class:`Resource`   Resource with a `capacity` of usage slots that can be requested by processes.
 :class:`Container`  Resource containing up to a `capacity` of matter which may either be continuous or discrete.
 :class:`Store`      Resource with a `capacity` of slots for storing arbitrary objects.
-:class:`Put`        An event that is triggered if the `put` action of a resource has been executed.
-:class:`Get`        An event that is triggered if the `get` action of a resource has been executed.
-:class:`Request`    Synonym for :class:`Put` with a :class:`Resource` argument.
-:class:`Release`    Synonym for :class:`Get` with a :class:`Resource` argument.
+:class:`PutEvent`   An event that is triggered if the `put` action of a resource has been executed.
+:class:`GetEvent`   An event that is triggered if the `get` action of a resource has been executed.
 :class:`Preempted`  A type that contains the `cause` and the `usage time` of a preemption on a :class:`Resource`.
 ==================  =============================================================================================
 
