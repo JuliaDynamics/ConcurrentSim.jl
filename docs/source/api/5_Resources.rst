@@ -71,34 +71,50 @@ The ``env`` argument is the :class:`AbstractEnvironment` instance the resource i
 
 Returns the number of users currently using ``res``.
 
-PutResource
+ResourcePut
 ~~~~~~~~~~~
 
-.. type:: PutResource <: PutEvent
+.. type:: ResourcePut <: PutEvent
 
 Subtype of :class:`PutEvent` for requesting to put something in a :class:`Resource`.
 
-.. function:: Put(res::Resource, priority::Int64=0, preempt::Bool=false) -> PutResource
+.. function:: Put(res::Resource, priority::Int64=0, preempt::Bool=false) -> ResourcePut
 
-.. function:: Request(res::Resource, priority::Int64=0, preempt::Bool=false) -> PutResource
+.. function:: Request(res::Resource, priority::Int64=0, preempt::Bool=false) -> ResourcePut
 
 Request usage of the :class:`Resource` with a given ``priority``. The event is triggered once access is granted.
 
 If the maximum capacity of users has not yet been reached, the request is triggered immediately. If the maximum capacity has been reached, the request is triggered once an earlier usage request on the resource is released. If ``preempt`` is ``true`` other usage requests of the resource may be preempted.
 
 
-GetResource
+ResourceGet
 ~~~~~~~~~~~
 
-.. type:: GetResource <: GetEvent
+.. type:: ResourceGet <: GetEvent
 
 Subtype of :class:`GetEvent` for requesting to get something from a :class:`Resource`.
 
-.. function:: Get(res::Resource) -> GetResource
+.. function:: Get(res::Resource) -> ResourceGet
 
-.. function:: Release(res::Resource) -> GetResource
+.. function:: Release(res::Resource) -> ResourceGet
 
 Releases the usage of ``resource`` by the active process. This event is triggered immediately.
+
+
+Preempted
+~~~~~~~~~
+
+.. type:: Preempted
+
+Cause of a preemption :class:`Interruption` containing information about the preemption.
+
+.. function:: by(pre::Preempted) -> Process
+
+Returns the preempting :class:`Process`.
+
+.. function:: usage_since(pre::Preempted) -> Float64
+
+Returns the simulation time at which the preempted process started to use the resource.
 
 
 Container
@@ -145,3 +161,44 @@ Subtype of :class:`GetEvent` for requesting to get something from a :class:`Cont
 .. function:: Get{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0) -> ContainerGet
 
 Request to get ``amount`` of matter from the container with a given ``priority``. The request will be triggered once there is enough matter available in the container.
+
+
+Store
+~~~~~
+
+.. type:: Store{T} <: AbstractResource
+
+Shared resources for storing a possibly unlimited amount of objects supporting requests for specific objects.
+
+The :class:`Store` operates in a FIFO (first-in, first-out) order. Objects are retrieved from the store in the order they were put in. The get requests can be customized by a filter to only retrieve objects matching a given criterion.
+
+.. function:: Store(env::Environment, capacity::Int64=typemax(Int64)) -> Store
+
+Resource with capacity slots for storing arbitrary objects. By default, the capacity is unlimited and objects are put and retrieved from the store in a first-in first-out order.
+
+The env argument is the :class:`AbstractEnvironment` instance the store is bound to.
+
+StorePut
+~~~~~~~~
+
+.. type:: StorePut{T} <: PutEvent
+
+Subtype of :class:`PutEvent` for requesting to put something in a :class:`Store`.
+
+.. function:: Put{T}(sto::Store{T}, item::T, priority::Int64=0) -> StorePut
+
+Request to put item into the store. The request is triggered once there is space for the item in the store.
+
+
+StoreGet
+~~~~~~~~
+
+.. type:: StoreGet <: GetEvent
+
+Subtype of :class:`GetEvent` for requesting to get something from a :class:`Store`.
+
+.. function:: Get{T}(sto::Store{T}, filter::Function=(item::T)->true, priority::Int64=0)
+
+Request to get an item from the store matching the ``filter`` with a ``priority``. The request is triggered once there is such an item available in the store.
+
+``filter`` is a function receiving one item. It should return ``true`` for items matching the filter criterion. The default function returns ``true`` for all items

@@ -3,12 +3,12 @@ type ContainerKey <: AbstractResourceKey
   id :: Int64
 end
 
-type PutContainer{T<:Number} <: PutEvent
+type ContainerPut{T<:Number} <: PutEvent
   bev :: BaseEvent
   proc :: Process
   res :: AbstractResource
   amount :: T
-  function PutContainer(res::AbstractResource, amount::T)
+  function ContainerPut(res::AbstractResource, amount::T)
     put = new()
     put.bev = BaseEvent(res.env)
     put.proc = active_process(res.env)
@@ -18,12 +18,12 @@ type PutContainer{T<:Number} <: PutEvent
   end
 end
 
-type GetContainer{T<:Number} <: GetEvent
+type ContainerGet{T<:Number} <: GetEvent
   bev :: BaseEvent
   proc :: Process
   res :: AbstractResource
   amount :: T
-  function GetContainer(res::AbstractResource, amount::T)
+  function ContainerGet(res::AbstractResource, amount::T)
     get = new()
     get.bev = BaseEvent(res.env)
     get.proc = active_process(res.env)
@@ -38,8 +38,8 @@ type Container{T<:Number} <: AbstractResource
   level :: T
   capacity :: T
   seid :: Int64
-  put_queue :: PriorityQueue{PutContainer{T}, ContainerKey}
-  get_queue :: PriorityQueue{GetContainer{T}, ContainerKey}
+  put_queue :: PriorityQueue{ContainerPut{T}, ContainerKey}
+  get_queue :: PriorityQueue{ContainerGet{T}, ContainerKey}
   function Container(env::Environment, capacity::T, level::T=zero(T))
     cont = new()
     cont.env = env
@@ -47,18 +47,18 @@ type Container{T<:Number} <: AbstractResource
     cont.level = level
     cont.seid = 0
     if VERSION >= v"0.4-"
-      cont.put_queue = PriorityQueue(PutContainer{T}, ContainerKey)
-      cont.get_queue = PriorityQueue(GetContainer{T}, ContainerKey)
+      cont.put_queue = PriorityQueue(ContainerPut{T}, ContainerKey)
+      cont.get_queue = PriorityQueue(ContainerGet{T}, ContainerKey)
     else
-      cont.put_queue = PriorityQueue{PutContainer{T}, ContainerKey}()
-      cont.get_queue = PriorityQueue{GetContainer{T}, ContainerKey}()
+      cont.put_queue = PriorityQueue{ContainerPut{T}, ContainerKey}()
+      cont.get_queue = PriorityQueue{ContainerGet{T}, ContainerKey}()
     end
     return cont
   end
 end
 
 function Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
-  put = PutContainer{T}(cont, amount)
+  put = ContainerPut{T}(cont, amount)
   cont.put_queue[put] = ContainerKey(priority, cont.seid += 1)
   append_callback(put, trigger_get, cont)
   trigger_put(put, cont)
@@ -66,7 +66,7 @@ function Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
 end
 
 function Get{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
-  get = GetContainer{T}(cont, amount)
+  get = ContainerGet{T}(cont, amount)
   cont.get_queue[get] = ContainerKey(priority, cont.seid += 1)
   append_callback(get, trigger_put, cont)
   trigger_get(get, cont)
@@ -77,7 +77,7 @@ function isless(a::ContainerKey, b::ContainerKey)
   return (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
 end
 
-function do_put(cont::Container, ev::PutContainer, key::ContainerKey)
+function do_put(cont::Container, ev::ContainerPut, key::ContainerKey)
   if cont.capacity - cont.level >= ev.amount
     cont.level += ev.amount
     succeed(ev)
@@ -86,7 +86,7 @@ function do_put(cont::Container, ev::PutContainer, key::ContainerKey)
   return false
 end
 
-function do_get(cont::Container, ev::GetContainer, key::ContainerKey)
+function do_get(cont::Container, ev::ContainerGet, key::ContainerKey)
   if cont.level >= ev.amount
     cont.level -= ev.amount
     succeed(ev)
