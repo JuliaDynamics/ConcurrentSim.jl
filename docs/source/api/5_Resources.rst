@@ -126,7 +126,7 @@ Resource for sharing homogeneous matter between processes, either continuous (li
 
 A :class:`Container` can be used to model the fuel tank of a gasoline station. Tankers increase and refuelled cars decrease the amount of gas in the station’s fuel tanks.
 
-.. function:: Container(env::Environment, capacity::T, level::T=zero(T)) -> Container{T}
+.. function:: Container{T}(env::Environment, capacity::T=typemax(T), level::T=zero(T)) -> Container{T}
 
 Resource containing up to capacity of matter which may either be continuous (like water) or discrete (like apples). It supports requests to put or get matter into/from the container.
 
@@ -172,7 +172,7 @@ Shared resources for storing a possibly unlimited amount of objects supporting r
 
 The :class:`Store` operates in a FIFO (first-in, first-out) order. Objects are retrieved from the store in the order they were put in. The get requests can be customized by a filter to only retrieve objects matching a given criterion.
 
-.. function:: Store(env::Environment, capacity::Int64=typemax(Int64)) -> Store
+.. function:: Store{T}(env::Environment, capacity::Int64=typemax(Int64)) -> Store{T}
 
 Resource with capacity slots for storing arbitrary objects. By default, the capacity is unlimited and objects are put and retrieved from the store in a first-in first-out order.
 
@@ -187,7 +187,7 @@ Subtype of :class:`PutEvent` for requesting to put something in a :class:`Store`
 
 .. function:: Put{T}(sto::Store{T}, item::T, priority::Int64=0) -> StorePut
 
-Request to put item into the store. The request is triggered once there is space for the item in the store.
+Request to put ``item`` into the store with a given ``priority``. The request is triggered once there is space for the item in the store.
 
 
 StoreGet

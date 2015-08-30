@@ -20,9 +20,12 @@ SimJulia
 
 * Version 0.3 synchronizes the API with SimPy v3.
 * It is a complete rewrite allowing a more powerful and unified discrete event approach.
-* All examples of the SimPy distribution are implemented.
-* 10 min tutorial is included to give users a taste of discrete event simulation with SimJulia.
-* Topical guides detail all functions.
+* Julia v0.3 and v0.4 compatible.
+* Documentation included:
+  * All examples of the SimPy distribution are implemented.
+  * 10 min tutorial is included to give users a taste of discrete event simulation with SimJulia.
+  * Topical guides detail all functions.
+  * API is up-to-date.
 
 #### ToDo
 

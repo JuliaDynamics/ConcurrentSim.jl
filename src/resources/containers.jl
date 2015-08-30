@@ -40,7 +40,7 @@ type Container{T<:Number} <: AbstractResource
   seid :: Int64
   put_queue :: PriorityQueue{ContainerPut{T}, ContainerKey}
   get_queue :: PriorityQueue{ContainerGet{T}, ContainerKey}
-  function Container(env::Environment, capacity::T, level::T=zero(T))
+  function Container(env::Environment, capacity::T=typemax(T), level::T=zero(T))
     cont = new()
     cont.env = env
     cont.capacity = capacity
