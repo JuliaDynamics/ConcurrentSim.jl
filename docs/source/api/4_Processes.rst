@@ -41,7 +41,7 @@ This event is automatically triggered when it is created.
 
 
 Interrupt
-~~~~~~~~~~~~
+~~~~~~~~~
 
 .. type:: Interrupt <: AbstractEvent
 
