@@ -17,4 +17,4 @@ Returns the next event time.
 
 .. function:: schedule(ev::AbstractEvent, value=nothing)
 
-Schedule an event with a ``value``, a ``delay`` and ``priority``.
+Schedules an event with a ``value``, a ``delay`` and ``priority``.
