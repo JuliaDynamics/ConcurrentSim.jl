@@ -21,7 +21,7 @@ The most important method in this section is :func:`run()`:
    .. code-block:: julia
 
       while true
-        yield Timeout(env, 1.0)
+        yield(Timeout(env, 1.0))
       end
 
    :func:`run(env) <run>` will never terminate unless you kill your script by pressing Ctrl-C.

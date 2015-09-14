@@ -63,7 +63,7 @@ An interrupt is thrown into process functions as an :class:`InterruptException` 
 
   julia> function driver(env::Environment, car_proc::Process)
            yield(Timeout(env, 3.0))
-           yield(Interrupt(car_proc))
+           yield(Interruption(car_proc))
          end
   driver (generic function with 1 method)
 

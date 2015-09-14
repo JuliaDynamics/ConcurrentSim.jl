@@ -110,7 +110,7 @@ Fortunate coincidence, there is indeed a way to do exactly this. You can call th
       charging = Process(env, bat_ctrl)
       parking = Timeout(env, 60.0)
       yield(charging | parking)
-      if !done(charging)
+      if !is_process_done(charging)
         yield(Interrupt(charging, "Need to go!"))
       end
       println("Stop parking at $(now(env))")

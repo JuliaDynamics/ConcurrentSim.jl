@@ -17,7 +17,7 @@ The basic concept of resources
 
 All resources share the same basic concept: The resource itself is some kind of a container with a, usually limited, capacity. Processes can either try to put something into the resource or try to get something out. If the resource is full or empty, they have to queue up and wait.
 
-Every resources a maximum capacity and two queues, one for processes that want to put something into it and one for processes that want to get something out. The :func:`Put` and :func:`Get` constructors both return an event that is triggered when the corresponding action was successful.
+Every resources has maximum capacity and two queues, one for processes that want to put something into it and one for processes that want to get something out. The :func:`Put` and :func:`Get` constructors both return an event that is triggered when the corresponding action was successful.
 
 
 Resources and interrupts
@@ -38,7 +38,7 @@ Resources can be used by a limited number of processes at a time (e.g., a gas st
 
 Requesting a resources is modeled as “putting a process’ token into the resources” and releasing a resources correspondingly as “getting a process’ token out of the resource”. Releasing a resource will always succeed immediately. Requesting and releasing a resource is done by yielding a request / release event. The request event has the following constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` and the release event :func:`Release(res::Resource) <Release>`.
 
-The :class:`Resource` is conceptually a semaphore. The only argument of its constructor – apart from the obligatory reference to an Environment – is its capacity. It must be a positive number and defaults to 1: :func:`Resource(env::BaseEnvironment, capacity::Int=1) <Resource>`.
+The :class:`Resource` is conceptually a semaphore. The only argument of its constructor – apart from the obligatory reference to an Environment – is its capacity. It must be a positive number and defaults to 1: :func:`Resource(env::AbstractEnvironment, capacity::Int=1) <Resource>`.
 
 Instead of just counting its current users, it stores the requesting process as an “access token” for each user. This is, for example, useful for adding preemption (see further).
 
