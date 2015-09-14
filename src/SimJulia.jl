@@ -8,7 +8,7 @@ module SimJulia
   end
   import Base.Collections.peek
 
-  export AbstractEvent, run, succeed, fail, trigger, triggered, processed, value, append_callback
+  export AbstractEvent, run, succeed, fail, trigger, triggered, processed, value, append_callback, stop_simulation
   export Event, Timeout, EventOperator, AllOf, AnyOf, (&), (|)
   export Process, Interrupt, yield, is_process_done, cause
   export Environment, step, peek, now, active_process
