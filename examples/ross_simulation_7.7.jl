@@ -1,7 +1,7 @@
 using SimJulia
 using Distributions
 
-const RUNS = 100
+const RUNS = 5
 const N = 10
 const S = 3
 const SEED = 150
