@@ -13,3 +13,4 @@ In this chapter, various practical examples are presented that demonstrate how t
    5_gas_refuelling_station
    6_car_wash
    7_process_communication
+   8_repair_problem
