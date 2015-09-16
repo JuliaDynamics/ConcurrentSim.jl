@@ -18,10 +18,10 @@ SimJulia
 
 **Note:** for the moment the continuous time part is not operational. A *quantized state system* (QSS) solver is being developed for continuous system simulation. Users that need this feature can use the version 2.1 with the old SimPy API and a suboptimal Runge-Kutta continuous time integrator.
 
-#### Release Notes
+Release Notes
+-------------
 
-Version 0.4
------------
+#### Version 0.4
 
 * v0.4 introduces the continuous time simulation.
 * The API for continuous time simulation is inspired by DISCO.
@@ -31,8 +31,7 @@ Version 0.4
   * 10 min tutorial and topical guides are updated.
   * API is also completed.
 
-Version 0.3
------------
+#### Version 0.3
 
 * v0.3 synchronizes the API with SimPy v3.
 * It is a complete rewrite allowing a more powerful and unified discrete event approach.
@@ -43,11 +42,13 @@ Version 0.3
   * Topical guides detail all functions.
   * API is up-to-date.
 
-#### ToDo
+ToDo
+----
 
 * Reintroduce the *Monitor* feature of the 0.2 version.
 * Develop a software layer to automate the MonteCarlo approach.
 
-#### Documentation
+Documentation
+-------------
 
 <http://simjuliajl.readthedocs.org/en/latest/welcome.html>
