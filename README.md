@@ -4,8 +4,8 @@ SimJulia
 [![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=continuous)](https://travis-ci.org/BenLauwens/SimJulia.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
 
-[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=continous)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=master)
-[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=continuous)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=master)
+[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=continous)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=continuous)
+[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=continuous)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=continuous)
 
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.3.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.3)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.4.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.4)
@@ -39,7 +39,7 @@ SimJulia
 #### ToDo
 
 * Reintroduce the *Monitor* feature of the 0.2 version.
-* Develop a software layer to automate the MonteCarlo approach. 
+* Develop a software layer to automate the MonteCarlo approach.
 
 #### Documentation
 
