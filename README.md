@@ -16,14 +16,12 @@ SimJulia
 
 **SimJulia** is a combined continuous time / discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Simula library [DISCO](w.akira.ruc.dk/~keld/research/DISCO/) and the Python library [SimPy](http://simpy.sourceforge.net/).
 
-**Note:** for the moment the continuous time part is not operational. A *quantized state system* (QSS) solver is being developed for continuous system simulation. Users that need this feature can use the version 2.1 with the old SimPy API and a suboptimal Runge-Kutta continuous time integrator.
-
 Release Notes
 -------------
 
 #### Version 0.4
 
-* v0.4 introduces the continuous time simulation.
+* v0.4 introduces the continuous time simulation based on a high performance *quantized state system* (QSS) solver.
 * The API for continuous time simulation is inspired by DISCO.
 * Julia v0.4 and v0.5 compatible.
 * Documentation included
