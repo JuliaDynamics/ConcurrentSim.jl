@@ -9,7 +9,7 @@ function generator(env::Environment, res::Resource, preempt::Bool)
   end
 end
 
-function handling(env::Environment, res::Resource, nr::Int64, preempt::Bool)
+function handling(env::Environment, res::Resource, nr::Int, preempt::Bool)
   duration = 2.25*rand()
   println("Number $nr Requests handling at time $(now(env))")
   token = yield(Request(res, nr, preempt))
