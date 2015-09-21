@@ -1,11 +1,11 @@
 using SimJulia
 
 type Mach
-  size :: Int64
+  size :: Int
   duration :: Float64
 end
 
-function user(env::Environment, name::Int64, sto::Store, size::Int64)
+function user(env::Environment, name::Int, sto::Store, size::Int)
   machine = yield(Get(sto, (mach::Mach)->mach.size == size))
   println("$name got $machine at $(now(env))")
   yield(Timeout(env, machine.duration))

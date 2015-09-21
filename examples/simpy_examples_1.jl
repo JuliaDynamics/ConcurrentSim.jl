@@ -7,7 +7,7 @@ const INTERVAL_CUSTOMERS = 10.0  # Generate new customers roughly every x second
 const MIN_PATIENCE = 1.0  # Min. customer patience
 const MAX_PATIENCE = 3.0  # Max. customer patience
 
-function source(env::Environment, number::Int64, interval::Float64, counter::Resource)
+function source(env::Environment, number::Int, interval::Float64, counter::Resource)
   d = Exponential(interval)
   for i in 1:number
     Process(env, customer, "Customer$i", counter, 12.0)

@@ -11,10 +11,10 @@ const SIM_TIME = 120.0  # Simulate until
 type Theater
   movies :: Vector{ASCIIString}
   counter :: Resource
-  available :: Dict{ASCIIString, Int64}
+  available :: Dict{ASCIIString, Int}
   sold_out :: Dict{ASCIIString, Event}
   when_sold_out :: Dict{ASCIIString, Float64}
-  num_renegers :: Dict{ASCIIString, Int64}
+  num_renegers :: Dict{ASCIIString, Int}
   function Theater(env)
     theater = new()
     theater.movies = ASCIIString["Julia Unchained", "Kill Process", "Pulp Implementation"]
@@ -27,7 +27,7 @@ type Theater
   end
 end
 
-function moviegoer(env::Environment, movie::ASCIIString, num_tickets::Int64, theater::Theater)
+function moviegoer(env::Environment, movie::ASCIIString, num_tickets::Int, theater::Theater)
   req = Request(theater.counter)
   result = yield(req | theater.sold_out[movie])
   if in(theater.sold_out[movie], keys(result))

@@ -8,7 +8,7 @@ function producer(env::Environment, sto::Store)
   end
 end
 
-function consumer(env::Environment, name::Int64, sto::Store)
+function consumer(env::Environment, name::Int, sto::Store)
   while true
     yield(Timeout(env, 1.0))
     println("$name requesting spam at $(now(env))")

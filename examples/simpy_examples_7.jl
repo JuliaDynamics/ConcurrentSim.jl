@@ -11,9 +11,9 @@ end
 
 type BroadcastPipe{T}
   env :: Environment
-  capacity :: Int64
+  capacity :: Int
   pipes :: Vector{Store{T}}
-  function BroadcastPipe(env::Environment, capacity::Int64=typemax(Int64))
+  function BroadcastPipe(env::Environment, capacity::Int=typemax(Int))
     bc_pipe = new()
     bc_pipe.env = env
     bc_pipe.capacity = capacity

@@ -13,7 +13,7 @@ const SIM_TIME = WEEKS * 7 * 24 * 60.0  # Simulation time in minutes
 
 type Machine
   name :: ASCIIString
-  parts_made :: Int64
+  parts_made :: Int
   broken :: Bool
   proc :: Process
   function Machine(env::Environment, name::ASCIIString, repairman::Resource)

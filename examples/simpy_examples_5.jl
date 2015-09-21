@@ -57,7 +57,7 @@ srand(RANDOM_SEED)
 # Create environment and start processes
 env = Environment()
 gas_station = Resource(env, 2)
-fuel_pump = Container{Int64}(env, GAS_STATION_SIZE, GAS_STATION_SIZE)
+fuel_pump = Container{Int}(env, GAS_STATION_SIZE, GAS_STATION_SIZE)
 Process(env, gas_station_control, fuel_pump)
 Process(env, car_generator, gas_station, fuel_pump)
 
