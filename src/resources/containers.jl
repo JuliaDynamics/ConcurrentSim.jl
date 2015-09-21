@@ -1,6 +1,6 @@
 type ContainerKey <: AbstractResourceKey
-  priority :: Int64
-  id :: Int64
+  priority :: Int
+  id :: Int
 end
 
 type ContainerPut{T<:Number} <: PutEvent
@@ -37,7 +37,7 @@ type Container{T<:Number} <: AbstractResource
   env :: Environment
   level :: T
   capacity :: T
-  seid :: Int64
+  seid :: Int
   put_queue :: PriorityQueue{ContainerPut{T}, ContainerKey}
   get_queue :: PriorityQueue{ContainerGet{T}, ContainerKey}
   function Container(env::Environment, capacity::T=typemax(T), level::T=zero(T))
@@ -57,7 +57,7 @@ type Container{T<:Number} <: AbstractResource
   end
 end
 
-function Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
+function Put{T<:Number}(cont::Container{T}, amount::T, priority::Int=0)
   put = ContainerPut{T}(cont, amount)
   cont.put_queue[put] = ContainerKey(priority, cont.seid += 1)
   append_callback(put, trigger_get, cont)
@@ -65,7 +65,7 @@ function Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
   return put
 end
 
-function Get{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0)
+function Get{T<:Number}(cont::Container{T}, amount::T, priority::Int=0)
   get = ContainerGet{T}(cont, amount)
   cont.get_queue[get] = ContainerKey(priority, cont.seid += 1)
   append_callback(get, trigger_put, cont)

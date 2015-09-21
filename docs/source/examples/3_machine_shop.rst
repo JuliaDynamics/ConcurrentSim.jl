@@ -29,7 +29,7 @@ The repairman’s other job is also a process (implemented by :func:`other_job`)
 
   type Machine
     name :: ASCIIString
-    parts_made :: Int64
+    parts_made :: Int
     broken :: Bool
     proc :: Process
     function Machine(env::Environment, name::ASCIIString, repairman::Resource)

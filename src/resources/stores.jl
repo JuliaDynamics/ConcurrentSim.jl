@@ -1,5 +1,5 @@
 type StoreKey <: AbstractResourceKey
-  priority :: Int64
+  priority :: Int
   id :: Float64
 end
 
@@ -35,12 +35,12 @@ end
 
 type Store{T} <: AbstractResource
   env :: Environment
-  capacity :: Int64
+  capacity :: Int
   items :: Set{T}
-  seid :: Int64
+  seid :: Int
   put_queue :: PriorityQueue{StorePut{T}, StoreKey}
   get_queue :: PriorityQueue{StoreGet, StoreKey}
-  function Store(env::Environment, capacity::Int64=typemax(Int64))
+  function Store(env::Environment, capacity::Int=typemax(Int))
     sto = new()
     sto.env = env
     sto.capacity = capacity
@@ -57,7 +57,7 @@ type Store{T} <: AbstractResource
   end
 end
 
-function Put{T}(sto::Store{T}, item::T, priority::Int64=0)
+function Put{T}(sto::Store{T}, item::T, priority::Int=0)
   put = StorePut{T}(sto, item)
   sto.put_queue[put] = StoreKey(priority, sto.seid+=1)
   append_callback(put, trigger_get, sto)
@@ -65,7 +65,7 @@ function Put{T}(sto::Store{T}, item::T, priority::Int64=0)
   return put
 end
 
-function Get{T}(sto::Store{T}, filter::Function=(item::T)->true, priority::Int64=0)
+function Get{T}(sto::Store{T}, filter::Function=(item::T)->true, priority::Int=0)
   get = StoreGet(sto, filter)
   sto.get_queue[get] = StoreKey(priority, sto.seid+=1)
   append_callback(get, trigger_put, sto)

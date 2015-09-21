@@ -61,13 +61,13 @@ These resources can be used by a limited number of processes at a time. Processe
 
 Requesting a resource is modelled as "putting a process’ token into the resources” and releasing a resources correspondingly as “getting a process’ token out of the resource”. Note, that releasing a resource will always succeed immediately, no matter if a process is actually using a resource or not.
 
-.. function:: Resource(env::AbstractEnvironment, capacity::Int64=1) -> Resource
+.. function:: Resource(env::AbstractEnvironment, capacity::Int=1) -> Resource
 
 Resource with ``capacity`` of usage slots that can be requested by processes.
 If all slots are taken, requests are enqueued. Once a usage request is released, a pending request will be triggered.
 The ``env`` argument is the :class:`AbstractEnvironment` instance the resource is bound to.
 
-.. function:: count(res::Resource) -> Int64
+.. function:: count(res::Resource) -> Int
 
 Returns the number of users currently using ``res``.
 
@@ -78,9 +78,9 @@ ResourcePut
 
 Subtype of :class:`PutEvent` for requesting to put something in a :class:`Resource`.
 
-.. function:: Put(res::Resource, priority::Int64=0, preempt::Bool=false) -> ResourcePut
+.. function:: Put(res::Resource, priority::Int=0, preempt::Bool=false) -> ResourcePut
 
-.. function:: Request(res::Resource, priority::Int64=0, preempt::Bool=false) -> ResourcePut
+.. function:: Request(res::Resource, priority::Int=0, preempt::Bool=false) -> ResourcePut
 
 Request usage of the :class:`Resource` with a given ``priority``. The event is triggered once access is granted.
 
@@ -146,7 +146,7 @@ ContainerPut
 
 Subtype of :class:`PutEvent` for requesting to put something in a :class:`Container`.
 
-.. function:: Put{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0) -> ContainerPut
+.. function:: Put{T<:Number}(cont::Container{T}, amount::T, priority::Int=0) -> ContainerPut
 
 Request to put ``amount`` of matter into the container with a given ``priority``. The request will be triggered once there is enough space in the container available.
 
@@ -158,7 +158,7 @@ ContainerGet
 
 Subtype of :class:`GetEvent` for requesting to get something from a :class:`Container`.
 
-.. function:: Get{T<:Number}(cont::Container{T}, amount::T, priority::Int64=0) -> ContainerGet
+.. function:: Get{T<:Number}(cont::Container{T}, amount::T, priority::Int=0) -> ContainerGet
 
 Request to get ``amount`` of matter from the container with a given ``priority``. The request will be triggered once there is enough matter available in the container.
 
@@ -172,7 +172,7 @@ Shared resources for storing a possibly unlimited amount of objects supporting r
 
 The :class:`Store` operates in a FIFO (first-in, first-out) order. Objects are retrieved from the store in the order they were put in. The get requests can be customized by a filter to only retrieve objects matching a given criterion.
 
-.. function:: Store{T}(env::Environment, capacity::Int64=typemax(Int64)) -> Store{T}
+.. function:: Store{T}(env::Environment, capacity::Int=typemax(Int)) -> Store{T}
 
 Resource with capacity slots for storing arbitrary objects. By default, the capacity is unlimited and objects are put and retrieved from the store in a first-in first-out order.
 
@@ -185,7 +185,7 @@ StorePut
 
 Subtype of :class:`PutEvent` for requesting to put something in a :class:`Store`.
 
-.. function:: Put{T}(sto::Store{T}, item::T, priority::Int64=0) -> StorePut
+.. function:: Put{T}(sto::Store{T}, item::T, priority::Int=0) -> StorePut
 
 Request to put ``item`` into the store with a given ``priority``. The request is triggered once there is space for the item in the store.
 
@@ -197,7 +197,7 @@ StoreGet
 
 Subtype of :class:`GetEvent` for requesting to get something from a :class:`Store`.
 
-.. function:: Get{T}(sto::Store{T}, filter::Function=(item::T)->true, priority::Int64=0)
+.. function:: Get{T}(sto::Store{T}, filter::Function=(item::T)->true, priority::Int=0)
 
 Request to get an item from the store matching the ``filter`` with a ``priority``. The request is triggered once there is such an item available in the store.
 
