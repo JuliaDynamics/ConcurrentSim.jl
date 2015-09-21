@@ -1,6 +1,6 @@
 type ResourceKey <: AbstractResourceKey
-  priority :: Int64
-  id :: Int64
+  priority :: Int
+  id :: Int
   preempt :: Bool
   since :: Float64
 end
@@ -33,12 +33,12 @@ end
 
 type Resource <: AbstractResource
   env :: AbstractEnvironment
-  capacity :: Int64
-  seid :: Int64
+  capacity :: Int
+  seid :: Int
   put_queue :: PriorityQueue{ResourcePut, ResourceKey}
   get_queue :: PriorityQueue{ResourceGet, ResourceKey}
   users :: PriorityQueue{Process, ResourceKey}
-  function Resource(env::AbstractEnvironment, capacity::Int64=1)
+  function Resource(env::AbstractEnvironment, capacity::Int=1)
     res = new()
     res.env = env
     res.capacity = capacity
@@ -72,11 +72,11 @@ end
 
 Request(res::Resource, key::ResourceKey)=Put(res, key)
 
-function Put(res::Resource, priority::Int64=0, preempt::Bool=false)
+function Put(res::Resource, priority::Int=0, preempt::Bool=false)
   return Put(res, ResourceKey(priority, res.seid+=1, preempt, 0.0))
 end
 
-Request(res::Resource, priority::Int64=0, preempt::Bool=false)=Put(res, priority, preempt)
+Request(res::Resource, priority::Int=0, preempt::Bool=false)=Put(res, priority, preempt)
 
 function Get(res::Resource)
   rel = ResourceGet(res.env, res)

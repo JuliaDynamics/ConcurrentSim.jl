@@ -36,7 +36,7 @@ Resources
 
 Resources can be used by a limited number of processes at a time (e.g., a gas station with a limited number of fuel pumps). Processes request these resources to become a user (or to “own” them) and have to release them once they are done (e.g., vehicles arrive at the gas station, use a fuel-pump, if one is available, and leave when they are done).
 
-Requesting a resources is modeled as “putting a process’ token into the resources” and releasing a resources correspondingly as “getting a process’ token out of the resource”. Releasing a resource will always succeed immediately. Requesting and releasing a resource is done by yielding a request / release event. The request event has the following constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` and the release event :func:`Release(res::Resource) <Release>`.
+Requesting a resources is modeled as “putting a process’ token into the resources” and releasing a resources correspondingly as “getting a process’ token out of the resource”. Releasing a resource will always succeed immediately. Requesting and releasing a resource is done by yielding a request / release event. The request event has the following constructor :func:`Request(res::Resource, priority::Int=0, preempt::Bool=false) <Request>` and the release event :func:`Release(res::Resource) <Release>`.
 
 The :class:`Resource` is conceptually a semaphore. The only argument of its constructor – apart from the obligatory reference to an Environment – is its capacity. It must be a positive number and defaults to 1: :func:`Resource(env::AbstractEnvironment, capacity::Int=1) <Resource>`.
 
@@ -70,7 +70,7 @@ The functions :func:`count(res::Resource) <count>` and :func:`capacity(res::Reso
 Priority resource
 ~~~~~~~~~~~~~~~~~
 
-As you may know from the real world, not every one is equally important. To map that to SimJulia, the constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` lets requesting processes provide a priority for each request. More important requests will gain access to the resource earlier than less important ones. Priority is expressed by integer numbers; smaller numbers mean a higher priority::
+As you may know from the real world, not every one is equally important. To map that to SimJulia, the constructor :func:`Request(res::Resource, priority::Int=0, preempt::Bool=false) <Request>` lets requesting processes provide a priority for each request. More important requests will gain access to the resource earlier than less important ones. Priority is expressed by integer numbers; smaller numbers mean a higher priority::
 
   using SimJulia
 
@@ -96,7 +96,7 @@ Although ``p3`` requested the resource later than ``p2``, it could use it earlie
 Preemptive resource
 ~~~~~~~~~~~~~~~~~~~
 
-Sometimes, new requests are so important that queue-jumping is not enough and they need to kick existing users out of the resource (this is called preemption). As before the constructor :func:`Request(res::Resource, priority::Int64=0, preempt::Bool=false) <Request>` allows you to do exactly this::
+Sometimes, new requests are so important that queue-jumping is not enough and they need to kick existing users out of the resource (this is called preemption). As before the constructor :func:`Request(res::Resource, priority::Int=0, preempt::Bool=false) <Request>` allows you to do exactly this::
 
   using SimJulia
 
@@ -218,7 +218,7 @@ The following example is a very simple model of a gas station with a limited num
   Process(env, car_generator, gs)
   run(env, 55.0)
 
-The constructors :func:`Put(cont::Container, amount::T, priority::Int64=0) <Put>` and :func:`Get(cont::Container, amount::T, priority::Int64=0) <Get>` create respectively events to put and to get an amount of fuel. The function :func:`level(cont::Container) <level>` returns the amount of fuel still in the tank.
+The constructors :func:`Put(cont::Container, amount::T, priority::Int=0) <Put>` and :func:`Get(cont::Container, amount::T, priority::Int=0) <Get>` create respectively events to put and to get an amount of fuel. The function :func:`level(cont::Container) <level>` returns the amount of fuel still in the tank.
 
 Priorities can be given to a put or a get event by setting the argument ``priority``.
 
@@ -242,7 +242,7 @@ Here is a simple example modelling a generic producer/consumer scenario::
     end
   end
 
-  function consumer(env::Environment, name::Int64, sto::Store)
+  function consumer(env::Environment, name::Int, sto::Store)
     while true
       yield(Timeout(env, 1.0))
       println("$name requesting spam at $(now(env))")
@@ -267,11 +267,11 @@ A store with a filter on the :class:`Get` event can, for example, be used to mod
   using SimJulia
 
   type Machine
-    size :: Int64
+    size :: Int
     duration :: Float64
   end
 
-  function user(env::Environment, name::Int64, sto::Store, size::Int64)
+  function user(env::Environment, name::Int, sto::Store, size::Int)
     machine = yield(Get(sto, (mach::Machine)->mach.size == size))
     println("$name got $machine at $(now(env))")
     yield(Timeout(env, machine.duration))

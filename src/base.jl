@@ -24,7 +24,7 @@ type BaseEvent
   env :: AbstractEnvironment
   callbacks :: Set{Function}
   state :: Uint16
-  id :: Int64
+  id :: Int
   value :: Any
   function BaseEvent(env::AbstractEnvironment)
     ev = new()
