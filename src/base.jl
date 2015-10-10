@@ -1,3 +1,5 @@
+using Compat
+
 const EVENT_INITIAL = 0
 const EVENT_TRIGGERED = 1
 const EVENT_PROCESSING = 2
@@ -23,7 +25,7 @@ end
 type BaseEvent
   env :: AbstractEnvironment
   callbacks :: Set{Function}
-  state :: UInt16
+  state :: @compat UInt16
   id :: Int
   value :: Any
   function BaseEvent(env::AbstractEnvironment)
