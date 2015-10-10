@@ -23,7 +23,7 @@ end
 type BaseEvent
   env :: AbstractEnvironment
   callbacks :: Set{Function}
-  state :: Uint16
+  state :: UInt16
   id :: Int
   value :: Any
   function BaseEvent(env::AbstractEnvironment)
