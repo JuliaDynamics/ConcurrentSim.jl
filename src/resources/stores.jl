@@ -65,7 +65,11 @@ function Put{T}(sto::Store{T}, item::T, priority::Int=0)
   return put
 end
 
-function Get{T}(sto::Store{T}, filter::Function=(item::T)->true, priority::Int=0)
+function get_any_item{T}(item::T)
+  return true
+end
+
+function Get{T}(sto::Store{T}, filter::Function=get_any_item, priority::Int=0)
   get = StoreGet(sto, filter)
   sto.get_queue[get] = StoreKey(priority, sto.seid+=1)
   append_callback(get, trigger_put, sto)
