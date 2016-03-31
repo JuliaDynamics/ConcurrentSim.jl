@@ -45,6 +45,7 @@ for example_file in [
   "simpy_examples_5.jl",
   "simpy_examples_6.jl",
   "simpy_examples_7.jl",
-  "ross_simulation_7.7.jl"]
+  "ross_simulation_7.7.jl",
+  ]
   include(examplespath(example_file))
 end

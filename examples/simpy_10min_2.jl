@@ -1,6 +1,6 @@
 using SimJulia
 
-function car(env::Environment)
+function car2(env::Environment)
   while true
     println("Start parking and charging at $(now(env))")
     charge_duration = 5.0
@@ -18,5 +18,5 @@ function charge(env::Environment, duration::Float64)
 end
 
 env = Environment()
-Process(env, car)
+Process(env, car2)
 run(env, 15.0)

@@ -5,11 +5,11 @@ function driver(env::Environment, car_proc::Process)
   yield(Interrupt(car_proc))
 end
 
-function car(env::Environment)
+function car3(env::Environment)
   while true
     println("Start parking and charging at $(now(env))")
     charge_duration = 5.0
-    charge_proc = Process(env, charge, charge_duration)
+    charge_proc = Process(env, charge2, charge_duration)
     try
       yield(charge_proc)
     catch exc
@@ -21,11 +21,11 @@ function car(env::Environment)
   end
 end
 
-function charge(env::Environment, duration::Float64)
+function charge2(env::Environment, duration::Float64)
   yield(Timeout(env, duration))
 end
 
 env = Environment()
-car_proc = Process(env, car)
+car_proc = Process(env, car3)
 Process(env, driver, car_proc)
 run(env, 15.0)
