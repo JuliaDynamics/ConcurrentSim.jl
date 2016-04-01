@@ -1,5 +1,4 @@
-using Compat
-@compat __precompile__()
+isdefined(Base, :__precompile__) && __precompile__()
 
 module SimJulia
   using Base.Order
