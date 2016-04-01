@@ -1,4 +1,4 @@
-__precompile__()
+@compat __precompile__()
 module SimJulia
   using Base.Order
   using Base.Collections
