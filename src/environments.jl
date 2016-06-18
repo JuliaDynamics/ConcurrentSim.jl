@@ -52,5 +52,5 @@ function peek(env::Environment)
 end
 
 function active_process(env::Environment)
-  return @compat get(env.active_proc)
+  return get(env.active_proc)
 end
