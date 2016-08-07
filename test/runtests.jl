@@ -1,4 +1,4 @@
-testpath(f) = joinpath(Pkg.dir("SimJulia"),"test",f)
+testpath(f) = joinpath(dirname(@__FILE__),f)
 
 for test_file in [
   "test_events.jl",
@@ -10,7 +10,7 @@ for test_file in [
   include(testpath(test_file))
 end
 
-examplespath(f) = joinpath(Pkg.dir("SimJulia"),"examples",f)
+examplespath(f) = joinpath(dirname(@__FILE__),"..","examples",f)
 
 for example_file in [
   "simpy_welcome.jl",
