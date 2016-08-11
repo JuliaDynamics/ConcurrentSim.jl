@@ -3,7 +3,7 @@ repo_url:         https://github.com/BenLauwens/SimJulia.jl
 site_description: SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.
 site_author:      BenLauwens
 
-theme: flatly
+theme: cinder
 
 extra_css:
   - assets/Documenter.css
