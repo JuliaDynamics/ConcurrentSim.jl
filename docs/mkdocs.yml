@@ -1,0 +1,35 @@
+site_name:        Simjulia.jl
+repo_url:         https://github.com/BenLauwens/SimJulia.jl
+site_description: SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.
+site_author:      BenLauwens
+
+theme: flatly
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - assets/mathjaxhelper.js
+
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - mdx_math
+  - toc:
+      permalink: True
+
+docs_dir: 'build'
+
+copyright: "Copyright &copy; 2012-2016, Ben Lauwens.
+<a https://github.com/BenLauwens/SimJulia.jl>SimJulia.jl</a> is licensed under the
+<a href='https://github.com/BenLauwens/SimJulia.jl/blob/master/LICENSE.md'>
+MIT Expat license</a>."
+
+pages:
+  - 'Home': index.md
+  - 'Introduction': 'intro.md'
+  - 'Topical guides': 'topics.md'
+  - 'Examples': 'examples.md'
+  - 'API': 'api.md'
