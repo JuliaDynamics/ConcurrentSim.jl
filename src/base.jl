@@ -1,20 +1,17 @@
-"""
-abstract Environment
+type StopEnvironment <: Exception
+  value :: Any
+end
 
+type EventProcessing <: Exception end
+
+"""
 Parent type for event processing environments.
 
 An implementation must at least provide the means to access the current time of the environment (see ``now``), to process events (see ``step``) and to give a reference to the active process (see ``active_process``).
 
 The class is meant to be subclassed for different execution environments. For example, SimJulia defines a :class:`Simulation` for simulations with a virtual time.
-
 """
-
 abstract Environment
-
-type EventProcessing <: Exception end
-type StopEnvironment <: Exception
-  value :: Any
-end
 
 type Event
   id :: UInt
@@ -31,17 +28,6 @@ type Event
     ev.value = nothing
     return ev
   end
-end
-
-function append_callback(cb::Function, ev::Event, args...)
-  if ev.processing
-    throw(EventProcessing())
-  end
-  push!(ev.callbacks, (ev)->cb(ev, args...))
-end
-
-function stop_environment(ev::Event)
-  throw(StopEnvironment(ev.value))
 end
 
 function run(env::Environment, until::Event)
@@ -67,4 +53,15 @@ end
 function run(env::Environment)
   ev = Event(env)
   run(env, ev)
+end
+
+function stop_environment(ev::Event)
+  throw(StopEnvironment(ev.value))
+end
+
+function append_callback(cb::Function, ev::Event, args...)
+  if ev.processing
+    throw(EventProcessing())
+  end
+  push!(ev.callbacks, (ev)->cb(ev, args...))
 end

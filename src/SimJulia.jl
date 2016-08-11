@@ -6,9 +6,10 @@ module SimJulia
 
   import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.step
 
-  export Environment, Event, run, append_callback
+  export Environment, run
+  export Event, append_callback
   export Simulation, StopSimulation, now, schedule
 
-  include("events.jl")
+  include("base.jl")
   include("simulation.jl")
 end
