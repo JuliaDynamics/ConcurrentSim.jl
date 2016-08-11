@@ -20,3 +20,6 @@ SimJulia
 * Version 0.4 ...
 
 #### Documentation
+
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://BenLauwens.github.io/SimJulia.jl/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://BenLauwens.github.io/SimJulia.jl/latest)
