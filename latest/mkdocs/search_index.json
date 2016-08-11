@@ -1,0 +1,49 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "SimJulia.jl\n\n\nSimJulia\n is a combined continuous time / discrete event process oriented simulation framework written in \nJulia\n inspired by the Simula library \nDISCO\n and the Python library \nSimPy\n.\n\n\n\n\n\n\nAuthors\n\n\n\n\nBen Lauwens\n, Royal Military Academy, Brussels, Belgium\n\n\n\n\n\n\nLicense\n\n\nSimJulia is licensed under the \nMIT \"Expat\" license\n.\n\n\n\n\nInstallation\n\n\nSimJulia.jl is a \nregistered package\n, and is simply installed by running\n\n\njulia\n Pkg.add(\nSimJulia\n)", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#simjuliajl", 
+            "text": "SimJulia  is a combined continuous time / discrete event process oriented simulation framework written in  Julia  inspired by the Simula library  DISCO  and the Python library  SimPy .", 
+            "title": "SimJulia.jl"
+        }, 
+        {
+            "location": "/#authors", 
+            "text": "Ben Lauwens , Royal Military Academy, Brussels, Belgium", 
+            "title": "Authors"
+        }, 
+        {
+            "location": "/#license", 
+            "text": "SimJulia is licensed under the  MIT \"Expat\" license .", 
+            "title": "License"
+        }, 
+        {
+            "location": "/#installation", 
+            "text": "SimJulia.jl is a  registered package , and is simply installed by running  julia  Pkg.add( SimJulia )", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/intro/", 
+            "text": "", 
+            "title": "Introduction"
+        }, 
+        {
+            "location": "/topics/", 
+            "text": "", 
+            "title": "Topical guides"
+        }, 
+        {
+            "location": "/examples/", 
+            "text": "", 
+            "title": "Examples"
+        }, 
+        {
+            "location": "/api/", 
+            "text": "#\n\n\nSimJulia.Environment\n \n \nType\n.\n\n\nParent type for event processing environments.\n\n\nAn implementation must at least provide the means to access the current time of the environment (see $now$), to process events (see $step$) and to give a reference to the active process (see $active_process$).\n\n\nThe class is meant to be subclassed for different execution environments. For example, SimJulia defines a :class:\nSimulation\n for simulations with a virtual time.\n\n\nsource", 
+            "title": "API"
+        }
+    ]
+}
