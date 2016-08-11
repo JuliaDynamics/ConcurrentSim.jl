@@ -1,93 +1,70 @@
-const EVENT_INITIAL = 0
-const EVENT_TRIGGERED = 1
-const EVENT_PROCESSING = 2
-const EVENT_PROCESSED = 3
+"""
+abstract Environment
 
-type Event <: AbstractEvent
-  bev :: BaseEvent
-  function Event(env::AbstractEnvironment)
+Parent type for event processing environments.
+
+An implementation must at least provide the means to access the current time of the environment (see ``now``), to process events (see ``step``) and to give a reference to the active process (see ``active_process``).
+
+The class is meant to be subclassed for different execution environments. For example, SimJulia defines a :class:`Simulation` for simulations with a virtual time.
+
+"""
+
+abstract Environment
+
+type EventProcessing <: Exception end
+type StopEnvironment <: Exception
+  value :: Any
+end
+
+type Event
+  id :: UInt
+  env :: Environment
+  callbacks :: Vector{Function}
+  processing :: Bool
+  value :: Any
+  function Event(env::Environment)
     ev = new()
-    ev.bev = BaseEvent(env)
+    ev.id = env.eid += 1
+    ev.env = env
+    ev.callbacks = Function[]
+    ev.processing = false
+    ev.value = nothing
     return ev
   end
 end
 
-type Timeout <: AbstractEvent
-  bev :: BaseEvent
-  function Timeout(env::AbstractEnvironment, delay::Float64, value=nothing)
-    timeout = new()
-    timeout.bev = BaseEvent(env)
-    schedule(timeout, delay, value)
-    return timeout
+function append_callback(cb::Function, ev::Event, args...)
+  if ev.processing
+    throw(EventProcessing())
   end
+  push!(ev.callbacks, (ev)->cb(ev, args...))
 end
 
-type EventOperator <: AbstractEvent
-  events :: Tuple
-  eval :: Function
-  bev :: BaseEvent
-  function EventOperator(env::AbstractEnvironment, eval::Function, ev::AbstractEvent, events...)
-    oper = new()
-    oper.bev = BaseEvent(env)
-    oper.events = tuple(ev, events...)
-    oper.eval = eval
-    for ev in oper.events
-      if ev.bev.state >= EVENT_PROCESSING
-        check(ev, oper)
-      else
-        push!(ev.bev.callbacks, (ev)->check(ev, oper))
-      end
-    end
-    return oper
-  end
+function stop_environment(ev::Event)
+  throw(StopEnvironment(ev.value))
 end
 
-function EventOperator(eval::Function, ev::AbstractEvent, events...)
-  return EventOperator(ev.bev.env, eval, ev, events...)
-end
-
-function AllOf(ev::AbstractEvent, events...)
-  return EventOperator(eval_and, ev, events...)
-end
-
-function AnyOf(ev::AbstractEvent, events...)
-  return EventOperator(eval_or, ev, events...)
-end
-
-function populate_value(oper::EventOperator, values::Dict{AbstractEvent, Any})
-  for ev in oper.events
-    if isa(ev, EventOperator)
-      populate_value(ev, values)
-    elseif ev.bev.state >= EVENT_PROCESSING
-      values[ev] = ev.bev.value
+function run(env::Environment, until::Event)
+  append_callback(stop_environment, until)
+  try
+    while step(env) end
+    return nothing
+  catch exc
+    if isa(exc, StopEnvironment)
+      return exc.value
+    else
+      rethrow(exc)
     end
   end
 end
 
-function check(ev::AbstractEvent, oper::EventOperator)
-  if oper.bev.state == EVENT_INITIAL
-    if isa(ev.bev.value, Exception)
-      schedule(oper, ev.bev.value)
-    elseif oper.eval(oper.events...)
-      values = Dict{AbstractEvent, Any}()
-      populate_value(oper, values)
-      schedule(oper, values)
-    end
-  end
+function run(env::Environment, until::Float64)
+  ev = Event(env)
+  schedule(env, ev, until)
+  run(env, ev)
 end
 
-function eval_and(events...)
-  return all(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
-end
-
-function eval_or(events...)
-  return any(map((ev)->ev.bev.state >= EVENT_PROCESSING, events))
-end
-
-function (&)(ev1::AbstractEvent, ev2::AbstractEvent)
-  return EventOperator(eval_and, ev1, ev2)
-end
-
-function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
-  return EventOperator(eval_or, ev1, ev2)
+function run(env::Environment)
+  ev = Event(env)
+  run(env, ev)
 end
