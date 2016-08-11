@@ -4,7 +4,11 @@ module SimJulia
   using Base.Order
   using Base.Collections
 
-  export Event
+  import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.step
+
+  export Environment, Event, run, append_callback
+  export Simulation, StopSimulation, now, schedule
 
   include("events.jl")
+  include("simulation.jl")
 end
