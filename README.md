@@ -17,12 +17,14 @@ SimJulia
 
 #### Installation
 
-SimJulia.jl is a [registered package](http://pkg.julialang.org), and is
-simply installed by running
+SimJulia.jl is a [registered package](http://pkg.julialang.org), and is simply installed by running
 
 ```julia
 julia> Pkg.add("SimJulia")
 ```
+
+
+#### Package Evaluator
 
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.4.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.4)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.5.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.5)
@@ -36,7 +38,21 @@ julia> Pkg.add("SimJulia")
 
 #### Release Notes
 
-* Version 0.4 ...
+* Version 0.4 is a complete rewrite: more julian and less pythonic.
+* The discrete event features are on par with version 0.3. (STABLE)
+* The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
+* Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
+
+
+#### Todo
+
+* Integration of stiff ODE
+* Extension to PDE by method of lines Integration
+
+
+#### Authors
+
+* Ben Lauwens, Royal Military Academy, Brussels, Belgium
 
 
 #### License
