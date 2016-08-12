@@ -1,11 +1,11 @@
 SimJulia
 ========
 
-[![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=master)](https://travis-ci.org/BenLauwens/SimJulia.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/master?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
+[![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=release-0.3)](https://travis-ci.org/BenLauwens/SimJulia.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/release-0.3?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
 
-[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=master)
-[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=master)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=master)
+[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=release-0.3)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=release-0.3)
+[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=release-0.3)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=release-0.3)
 
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.3.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.3)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.4.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.4)
