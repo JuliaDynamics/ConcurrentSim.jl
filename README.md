@@ -5,8 +5,8 @@ SimJulia
 
 #### Build Status
 
-[![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=simple)](https://travis-ci.org/BenLauwens/SimJulia.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/simple?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
+[![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=master)](https://travis-ci.org/BenLauwens/SimJulia.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/master?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
 
 
 #### Coverage
