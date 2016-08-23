@@ -2,12 +2,24 @@ using Documenter
 using SimJulia
 
 makedocs(
-  modules = [SimJulia]
+  modules = [SimJulia],
+  clean   = true,
+  format   = Documenter.Formats.HTML,
+  sitename = "SimJulia.jl",
+  pages    = [
+    "Home" => "index.md",
+    "Intro" => "intro.md",
+    "Manual" => "topics.md",
+    "Library" => "api.md"
+    ]
+
 )
 
 deploydocs(
-  deps   = Deps.pip("pygments", "mkdocs", "mkdocs-cinder", "python-markdown-math"),
   repo = "github.com/BenLauwens/SimJulia.jl.git",
   julia  = "0.5",
-  osname = "linux"
+  osname = "linux",
+  target = "build",
+  deps = nothing,
+  make = nothing,
 )
