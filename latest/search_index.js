@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.Event",
     "category": "Type",
-    "text": "Event\n\nAn event is a state machine with three states:\n\nEVENT_IDLE\nEVENT_TRIGGERED\nEVENT_PROCESSING\n\nOnce the processing has ended, the event returns to an EVENT_IDLE state and can be scheduled again.\n\nAn event is initially not triggered. Events are scheduled for processing by the simulation after they are triggered.\n\nAn event has a list of callbacks and a value. A callback can be any function. Once an event gets processed, all callbacks will be invoked. Callbacks can do further processing with the value it has produced.\n\nFailed events, i.e. events having as value an Exception, are never silently ignored and will raise this exception upon being processed.\n\nFields:\n\ncallbacks :: Vector{Function}\nstate :: UInt\nvalue :: Any\n\nConstructor:\n\nEvent()\nEvent(sim::Simulation, delay::Float64; priority::Bool=false, value::Any=nothing)\n\n\n\n"
+    "text": "Event\n\nAn event is a state machine with three states:\n\nEVENT_IDLE\nEVENT_TRIGGERED\nEVENT_PROCESSING\n\nOnce the processing has ended, the event returns to an EVENT_IDLE state and can be scheduled again.\n\nAn event is initially not triggered. Events are scheduled for processing by the simulation after they are triggered.\n\nAn event has a list of callbacks and a value. A callback can be any function. Once an event gets processed, all callbacks will be invoked. Callbacks can do further processing with the value it has produced.\n\nFailed events, i.e. events having as value an Exception, are never silently ignored and will raise this exception upon being processed.\n\nFields:\n\ncallbacks :: Vector{Function}\nstate :: UInt\nvalue :: Any\n\nConstructor:\n\nEvent()\nEvent(sim::Simulation, delay::Period; priority::Bool=false, value::Any=nothing)\nEvent(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)\n\n\n\n"
 },
 
 {
@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.Simulation",
     "category": "Type",
-    "text": "Simulation\n\nExecution environment for a simulation. The passing of time is implemented by stepping from event to event.\n\nFields:\n\ntime :: Float64\nheap :: PriorityQueue{Event, EventKey}\nsid :: UInt\n\nConstructor:\n\nSimulation(initial_time::Float64=0.0)\n\nAn initial_time for the simulation can be specified. By default, it starts at 0.0.\n\n\n\n"
+    "text": "Simulation{T<:TimeType}\n\nExecution environment for a simulation. The passing of time is implemented by stepping from event to event.\n\nFields:\n\ntime :: T\nheap :: PriorityQueue{Event, EventKey}\nsid :: UInt\n\nConstructor:\n\nSimulation(initial_time::T) Simulation(initial_time::Number=0)\n\nAn initial_time for the simulation can be specified. By default, it starts at 0.\n\n\n\n"
 },
 
 {
@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "Base.run",
     "category": "Function",
-    "text": "run(sim::Simulation, until::Event)\nrun(sim::Simulation, until::Float64)\nrun(sim::Simulation)\n\nExecutes step until the given criterion until is met:\n\nif it is not specified, the method will return when there are no further events to be processed\nif it is an Event, the method will continue stepping until this event has been triggered and will return its value\nif it is a Float64, the method will continue stepping until the environment’s time reaches until\n\nIn the last two cases, the simulation can prematurely stop when there are no further events to be processed.\n\n\n\n"
+    "text": "run(sim::Simulation, until::Event)\nrun(sim::Simulation, until::Period)\nrun(sim::Simulation)\n\nExecutes step until the given criterion until is met:\n\nif it is not specified, the method will return when there are no further events to be processed\nif it is an Event, the method will continue stepping until this event has been triggered and will return its value\nif it is a Float64, the method will continue stepping until the environment’s time reaches until\n\nIn the last two cases, the simulation can prematurely stop when there are no further events to be processed.\n\n\n\n"
 },
 
 {
