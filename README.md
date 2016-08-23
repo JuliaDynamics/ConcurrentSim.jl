@@ -11,8 +11,8 @@ SimJulia
 
 #### Coverage
 
-[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=simple)
-[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=master)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=simple)
+[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=master)
+[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=master)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=master)
 
 
 #### Installation
@@ -26,7 +26,6 @@ julia> Pkg.add("SimJulia")
 
 #### Package Evaluator
 
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.4.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.4)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.5.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.5)
 
 
@@ -39,6 +38,7 @@ julia> Pkg.add("SimJulia")
 #### Release Notes
 
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
+* Scheduling is based on TimeType and Period.
 * The discrete event features are on par with version 0.3. (STABLE)
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
 * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
