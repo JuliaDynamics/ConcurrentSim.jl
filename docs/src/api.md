@@ -8,19 +8,11 @@ Pages   = ["SimJulia.jl"]
 Private  = false
 ```
 
-### Events
+### Base
 
 ```@autodocs
 Modules = [SimJulia]
-Pages   = ["events.jl"]
-Private  = false
-```
-
-### Simulation
-
-```@autodocs
-Modules = [SimJulia]
-Pages   = ["simulations.jl"]
+Pages   = ["base.jl"]
 Private  = false
 ```
 
@@ -34,6 +26,6 @@ Private  = false
 
 ```@autodocs
 Modules = [SimJulia]
-Pages   = ["SimJulia.jl", "events.jl", "simulations.jl"]
+Pages   = ["SimJulia.jl", "base.jl"]
 Public  = false
 ```

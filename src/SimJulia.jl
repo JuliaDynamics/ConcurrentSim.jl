@@ -13,6 +13,5 @@ module SimJulia
   export Event, run, append_callback, value, state, EVENT_IDLE, EVENT_TRIGGERED, EVENT_PROCESSING, (&)
   export Simulation, StopSimulation, now
 
-  include("events.jl")
-  include("simulations.jl")
+  include("base.jl")
 end
