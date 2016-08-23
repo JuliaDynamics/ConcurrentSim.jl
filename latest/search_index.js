@@ -121,30 +121,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api.html#SimJulia.state-Tuple{SimJulia.Event}",
-    "page": "Library",
-    "title": "SimJulia.state",
-    "category": "Method",
-    "text": "state(ev::Event) :: EventState\n\nReturns the state of the event.\n\n\n\n"
-},
-
-{
-    "location": "api.html#SimJulia.value-Tuple{SimJulia.Event}",
-    "page": "Library",
-    "title": "SimJulia.value",
-    "category": "Method",
-    "text": "value(ev::Event) :: Any\n\nReturns the value of the event.\n\n\n\n"
-},
-
-{
-    "location": "api.html#Events-1",
-    "page": "Library",
-    "title": "Events",
-    "category": "section",
-    "text": "Modules = [SimJulia]\nPages   = [\"events.jl\"]\nPrivate  = false"
-},
-
-{
     "location": "api.html#SimJulia.Simulation",
     "page": "Library",
     "title": "SimJulia.Simulation",
@@ -185,11 +161,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api.html#Simulation-1",
+    "location": "api.html#SimJulia.state-Tuple{SimJulia.Event}",
     "page": "Library",
-    "title": "Simulation",
+    "title": "SimJulia.state",
+    "category": "Method",
+    "text": "state(ev::Event) :: EventState\n\nReturns the state of the event.\n\n\n\n"
+},
+
+{
+    "location": "api.html#SimJulia.value-Tuple{SimJulia.Event}",
+    "page": "Library",
+    "title": "SimJulia.value",
+    "category": "Method",
+    "text": "value(ev::Event) :: Any\n\nReturns the value of the event.\n\n\n\n"
+},
+
+{
+    "location": "api.html#Base-1",
+    "page": "Library",
+    "title": "Base",
     "category": "section",
-    "text": "Modules = [SimJulia]\nPages   = [\"simulations.jl\"]\nPrivate  = false"
+    "text": "Modules = [SimJulia]\nPages   = [\"base.jl\"]\nPrivate  = false"
 },
 
 {
@@ -277,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "Internals",
     "category": "section",
-    "text": "Modules = [SimJulia]\nPages   = [\"SimJulia.jl\", \"events.jl\", \"simulations.jl\"]\nPublic  = false"
+    "text": "Modules = [SimJulia]\nPages   = [\"SimJulia.jl\", \"base.jl\"]\nPublic  = false"
 },
 
 ]}
