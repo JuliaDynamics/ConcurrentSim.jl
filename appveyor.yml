@@ -7,7 +7,9 @@ environment:
 
 install:
 # Download most recent Julia Windows binary
-  - ps: (new-object net.webclient).DownloadFile($("http://status.julialang.org/"+$env:JULIAVERSION), "C:\projects\julia-binary.exe")
+  - ps: (new-object net.webclient).DownloadFile(
+        $("http://s3.amazonaws.com/"+$env:JULIAVERSION),
+        "C:\projects\julia-binary.exe")
 # Run installer silently, output to C:\projects\julia
   - C:\projects\julia-binary.exe /S /D=C:\projects\julia
 
