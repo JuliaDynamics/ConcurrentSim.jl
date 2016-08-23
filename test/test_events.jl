@@ -34,3 +34,14 @@ and_event = ev & another_ev
 append_callback(and_event, and_cb)
 append_callback(and_event, test_another_cb)
 run(sim)
+
+sim = Simulation(today())
+ev = Event()
+append_callback(ev, test_cb)
+schedule(sim, ev, 1)
+another_ev = Event(sim, Month(2))
+append_callback(another_ev, test_cb)
+and_event = ev & another_ev
+append_callback(and_event, and_cb)
+append_callback(and_event, test_another_cb)
+run(sim, 5)

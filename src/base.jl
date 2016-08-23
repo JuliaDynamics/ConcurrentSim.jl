@@ -45,7 +45,8 @@ Failed events, i.e. events having as value an `Exception`, are never silently ig
 **Constructor:**
 
 - `Event()`
-- `Event(sim::Simulation, delay::Float64; priority::Bool=false, value::Any=nothing)`
+- `Event(sim::Simulation, delay::Period; priority::Bool=false, value::Any=nothing)`
+- `Event(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)`
 """
 type Event
   callbacks :: Vector{Function}
@@ -190,21 +191,22 @@ function show(io::IO, t::SimulationTime)
 end
 
 """
-  `Simulation`
+  `Simulation{T<:TimeType}`
 
 Execution environment for a simulation. The passing of time is implemented by stepping from event to event.
 
 **Fields**:
 
-- `time :: Float64`
+- `time :: T`
 - `heap :: PriorityQueue{Event, EventKey}`
 - `sid :: UInt`
 
 **Constructor**:
 
-`Simulation(initial_time::Float64=0.0)`
+`Simulation(initial_time::T)`
+`Simulation(initial_time::Number=0)`
 
-An initial_time for the simulation can be specified. By default, it starts at 0.0.
+An initial_time for the simulation can be specified. By default, it starts at 0.
 """
 type Simulation{T<:TimeType}
   time :: T
@@ -223,13 +225,13 @@ function Simulation{T<:TimeType}(initial_time::T)
   Simulation{T}(initial_time)
 end
 
-function Simulation(initial_time::Number=0.0)
+function Simulation(initial_time::Number=0)
   Simulation{SimulationTime}(SimulationTime(initial_time))
 end
 
 """
   - `run(sim::Simulation, until::Event)`
-  - `run(sim::Simulation, until::Float64)`
+  - `run(sim::Simulation, until::Period)`
   - `run(sim::Simulation)`
 
 Executes [`step`](@ref) until the given criterion `until` is met:
@@ -241,7 +243,7 @@ Executes [`step`](@ref) until the given criterion `until` is met:
 In the last two cases, the simulation can prematurely stop when there are no further events to be processed.
 """
 function run(sim::Simulation, until::Event=Event()) :: Any
-  append_callback(until, stop_environment)
+  append_callback(until, stop_simulation, until)
   try
     while step(sim) end
     return nothing
@@ -258,12 +260,13 @@ function run(sim::Simulation, until::Period) :: Any
   run(sim, Event(sim, until))
 end
 
-function run(sim::Simulation, until::Float64) :: Any
-  run(sim, Event(sim, SimulationPeriod(until)))
+function run(sim::Simulation, until::Number) :: Any
+  until_period = typeof(sim.time.instant.periods)(until)
+  run(sim, Event(sim, until_period))
 end
 
-function stop_environment(ev::Event)
-  throw(StopEnvironment(ev.value))
+function stop_simulation(sim::Simulation, ev::Event)
+  throw(StopSimulation(ev.value))
 end
 
 """
