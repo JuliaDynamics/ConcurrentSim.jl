@@ -1,14 +1,18 @@
 isdefined(Base, :__precompile__) && __precompile__()
 
+"""
+  `SimJulia`
+
+Main module for SimJulia.jl – a combined continuous time / discrete event process oriented simulation framework for Julia.
+"""
 module SimJulia
-  using Base.Order
-  using Base.Collections
+  using Base.Collections, Base.Dates
 
-  import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.step
+  import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.&, Base.+, Base.==
 
-  export Environment, Event, run, append_callback
-  export Simulation, StopSimulation, now, schedule
+  export Event, run, append_callback, value, state, EVENT_IDLE, EVENT_TRIGGERED, EVENT_PROCESSING, (&)
+  export Simulation, StopSimulation, now
 
-  include("base.jl")
-  include("simulation.jl")
+  include("events.jl")
+  include("simulations.jl")
 end
