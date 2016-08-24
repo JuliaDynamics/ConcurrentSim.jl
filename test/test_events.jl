@@ -24,6 +24,7 @@ end
 function or_cb(sim::Simulation, ev::Event)
   println("$(now()): One of both events is triggered at $(now(sim))!")
   println(value(ev))
+  println(state(ev))
 end
 
 sim = Simulation(now())
