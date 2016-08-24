@@ -14,7 +14,7 @@ module SimJulia
   export run, append_callback, schedule, schedule!
   export now, value, state
   export (&), (|)
-  export EVENT_IDLE, EVENT_TRIGGERED, EVENT_PROCESSING
+  export idle, processing, triggered
 
   include("base.jl")
 end

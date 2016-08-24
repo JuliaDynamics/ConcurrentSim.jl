@@ -243,6 +243,10 @@ function run(sim::Simulation, until::Period) :: Any
   run(sim, Event(sim, until))
 end
 
+function run(sim::Simulation, until::TimeType) :: Any
+  run(sim, Event(sim, now(sim)-until))
+end
+
 function run(sim::Simulation, until::Number) :: Any
   until_period = typeof(sim.time.instant.periods)(until)
   run(sim, Event(sim, until_period))
@@ -377,7 +381,7 @@ function (&)(ev1::Event, ev2::Event)
 end
 
 function (|)(ev1::Event, ev2::Event)
-  return Event(eval_and, ev1, ev2)
+  return Event(eval_or, ev1, ev2)
 end
 
 """
