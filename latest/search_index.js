@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "Base.run",
     "category": "Function",
-    "text": "run(sim::Simulation, until::Event)\nrun(sim::Simulation, until::Period)\nrun(sim::Simulation, until::Number)\nrun(sim::Simulation)\n\nExecutes step until the given criterion until is met:\n\nif it is not specified, the method will return when there are no further events to be processed\nif it is an Event, the method will continue stepping until this event has been triggered and will return its value\nif it is a Period, the method will continue stepping until the simulation’s time reaches until\nif it is a Number, the method will continue stepping until the simulation’s time reaches until elementary time periods\n\nIn the last two cases, the simulation can prematurely stop when there are no further events to be processed.\n\n\n\n"
+    "text": "run(sim::Simulation, until::Event)\nrun(sim::Simulation, until::TimeType)\nrun(sim::Simulation, until::Period)\nrun(sim::Simulation, until::Number)\nrun(sim::Simulation)\n\nExecutes step until the given criterion until is met:\n\nif it is not specified, the method will return when there are no further events to be processed\nif it is an Event, the method will continue stepping until this event has been triggered and will return its value\nif it is a TimeType, the method will continue stepping until the simulation’s time reaches until\nif it is a Period, the method will continue stepping until the simulation’s time has passed until periods\nif it is a Number, the method will continue stepping until the simulation’s time has passed until elementary periods\n\nIn the last two cases, the simulation can prematurely stop when there are no further events to be processed.\n\n\n\n"
 },
 
 {
@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.append_callback",
     "category": "Method",
-    "text": "append_callback(ev::Event, cb::Function, args...)\n\nAdds a callback function to the event. Optional arguments to the callback function can be specified by args.... If the event is being processed an EventProcessing exception is thrown.\n\nCallback functions are called in order of adding to the event.\n\n\n\n"
+    "text": "append_callback(ev::Event, cb::Function, args...; include_event::Bool=false, sticky::Bool=false) :: Function\n\nAdds a callback function, i.e. a function having as first argument an object of type Simulation, to the event. The second argument is the event if include_event=true. Optional arguments can be specified by args.... The sticky keyword argument allows to keep a callback function when reusing an event. The default behavior is to remove the callback functions at the end of the processing.\n\nIf the event is being processed an EventProcessing exception is thrown.\n\nCallback functions are called in order of adding to the event.\n\n\n\n"
 },
 
 {
@@ -190,6 +190,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Resources",
     "category": "section",
     "text": ""
+},
+
+{
+    "location": "api.html#SimJulia.EVENT_STATE",
+    "page": "Library",
+    "title": "SimJulia.EVENT_STATE",
+    "category": "Type",
+    "text": "EVENT_STATE\n\nEnum with values:\n\nidle=0\ntriggered=1\nprocessing=2\n\n\n\n"
 },
 
 {
