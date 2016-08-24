@@ -28,35 +28,35 @@ end
 
 sim = Simulation(now())
 ev = Event()
-append_callback(ev, test_cb, ev)
+append_callback(ev, test_cb, include_event=true)
 schedule(sim, ev, Day(1))
 another_ev = Event(sim, 3600000*24*2)
 schedule!(sim, ev, Hour(23), value=TestException())
-append_callback(another_ev, test_cb, another_ev)
+append_callback(another_ev, test_cb, include_event=true)
 and_event = ev & another_ev
-append_callback(and_event, and_cb, and_event)
+append_callback(and_event, and_cb, include_event=true)
 append_callback(and_event, test_another_cb)
 run(sim, Month(1))
 
 sim = Simulation()
 ev = Event()
-append_callback(ev, test_cb, ev)
+append_callback(ev, test_cb, include_event=true)
 schedule(sim, ev, 1)
 another_ev = Event(sim, 3, value="π-day0314")
-append_callback(another_ev, test_cb, another_ev)
+append_callback(another_ev, test_cb, include_event=true)
 or_event = ev | another_ev
-append_callback(or_event, or_cb, or_event)
+append_callback(or_event, or_cb, include_event=true)
 append_callback(or_event, test_another_cb)
 run(sim)
 
 sim = Simulation(today())
 ev = Event()
-append_callback(ev, test_cb, ev)
+append_callback(ev, test_cb, include_event=true)
 schedule!(sim, ev, 1)
 another_ev = Event(sim, Month(2))
-append_callback(another_ev, test_cb, another_ev)
+append_callback(another_ev, test_cb, include_event=true)
 and_event = ev & another_ev
-append_callback(and_event, and_cb, and_event)
+append_callback(and_event, and_cb, include_event=true)
 append_callback(and_event, test_another_cb)
 run(sim, today() + Month(1))
 
@@ -69,4 +69,4 @@ for i = 1:10
   ev = Event(sim, rand())
   append_callback(ev, print_cb, i)
 end
-run(sim, ev)
+run(sim, 3)

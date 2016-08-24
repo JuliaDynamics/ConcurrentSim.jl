@@ -1,4 +1,18 @@
+"""
+  `EVENT_STATE`
+
+Enum with values:
+
+- `idle=0`
+- `triggered=1`
+- `processing=2`
+"""
 @enum EVENT_STATE idle=0 triggered=1 processing=2
+
+type Callback
+  func :: Function
+  sticky :: Bool
+end
 
 """
   `Event`
@@ -30,14 +44,16 @@ Failed events, i.e. events having as value an `Exception`, are never silently ig
 - `Event(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)`
 """
 type Event
-  callbacks :: Vector{Function}
+  callbacks :: Vector{Callback}
   state :: EVENT_STATE
   value :: Any
+  cid :: UInt
   function Event()
     ev = new()
-    ev.callbacks = Function[]
+    ev.callbacks = Callback[]
     ev.state = idle
     ev.value = nothing
+    ev.cid = 0x0
     return ev
   end
 end
@@ -142,7 +158,7 @@ end
 
 immutable SimulationPeriod <: Period
   value :: Float64
-  function SimulationPeriod(value::Number=0.0)
+  function SimulationPeriod(value::Number=0)
     new(value)
   end
 end
@@ -155,7 +171,7 @@ immutable SimulationTime <: TimeType
   instant :: SimulationInstant
 end
 
-function SimulationTime(value::Number=0.0)
+function SimulationTime(value::Number=0)
   SimulationTime(SimulationInstant(SimulationPeriod(value)))
 end
 
@@ -193,11 +209,13 @@ type Simulation{T<:TimeType}
   time :: T
   heap :: PriorityQueue{Event, EventKey}
   sid :: UInt
+  granularity :: Type
   function Simulation(initial_time::T)
     sim = new()
     sim.time = initial_time
     sim.heap = PriorityQueue(Event, EventKey)
     sim.sid = 0x0
+    sim.granularity = typeof(initial_time.instant.periods)
     return sim
   end
 end
@@ -207,11 +225,12 @@ function Simulation{T<:TimeType}(initial_time::T)
 end
 
 function Simulation(initial_time::Number=0)
-  Simulation{SimulationTime}(SimulationTime(initial_time))
+  Simulation(SimulationTime(initial_time))
 end
 
 """
   - `run(sim::Simulation, until::Event)`
+  - `run(sim::Simulation, until::TimeType)`
   - `run(sim::Simulation, until::Period)`
   - `run(sim::Simulation, until::Number)`
   - `run(sim::Simulation)`
@@ -220,13 +239,14 @@ Executes [`step`](@ref) until the given criterion `until` is met:
 
 - if it is not specified, the method will return when there are no further events to be processed
 - if it is an `Event`, the method will continue stepping until this event has been triggered and will return its value
-- if it is a `Period`, the method will continue stepping until the simulation’s time reaches until
-- if it is a `Number`, the method will continue stepping until the simulation’s time reaches until elementary time periods
+- if it is a `TimeType`, the method will continue stepping until the simulation’s time reaches until
+- if it is a `Period`, the method will continue stepping until the simulation’s time has passed until periods
+- if it is a `Number`, the method will continue stepping until the simulation’s time has passed until elementary periods
 
 In the last two cases, the simulation can prematurely stop when there are no further events to be processed.
 """
 function run(sim::Simulation, until::Event=Event()) :: Any
-  append_callback(until, stop_simulation, until)
+  append_callback(until, stop_simulation, include_event=true)
   try
     while step(sim) end
     return nothing
@@ -248,8 +268,7 @@ function run(sim::Simulation, until::TimeType) :: Any
 end
 
 function run(sim::Simulation, until::Number) :: Any
-  until_period = typeof(sim.time.instant.periods)(until)
-  run(sim, Event(sim, until_period))
+  run(sim, Event(sim, sim.granularity(until)))
 end
 
 function stop_simulation(sim::Simulation, ev::Event)
@@ -291,8 +310,7 @@ function schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=fal
 end
 
 function schedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event
-  delay_period = typeof(sim.time.instant.periods)(delay)
-  schedule!(sim, ev, delay_period, priority=priority, value=value)
+  schedule!(sim, ev, sim.granularity(delay), priority=priority, value=value)
 end
 
 """
@@ -314,8 +332,7 @@ function schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=fals
 end
 
 function schedule(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event
-  delay_period = typeof(sim.time.instant.periods)(delay)
-  schedule(sim, ev, delay_period, priority=priority, value=value)
+  schedule(sim, ev, sim.granularity(delay), priority=priority, value=value)
 end
 
 function Event(sim::Simulation, delay::Period; priority::Bool=false, value::Any=nothing)
@@ -343,13 +360,13 @@ function Event(eval::Function, fev::Event, events...)
       throw(EventProcessing())
     else
       event_state_values[ev] = StateValue(ev.state)
-      append_callback(ev, (sim::Simulation)->check(sim, oper, ev, eval, event_state_values))
+      append_callback(ev, check, oper, eval, event_state_values, include_event=true)
     end
   end
   return oper
 end
 
-function check(sim::Simulation, oper::Event, ev::Event, eval::Function, event_state_values::Dict{Event, StateValue})
+function check(sim::Simulation, ev::Event, oper::Event, eval::Function, event_state_values::Dict{Event, StateValue})
   if oper.state == idle
     if isa(ev.value, Exception)
       schedule(sim, oper, value=ev.value)
@@ -399,24 +416,37 @@ function step(sim::Simulation) :: Bool
   dequeue!(sim.heap)
   ev.state = processing
   sim.time = key.time
-  while !isempty(ev.callbacks)
-    cb = shift!(ev.callbacks)
-    cb(sim)
+  to_del = Int[]
+  for (i, cb) in enumerate(ev.callbacks)
+    if !cb.sticky
+      push!(to_del, i)
+    end
+    cb.func(sim)
   end
+  deleteat!(ev.callbacks, to_del)
   ev.state = idle
   return true
 end
 
 """
-  `append_callback(ev::Event, cb::Function, args...)`
+  `append_callback(ev::Event, cb::Function, args...; include_event::Bool=false, sticky::Bool=false)` :: Function
 
-Adds a callback function to the event. Optional arguments to the callback function can be specified by `args...`. If the event is being processed an [`EventProcessing`](@ref) exception is thrown.
+Adds a callback function, i.e. a function having as first argument an object of type `Simulation`, to the event. The second argument is the event if `include_event=true`. Optional arguments can be specified by `args...`.
+The `sticky` keyword argument allows to keep a callback function when reusing an event. The default behavior is to remove the callback functions at the end of the processing.
+
+If the event is being processed an [`EventProcessing`](@ref) exception is thrown.
 
 Callback functions are called in order of adding to the event.
 """
-function append_callback(ev::Event, cb::Function, args...)
+function append_callback(ev::Event, cb::Function, args...; include_event::Bool=false, sticky::Bool=false) :: Function
   if ev.state == processing
     throw(EventProcessing())
   end
-  push!(ev.callbacks, (sim::Simulation)->cb(sim, args...))
+  if include_event
+    func = (sim::Simulation)->cb(sim, ev, args...)
+  else
+    func = (sim::Simulation)->cb(sim, args...)
+  end
+  push!(ev.callbacks, Callback(func, sticky))
+  return func
 end
