@@ -89,35 +89,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api.html#SimJulia.EVENT_IDLE",
-    "page": "Library",
-    "title": "SimJulia.EVENT_IDLE",
-    "category": "Constant",
-    "text": "const EVENT_IDLE\n\nState representing an event that may happen but is not yet scheduled.\n\n\n\n"
-},
-
-{
-    "location": "api.html#SimJulia.EVENT_PROCESSING",
-    "page": "Library",
-    "title": "SimJulia.EVENT_PROCESSING",
-    "category": "Constant",
-    "text": "const EVENT_PROCESSING\n\nState representing an event that is happening.\n\n\n\n"
-},
-
-{
-    "location": "api.html#SimJulia.EVENT_TRIGGERED",
-    "page": "Library",
-    "title": "SimJulia.EVENT_TRIGGERED",
-    "category": "Constant",
-    "text": "const EVENT_TRIGGERED\n\nState representing an event that is going to happen, i.e. is scheduled but processing has not yet been started.\n\n\n\n"
-},
-
-{
     "location": "api.html#SimJulia.Event",
     "page": "Library",
     "title": "SimJulia.Event",
     "category": "Type",
-    "text": "Event\n\nAn event is a state machine with three states:\n\nEVENT_IDLE\nEVENT_TRIGGERED\nEVENT_PROCESSING\n\nOnce the processing has ended, the event returns to an EVENT_IDLE state and can be scheduled again.\n\nAn event is initially not triggered. Events are scheduled for processing by the simulation after they are triggered.\n\nAn event has a list of callbacks and a value. A callback can be any function. Once an event gets processed, all callbacks will be invoked. Callbacks can do further processing with the value it has produced.\n\nFailed events, i.e. events having as value an Exception, are never silently ignored and will raise this exception upon being processed.\n\nFields:\n\ncallbacks :: Vector{Function}\nstate :: UInt\nvalue :: Any\n\nConstructor:\n\nEvent()\nEvent(sim::Simulation, delay::Period; priority::Bool=false, value::Any=nothing)\nEvent(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)\n\n\n\n"
+    "text": "Event\n\nAn event is a state machine with three states:\n\nidle\ntriggered\nprocessing\n\nOnce the processing has ended, the event returns to an idle state and can be scheduled again.\n\nAn event is initially not triggered. Events are scheduled for processing by the simulation after they are triggered.\n\nAn event has a list of callbacks and a value. A callback can be any function. Once an event gets processed, all callbacks will be invoked. Callbacks can do further processing with the value it has produced.\n\nFailed events, i.e. events having as value an Exception, are never silently ignored and will raise this exception upon being processed.\n\nFields:\n\ncallbacks :: Vector{Function}\nstate :: EVENT_STATE\nvalue :: Any\n\nConstructor:\n\nEvent()\nEvent(sim::Simulation, delay::Period; priority::Bool=false, value::Any=nothing)\nEvent(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)\n\n\n\n"
 },
 
 {
@@ -125,15 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.Simulation",
     "category": "Type",
-    "text": "Simulation{T<:TimeType}\n\nExecution environment for a simulation. The passing of time is implemented by stepping from event to event.\n\nFields:\n\ntime :: T\nheap :: PriorityQueue{Event, EventKey}\nsid :: UInt\n\nConstructor:\n\nSimulation(initial_time::T) Simulation(initial_time::Number=0)\n\nAn initial_time for the simulation can be specified. By default, it starts at 0.\n\n\n\n"
-},
-
-{
-    "location": "api.html#SimJulia.StopSimulation",
-    "page": "Library",
-    "title": "SimJulia.StopSimulation",
-    "category": "Type",
-    "text": "StopSimulation <: Exception\n\nException that stops the simulation. A return value can be set.\n\nFields:\n\nvalue :: Any\n\nConstructor:\n\nStopSimulation(value::Any=nothing)\n\n\n\n"
+    "text": "Simulation{T<:TimeType}\n\nExecution environment for a simulation. The passing of time is implemented by stepping from event to event.\n\nFields:\n\ntime :: T\nheap :: PriorityQueue{Event, EventKey}\nsid :: UInt\n\nConstructor:\n\nSimulation{T<:TimeType}(initial_time::T) Simulation(initial_time::Number=0)\n\nAn initial_time for the simulation can be specified. By default, it starts at 0.\n\n\n\n"
 },
 
 {
@@ -141,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "Base.Dates.now",
     "category": "Method",
-    "text": "now(sim::Simulation) :: Float64\n\nReturns the current simulation time.\n\n\n\n"
+    "text": "now(sim::Simulation) :: TimeType\n\nReturns the current simulation time.\n\n\n\n"
 },
 
 {
@@ -149,7 +117,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "Base.run",
     "category": "Function",
-    "text": "run(sim::Simulation, until::Event)\nrun(sim::Simulation, until::Period)\nrun(sim::Simulation)\n\nExecutes step until the given criterion until is met:\n\nif it is not specified, the method will return when there are no further events to be processed\nif it is an Event, the method will continue stepping until this event has been triggered and will return its value\nif it is a Float64, the method will continue stepping until the environment’s time reaches until\n\nIn the last two cases, the simulation can prematurely stop when there are no further events to be processed.\n\n\n\n"
+    "text": "run(sim::Simulation, until::Event)\nrun(sim::Simulation, until::Period)\nrun(sim::Simulation, until::Number)\nrun(sim::Simulation)\n\nExecutes step until the given criterion until is met:\n\nif it is not specified, the method will return when there are no further events to be processed\nif it is an Event, the method will continue stepping until this event has been triggered and will return its value\nif it is a Period, the method will continue stepping until the simulation’s time reaches until\nif it is a Number, the method will continue stepping until the simulation’s time reaches until elementary time periods\n\nIn the last two cases, the simulation can prematurely stop when there are no further events to be processed.\n\n\n\n"
+},
+
+{
+    "location": "api.html#Base.schedule-Tuple{SimJulia.Simulation,SimJulia.Event,Base.Dates.Period}",
+    "page": "Library",
+    "title": "Base.schedule",
+    "category": "Method",
+    "text": "schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event\nschedule(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event\n\nSchedules an event at time sim.time + delay with a priority and a value.\n\nIf the event is already scheduled or is being processed, an EventNotIdle exception is thrown.\n\n\n\n"
 },
 
 {
@@ -158,6 +134,14 @@ var documenterSearchIndex = {"docs": [
     "title": "SimJulia.append_callback",
     "category": "Method",
     "text": "append_callback(ev::Event, cb::Function, args...)\n\nAdds a callback function to the event. Optional arguments to the callback function can be specified by args.... If the event is being processed an EventProcessing exception is thrown.\n\nCallback functions are called in order of adding to the event.\n\n\n\n"
+},
+
+{
+    "location": "api.html#SimJulia.schedule!-Tuple{SimJulia.Simulation,SimJulia.Event,Base.Dates.Period}",
+    "page": "Library",
+    "title": "SimJulia.schedule!",
+    "category": "Method",
+    "text": "schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event\nschedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event\n\nSchedules an event at time sim.time + delay with a priority and a value.\n\nIf the event is already scheduled, the key is updated with the new delay and priority. The new value is also set.\n\nIf the event is being processed, an EventProcessing exception is thrown.\n\n\n\n"
 },
 
 {
@@ -233,27 +217,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api.html#SimJulia.StopSimulation",
+    "page": "Library",
+    "title": "SimJulia.StopSimulation",
+    "category": "Type",
+    "text": "StopSimulation <: Exception\n\nException that stops the simulation. A return value can be set.\n\nFields:\n\nvalue :: Any\n\nConstructor:\n\nStopSimulation(value::Any=nothing)\n\n\n\n"
+},
+
+{
     "location": "api.html#Base.isless-Tuple{SimJulia.EventKey,SimJulia.EventKey}",
     "page": "Library",
     "title": "Base.isless",
     "category": "Method",
     "text": "isless(a::EventKey, b::EventKey) :: Bool\n\nCompairs two EventKey. The criteria in order of importance are:\n\ntime of processing\npriority when time of processing is equal\nscheduling id, i.e. the event that was first scheduled is first processed when time of processing and priority are identical\n\nOnly used internally.\n\n\n\n"
-},
-
-{
-    "location": "api.html#Base.schedule-Tuple{SimJulia.Simulation,SimJulia.Event,Base.Dates.Period}",
-    "page": "Library",
-    "title": "Base.schedule",
-    "category": "Method",
-    "text": "schedule(sim::Simulation, ev::Event, delay::Float64=0.0; priority::Bool=false, value::Any=nothing) :: Event\n\nSchedules an event at time sim.time + delay with a priority and a value.\n\nIf the event is already scheduled or is beign processed, an EventNotIdle exception is thrown.\n\n\n\n"
-},
-
-{
-    "location": "api.html#SimJulia.schedule!-Tuple{SimJulia.Simulation,SimJulia.Event,Base.Dates.Period}",
-    "page": "Library",
-    "title": "SimJulia.schedule!",
-    "category": "Method",
-    "text": "schedule!(sim::Simulation, ev::Event, delay::Float64=0.0; priority::Bool=false, value::Any=nothing) :: Event\n\nSchedules an event at time sim.time + delay with a priority and a value.\n\nIf the event is already scheduled, the key is updated with the new delay and priority. The new value is also set.\n\nIf the event is being processed, an EventProcessing exception is thrown.\n\n\n\n"
 },
 
 {
