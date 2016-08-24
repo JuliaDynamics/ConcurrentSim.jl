@@ -1,34 +1,15 @@
-"""
-  `const EVENT_IDLE`
-
-State representing an event that may happen but is not yet scheduled.
-"""
-const EVENT_IDLE = 0x0
-
-"""
-  `const EVENT_TRIGGERED`
-
-State representing an event that is going to happen, i.e. is scheduled but processing has not yet been started.
-"""
-const EVENT_TRIGGERED = 0x1
-
-"""
-  `const EVENT_PROCESSING`
-
-State representing an event that is happening.
-"""
-const EVENT_PROCESSING = 0x2
+@enum EVENT_STATE idle=0 triggered=1 processing=2
 
 """
   `Event`
 
 An event is a state machine with three states:
 
-- [`EVENT_IDLE`](@ref)
-- [`EVENT_TRIGGERED`](@ref)
-- [`EVENT_PROCESSING`](@ref)
+- `idle`
+- `triggered`
+- `processing`
 
-Once the processing has ended, the event returns to an [`EVENT_IDLE`](@ref) state and can be scheduled again.
+Once the processing has ended, the event returns to an `idle` state and can be scheduled again.
 
 An event is initially not triggered. Events are scheduled for processing by the simulation after they are triggered.
 
@@ -39,7 +20,7 @@ Failed events, i.e. events having as value an `Exception`, are never silently ig
 **Fields:**
 
 - `callbacks :: Vector{Function}`
-- `state :: UInt`
+- `state :: EVENT_STATE`
 - `value :: Any`
 
 **Constructor:**
@@ -50,12 +31,12 @@ Failed events, i.e. events having as value an `Exception`, are never silently ig
 """
 type Event
   callbacks :: Vector{Function}
-  state :: UInt
+  state :: EVENT_STATE
   value :: Any
   function Event()
     ev = new()
     ev.callbacks = Function[]
-    ev.state = EVENT_IDLE
+    ev.state = idle
     ev.value = nothing
     return ev
   end
@@ -75,7 +56,7 @@ end
 
 Returns the state of the event.
 """
-function state(ev::Event) :: UInt
+function state(ev::Event) :: EVENT_STATE
   return ev.state
 end
 
@@ -203,7 +184,7 @@ Execution environment for a simulation. The passing of time is implemented by st
 
 **Constructor**:
 
-`Simulation(initial_time::T)`
+`Simulation{T<:TimeType}(initial_time::T)`
 `Simulation(initial_time::Number=0)`
 
 An initial_time for the simulation can be specified. By default, it starts at 0.
@@ -232,13 +213,15 @@ end
 """
   - `run(sim::Simulation, until::Event)`
   - `run(sim::Simulation, until::Period)`
+  - `run(sim::Simulation, until::Number)`
   - `run(sim::Simulation)`
 
 Executes [`step`](@ref) until the given criterion `until` is met:
 
 - if it is not specified, the method will return when there are no further events to be processed
 - if it is an `Event`, the method will continue stepping until this event has been triggered and will return its value
-- if it is a `Float64`, the method will continue stepping until the environment’s time reaches until
+- if it is a `Period`, the method will continue stepping until the simulation’s time reaches until
+- if it is a `Number`, the method will continue stepping until the simulation’s time reaches until elementary time periods
 
 In the last two cases, the simulation can prematurely stop when there are no further events to be processed.
 """
@@ -270,7 +253,7 @@ function stop_simulation(sim::Simulation, ev::Event)
 end
 
 """
-  `now(sim::Simulation) :: Float64`
+  `now(sim::Simulation) :: TimeType`
 
 Returns the current simulation time.
 """
@@ -279,7 +262,8 @@ function now(sim::Simulation) :: TimeType
 end
 
 """
-  `schedule!(sim::Simulation, ev::Event, delay::Float64=0.0; priority::Bool=false, value::Any=nothing) :: Event`
+  - `schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event`
+  - `schedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event`
 
 Schedules an event at time `sim.time + delay` with a `priority` and a `value`.
 
@@ -288,14 +272,14 @@ If the event is already scheduled, the key is updated with the new `delay` and `
 If the event is being processed, an [`EventProcessing`](@ref) exception is thrown.
 """
 function schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
-  if ev.state == EVENT_PROCESSING
+  if ev.state == processing
     throw(EventProcessing)
   end
   ev.value = value
-  if ev.state == EVENT_TRIGGERED
+  if ev.state == triggered
     id = sim.heap[ev].id
   else
-    ev.state = EVENT_TRIGGERED
+    ev.state = triggered
     id = sim.sid+=1
   end
   sim.heap[ev] = EventKey(sim.time + delay, priority, id)
@@ -308,18 +292,19 @@ function schedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=f
 end
 
 """
-  `schedule(sim::Simulation, ev::Event, delay::Float64=0.0; priority::Bool=false, value::Any=nothing) :: Event`
+  - `schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event`
+  - `schedule(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event`
 
 Schedules an event at time `sim.time + delay` with a `priority` and a `value`.
 
-If the event is already scheduled or is beign processed, an [`EventNotIdle`](@ref) exception is thrown.
+If the event is already scheduled or is being processed, an [`EventNotIdle`](@ref) exception is thrown.
 """
 function schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
-  if ev.state == EVENT_TRIGGERED || ev.state == EVENT_PROCESSING
+  if ev.state == triggered || ev.state == processing
     throw(EventNotIdle)
   end
   ev.value = value
-  ev.state = EVENT_TRIGGERED
+  ev.state = triggered
   sim.heap[ev] = EventKey(sim.time + delay, priority, sim.sid+=1)
   return ev
 end
@@ -338,11 +323,11 @@ function Event(sim::Simulation, delay::Number; priority::Bool=false, value::Any=
 end
 
 type StateValue
-  state :: UInt
+  state :: EVENT_STATE
   value :: Any
 end
 
-function StateValue(state::UInt)
+function StateValue(state::EVENT_STATE)
   StateValue(state, nothing)
 end
 
@@ -350,7 +335,7 @@ function Event(eval::Function, fev::Event, events...)
   oper = Event()
   event_state_values = Dict{Event, StateValue}()
   for ev in tuple(fev, events...)
-    if ev.state == EVENT_PROCESSING
+    if ev.state == processing
       throw(EventProcessing())
     else
       event_state_values[ev] = StateValue(ev.state)
@@ -361,23 +346,37 @@ function Event(eval::Function, fev::Event, events...)
 end
 
 function check(sim::Simulation, oper::Event, ev::Event, eval::Function, event_state_values::Dict{Event, StateValue})
-  if oper.state == EVENT_IDLE
+  if oper.state == idle
     if isa(ev.value, Exception)
-      schedule(oper, ev.value)
+      schedule(sim, oper, value=ev.value)
     else
       event_state_values[ev] = StateValue(ev.state, ev.value)
       if eval(collect(values(event_state_values)))
         schedule(sim, oper, value=event_state_values)
       end
     end
+  elseif oper.state == triggered
+    if isa(ev.value, Exception)
+      schedule!(sim, oper, value=ev.value)
+    else
+      event_state_values[ev] = StateValue(ev.state, ev.value)
+    end
   end
 end
 
 function eval_and(state_values::Vector{StateValue})
-  return all(map((sv)->sv.state == EVENT_PROCESSING, state_values))
+  return all(map((sv)->sv.state == processing, state_values))
+end
+
+function eval_or(state_values::Vector{StateValue})
+  return any(map((sv)->sv.state == processing, state_values))
 end
 
 function (&)(ev1::Event, ev2::Event)
+  return Event(eval_and, ev1, ev2)
+end
+
+function (|)(ev1::Event, ev2::Event)
   return Event(eval_and, ev1, ev2)
 end
 
@@ -394,13 +393,13 @@ function step(sim::Simulation) :: Bool
   end
   (ev, key) = peek(sim.heap)
   dequeue!(sim.heap)
-  ev.state = EVENT_PROCESSING
+  ev.state = processing
   sim.time = key.time
   while !isempty(ev.callbacks)
     cb = shift!(ev.callbacks)
     cb(sim)
   end
-  ev.state = EVENT_IDLE
+  ev.state = idle
   return true
 end
 
@@ -412,7 +411,7 @@ Adds a callback function to the event. Optional arguments to the callback functi
 Callback functions are called in order of adding to the event.
 """
 function append_callback(ev::Event, cb::Function, args...)
-  if ev.state == EVENT_PROCESSING
+  if ev.state == processing
     throw(EventProcessing())
   end
   push!(ev.callbacks, (sim::Simulation)->cb(sim, args...))
