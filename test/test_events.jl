@@ -64,9 +64,29 @@ function print_cb(sim::Simulation, i::Int)
   println("At time $(now(sim)) event $i is processed")
 end
 
+function append_cb(sim::Simulation, ev::Event)
+  try
+    append_callback(ev, append_cb, include_event=true)
+  catch exc
+    println(exc)
+  end
+  try
+    schedule(sim, ev)
+  catch exc
+    println(exc)
+  end
+  schedule!(sim, ev, 3.5)
+end
+
 sim = Simulation(2)
 for i = 1:10
   ev = Event(sim, rand())
   append_callback(ev, print_cb, i)
 end
-run(sim, 3)
+Event(sim, 3)
+append_callback(ev, append_cb, include_event=true)
+try
+  run(sim, 4)
+catch exc
+  println(exc)
+end
