@@ -9,11 +9,6 @@ Enum with values:
 """
 @enum EVENT_STATE idle=0 triggered=1 processing=2
 
-type Callback
-  func :: Function
-  sticky :: Bool
-end
-
 """
   `Event`
 
@@ -44,16 +39,14 @@ Failed events, i.e. events having as value an `Exception`, are never silently ig
 - `Event(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)`
 """
 type Event
-  callbacks :: Vector{Callback}
+  callbacks :: Dict{Function, Bool}
   state :: EVENT_STATE
   value :: Any
-  cid :: UInt
   function Event()
     ev = new()
-    ev.callbacks = Callback[]
+    ev.callbacks = Dict{Function, Bool}()
     ev.state = idle
     ev.value = nothing
-    ev.cid = 0x0
     return ev
   end
 end
@@ -246,7 +239,7 @@ Executes [`step`](@ref) until the given criterion `until` is met:
 In the last two cases, the simulation can prematurely stop when there are no further events to be processed.
 """
 function run(sim::Simulation, until::Event=Event()) :: Any
-  append_callback(until, stop_simulation, include_event=true)
+  append_callback(until, stop_simulation)
   try
     while step(sim) end
     return nothing
@@ -360,7 +353,7 @@ function Event(eval::Function, fev::Event, events...)
       throw(EventProcessing())
     else
       event_state_values[ev] = StateValue(ev.state)
-      append_callback(ev, check, oper, eval, event_state_values, include_event=true)
+      append_callback(ev, check, oper, eval, event_state_values)
     end
   end
   return oper
@@ -416,37 +409,31 @@ function step(sim::Simulation) :: Bool
   dequeue!(sim.heap)
   ev.state = processing
   sim.time = key.time
-  to_del = Int[]
-  for (i, cb) in enumerate(ev.callbacks)
-    if !cb.sticky
-      push!(to_del, i)
+  for (cb, sticky) in ev.callbacks
+    cb(sim, ev)
+    if !sticky
+      delete!(ev.callbacks, cb)
     end
-    cb.func(sim)
   end
-  deleteat!(ev.callbacks, to_del)
   ev.state = idle
   return true
 end
 
 """
-  `append_callback(ev::Event, cb::Function, args...; include_event::Bool=false, sticky::Bool=false)` :: Function
+  `append_callback(ev::Event, cb::Function, args...; sticky::Bool=false)` :: Function
 
-Adds a callback function, i.e. a function having as first argument an object of type `Simulation`, to the event. The second argument is the event if `include_event=true`. Optional arguments can be specified by `args...`.
+Adds a callback function, i.e. a function having as first argument an object of type `Simulation`, to the event. Optional arguments can be specified by `args...`.
 The `sticky` keyword argument allows to keep a callback function when reusing an event. The default behavior is to remove the callback functions at the end of the processing.
 
 If the event is being processed an [`EventProcessing`](@ref) exception is thrown.
 
 Callback functions are called in order of adding to the event.
 """
-function append_callback(ev::Event, cb::Function, args...; include_event::Bool=false, sticky::Bool=false) :: Function
+function append_callback(ev::Event, cb::Function, args...; sticky::Bool=false) :: Function
   if ev.state == processing
     throw(EventProcessing())
   end
-  if include_event
-    func = (sim::Simulation)->cb(sim, ev, args...)
-  else
-    func = (sim::Simulation)->cb(sim, args...)
-  end
-  push!(ev.callbacks, Callback(func, sticky))
+  func = (sim::Simulation, ev::Event)->cb(sim, ev, args...)
+  ev.callbacks[func] = sticky
   return func
 end
