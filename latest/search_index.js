@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.append_callback",
     "category": "Method",
-    "text": "append_callback(ev::Event, cb::Function, args...; include_event::Bool=false, sticky::Bool=false) :: Function\n\nAdds a callback function, i.e. a function having as first argument an object of type Simulation, to the event. The second argument is the event if include_event=true. Optional arguments can be specified by args.... The sticky keyword argument allows to keep a callback function when reusing an event. The default behavior is to remove the callback functions at the end of the processing.\n\nIf the event is being processed an EventProcessing exception is thrown.\n\nCallback functions are called in order of adding to the event.\n\n\n\n"
+    "text": "append_callback(ev::Event, cb::Function, args...; sticky::Bool=false) :: Function\n\nAdds a callback function, i.e. a function having as first argument an object of type Simulation, to the event. Optional arguments can be specified by args.... The sticky keyword argument allows to keep a callback function when reusing an event. The default behavior is to remove the callback functions at the end of the processing.\n\nIf the event is being processed an EventProcessing exception is thrown.\n\nCallback functions are called in order of adding to the event.\n\n\n\n"
 },
 
 {
