@@ -332,7 +332,7 @@ function Event(sim::Simulation, delay::Period; priority::Bool=false, value::Any=
   schedule(sim, Event(), delay, priority=priority, value=value)
 end
 
-function Event(sim::Simulation, delay::Number; priority::Bool=false, value::Any=nothing)
+function Event(sim::Simulation, delay::Number=0; priority::Bool=false, value::Any=nothing)
   schedule(sim, Event(), delay, priority=priority, value=value)
 end
 
@@ -436,4 +436,8 @@ function append_callback(ev::Event, cb::Function, args...; sticky::Bool=false) :
   func = (sim::Simulation, ev::Event)->cb(sim, ev, args...)
   ev.callbacks[func] = sticky
   return func
+end
+
+function remove_callback(ev::Event, cb::Function)
+  delete!(ev.callbacks, cb)
 end
