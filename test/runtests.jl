@@ -1,4 +1,4 @@
-testpath(f) = joinpath(dirname(@__FILE__),f)
+testpath(f) = joinpath(dirname(@__FILE__), f)
 
 for test_file in [
   "test_events.jl",

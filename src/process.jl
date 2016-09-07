@@ -29,7 +29,7 @@ function execute(sim::Simulation, ev::Event, proc::Process)
   try
     value = consume(proc.task, ev.value)
     if istaskdone(proc.task)
-      schedule(proc, value)
+      schedule(proc.ev, value)
     end
   catch exc
     if !isempty(proc.ev.callbacks)
