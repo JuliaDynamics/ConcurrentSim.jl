@@ -10,11 +10,11 @@ function execute(sim::Simulation, ev::Event, proc::Process)
     value = consume(proc.task, ev.value)
     sim.active_proc = Nullable{Process}()
     if istaskdone(proc.task)
-      schedule(proc.ev, value)
+      schedule(sim, proc.ev, value=value)
     end
   catch exc
     if !isempty(proc.ev.callbacks)
-      schedule(proc.ev, exc)
+      schedule(sim, proc.ev, value=exc)
     else
       rethrow(exc)
     end

@@ -24,8 +24,7 @@ function append_callback(ev::Event, cb::Function, args::Any...) :: Function
 end
 
 function remove_callback(ev::Event, func::Function)
-  ev.callbacks[func] = 0x0
-  dequeue!(ev.callbacks)
+  dequeue!(ev.callbacks, func)
 end
 
 type StateValue

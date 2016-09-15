@@ -59,6 +59,10 @@ function now(sim::Simulation) :: TimeType
   return sim.time
 end
 
+function active_process(sim::Simulation) :: Process
+  get(sim.active_proc)
+end
+
 """
   - `schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event`
   - `schedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event`
