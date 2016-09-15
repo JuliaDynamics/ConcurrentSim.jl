@@ -13,13 +13,18 @@ module SimJulia
 
   export Event, Simulation
   export run, append_callback, schedule, schedule!
+  export timeout
   export now, value, state
   export (&), (|)
-  export idle, processing, triggered
 
   export Process
   export yield
 
-  include("base.jl")
+  include("types.jl")
+  include("exceptions.jl")
+  include("events.jl")
   include("process.jl")
+  include("time.jl")
+  include("simulation.jl")
+  include("utils.jl")
 end

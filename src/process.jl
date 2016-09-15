@@ -1,33 +1,14 @@
-typealias Interrupt Event
-
-type Process
-  task :: Task
-  target :: Event
-  resume :: Function
-  ev :: Event
-  function Process(sim::Simulation, func::Function, args...)
-    proc = new()
-    proc.task = Task(()->func(sim, proc, args...))
-    proc.ev = Event()
-    proc.resume = (sim::Simulation, ev::Event)->execute(sim, ev, proc)
-    proc.target = Event(sim)
-    append_callback(proc.target, proc.resume)
-    return proc
-  end
-end
-
-type InterruptException <: Exception
-  cause :: Any
-  function InterruptException(cause::Any)
-    inter = new()
-    inter.cause = cause
-    return inter
-  end
+function Process(sim::Simulation, func::Function, args...)
+  task = Task(()->func(sim, args...))
+  target = timeout(sim)
+  return Process(task, target)
 end
 
 function execute(sim::Simulation, ev::Event, proc::Process)
   try
+    sim.active_proc = Nullable(proc)
     value = consume(proc.task, ev.value)
+    sim.active_proc = Nullable{Process}()
     if istaskdone(proc.task)
       schedule(proc.ev, value)
     end
@@ -40,12 +21,13 @@ function execute(sim::Simulation, ev::Event, proc::Process)
   end
 end
 
-function yield(proc::Process, target::Event) :: Any
+function yield(sim::Simulation, target::Event) :: Any
   if target.state == processing
     return target.value
   end
+  proc = get(sim.active_proc)
   proc.target = target
-  append_callback(target, proc.resume)
+  proc.resume = append_callback(proc.target, execute, proc)
   value = produce(nothing)
   if isa(value, Exception)
     throw(value)
@@ -53,16 +35,15 @@ function yield(proc::Process, target::Event) :: Any
   return value
 end
 
-function yield(proc::Process, target::Process) :: Any
-  yield(proc, target.ev)
+function yield(sim::Simulation, target::Process) :: Any
+  yield(sim, target.ev)
 end
 
-function Interrupt(sim::Simulation, proc::Process, cause::Any=nothing) :: Event
+function interrupt(sim::Simulation, proc::Process, cause::Any=nothing) :: Event
   if !istaskdone(proc.task)
     remove_callback(proc.target, proc.resume)
-    inter = Event(sim, priority=true, value=InterruptException(cause))
-    proc.target = inter
-    append_callback(inter, proc.resume)
+    proc.target = timeout(sim, priority=true, value=InterruptException(cause))
+    proc.resume = append_callback(proc.target, execute, proc)
   end
-  return Event(sim)
+  return timeout(sim, priority=true)
 end

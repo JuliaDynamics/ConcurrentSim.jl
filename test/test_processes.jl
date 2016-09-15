@@ -1,11 +1,11 @@
 using SimJulia
 
-function fib(sim::Simulation, proc::Process)
+function fib(sim::Simulation)
   a = 0
   b = 1
   while true
     println("time: $(now(sim)); value: $b")
-    yield(proc, Event(sim, 1))
+    yield(sim, schedule(sim, Event(), 1))
     a, b = b, a+b
   end
 end

@@ -24,14 +24,13 @@ end
 function or_cb(sim::Simulation, ev::Event)
   println("$(now()): One of both events is triggered at $(now(sim))!")
   println(value(ev))
-  println(state(ev))
 end
 
 sim = Simulation(now())
 ev = Event()
 append_callback(ev, test_cb)
 schedule(sim, ev, Day(1))
-another_ev = Event(sim, 3600000*24*2)
+another_ev = timeout(sim, 3600000*24*2)
 schedule!(sim, ev, Hour(23), value=TestException())
 append_callback(another_ev, test_cb)
 and_event = ev & another_ev
@@ -43,7 +42,7 @@ sim = Simulation()
 ev = Event()
 append_callback(ev, test_cb)
 schedule(sim, ev, 1)
-another_ev = Event(sim, 3, value="π-day0314")
+another_ev = timeout(sim, 3, value="π-day0314")
 append_callback(another_ev, test_cb)
 or_event = ev | another_ev
 append_callback(or_event, or_cb)
@@ -54,7 +53,7 @@ sim = Simulation(today())
 ev = Event()
 append_callback(ev, test_cb)
 schedule!(sim, ev, 1)
-another_ev = Event(sim, Month(2))
+another_ev = timeout(sim, Month(2))
 append_callback(another_ev, test_cb)
 and_event = ev & another_ev
 append_callback(and_event, and_cb)
@@ -81,10 +80,10 @@ end
 
 sim = Simulation(2)
 for i = 1:10
-  ev = Event(sim, rand())
+  ev = timeout(sim, rand())
   append_callback(ev, print_cb, i)
 end
-Event(sim, 3)
+timeout(sim, 3)
 append_callback(ev, append_cb)
 try
   run(sim, 4)
