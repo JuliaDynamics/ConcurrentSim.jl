@@ -1,5 +1,7 @@
 using SimJulia
 
+type TestException <: Exception end
+
 function fib(sim::Simulation)
   a = 0
   b = 1
@@ -25,3 +27,20 @@ sim = Simulation()
 p = Process(sim, fib)
 Process(sim, inter, p)
 run(sim)
+
+function throwexc(sim::Simulation)
+  throw(TestException())
+end
+
+function yield_p(sim::Simulation, p::Process)
+  yield(sim, p)
+end
+
+sim = Simulation()
+p = Process(sim, throwexc)
+Process(sim, yield_p, p)
+try
+  run(sim)
+catch(exc)
+  println(exc)
+end
