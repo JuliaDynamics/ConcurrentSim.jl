@@ -11,7 +11,8 @@ module SimJulia
   import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.yield, Base.get
   import Base.&, Base.|, Base.+, Base.==
 
-  export Event, Process, Simulation, Resource
+  export Event, Process, Simulation
+  export Container, Resource, Store
   export run, append_callback, schedule, schedule!
   export timeout
   export yield
@@ -28,5 +29,6 @@ module SimJulia
   include("simulation.jl")
   include("utils.jl")
   include("resources/base.jl")
-  include("resources/resource.jl")
+  include("resources/containers.jl")
+  include("resources/stores.jl")
 end

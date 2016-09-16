@@ -44,7 +44,7 @@ type Event
   value :: Any
   function Event()
     ev = new()
-    ev.cid = 0x0
+    ev.cid = zero(UInt)
     ev.callbacks = PriorityQueue(Function, UInt)
     ev.state = idle
     ev.value = nothing
@@ -135,7 +135,7 @@ type Simulation{T<:TimeType}
     sim = new()
     sim.time = initial_time
     sim.heap = PriorityQueue(Event, EventKey)
-    sim.sid = 0x0
+    sim.sid = zero(UInt)
     sim.active_proc = Nullable{Process}()
     sim.granularity = typeof(initial_time.instant.periods)
     return sim

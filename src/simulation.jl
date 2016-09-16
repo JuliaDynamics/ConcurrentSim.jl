@@ -81,7 +81,7 @@ function schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=fal
   if ev.state == processing
     id = sim.heap[ev].id
   else
-    id = sim.sid+=0x1
+    id = sim.sid+=one(UInt)
   end
   sim.heap[ev] = EventKey(sim.time + delay, priority, id)
   ev.state = triggered
@@ -105,7 +105,7 @@ function schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=fals
     throw(EventNotIdle)
   end
   ev.value = value
-  sim.heap[ev] = EventKey(sim.time + delay, priority, sim.sid+=0x1)
+  sim.heap[ev] = EventKey(sim.time + delay, priority, sim.sid+=one(UInt))
   ev.state = triggered
   return ev
 end

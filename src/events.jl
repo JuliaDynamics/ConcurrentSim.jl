@@ -7,6 +7,10 @@ function value(ev::Event) :: Any
   return ev.value
 end
 
+function state(ev::Event) :: EVENT_STATE
+  ev.state
+end
+
 """
   `append_callback(ev::Event, cb::Function, args...)` :: Function
 
@@ -19,7 +23,7 @@ function append_callback(ev::Event, cb::Function, args::Any...) :: Function
     throw(EventProcessing())
   end
   func = (sim::Simulation, ev::Event)->cb(sim, ev, args...)
-  ev.callbacks[func] = ev.cid+=0x1
+  ev.callbacks[func] = ev.cid+=one(UInt)
   return func
 end
 
