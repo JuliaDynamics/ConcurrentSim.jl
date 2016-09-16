@@ -112,4 +112,8 @@ catch exc
 end
 
 sim = Simulation()
-ev
+try
+  run(sim, Event())
+catch(exc)
+  println(exc)
+end

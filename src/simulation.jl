@@ -75,7 +75,7 @@ If the event is being processed, an [`EventProcessing`](@ref) exception is throw
 """
 function schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
   if ev.state == processed
-    throw(EventProcessed)
+    throw(EventProcessed())
   end
   ev.value = value
   if ev.state == triggered
@@ -102,7 +102,7 @@ If the event is already scheduled or is being processed, an [`EventNotIdle`](@re
 """
 function schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
   if !(ev.state == idle)
-    throw(EventNotIdle)
+    throw(EventNotIdle())
   end
   ev.value = value
   sim.heap[ev] = EventKey(sim.time + delay, priority, sim.sid+=one(UInt))
@@ -123,7 +123,7 @@ Only used internally.
 """
 function step(sim::Simulation)
   if isempty(sim.heap)
-    throw(EmptySchedule)
+    throw(EmptySchedule())
   end
   (ev, key) = peek(sim.heap)
   dequeue!(sim.heap)

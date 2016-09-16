@@ -40,6 +40,8 @@ type StopSimulation <: Exception
   end
 end
 
+type EmptySchedule <: Exception end
+
 type InterruptException <: Exception
   cause :: Any
   function InterruptException(cause::Any)
