@@ -39,11 +39,7 @@ function put{T}(sim::Simulation, sto::Store{T}, item::T; priority::Int=0) :: Eve
   return put_ev
 end
 
-function get_any_item{T}(item::T)
-  return true
-end
-
-function get{T}(sim::Simulation, sto::Store{T}, filter::Function=get_any_item; priority::Int=0) :: Event
+function get{T}(sim::Simulation, sto::Store{T}, filter::Function=(item::T)->true; priority::Int=0) :: Event
   get_ev = Event()
   sto.get_queue[get_ev] = StoreGetKey(priority, sto.seid+=one(UInt), filter)
   append_callback(get_ev, trigger_put, sto)
@@ -51,7 +47,7 @@ function get{T}(sim::Simulation, sto::Store{T}, filter::Function=get_any_item; p
   return get_ev
 end
 
-function do_put{T}(sim::Simulation, sto::Store{T}, put_ev::Event, key::StorePutKey{T})
+function do_put{T}(sim::Simulation, sto::Store{T}, put_ev::Event, key::StorePutKey{T}) :: Bool
   if length(sto.items) < sto.capacity
     push!(sto.items, key.item)
     schedule(sim, put_ev)
@@ -59,7 +55,7 @@ function do_put{T}(sim::Simulation, sto::Store{T}, put_ev::Event, key::StorePutK
   return false
 end
 
-function do_get{T}(sim::Simulation, sto::Store{T}, get_ev::Event, key::StoreGetKey)
+function do_get{T}(sim::Simulation, sto::Store{T}, get_ev::Event, key::StoreGetKey) :: Bool
   for item in sto.items
     if key.filter(item)
       delete!(sto.items, item)
