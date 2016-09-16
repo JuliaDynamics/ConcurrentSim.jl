@@ -18,7 +18,7 @@ Exception thrown:
 
 Only used internally.
 """
-type EventProcessing <: Exception end
+type EventProcessed <: Exception end
 
 """
   `StopSimulation <: Exception`

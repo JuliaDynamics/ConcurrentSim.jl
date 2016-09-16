@@ -19,8 +19,8 @@ Adds a callback function to an event, i.e. a function having as first argument a
 If the event is being processed an [`EventProcessing`](@ref) exception is thrown.
 """
 function append_callback(ev::Event, cb::Function, args::Any...) :: Function
-  if (ev.state == processing) || (ev.state == processed)
-    throw(EventProcessing())
+  if ev.state == processed
+    throw(EventProcessed())
   end
   func = (sim::Simulation, ev::Event)->cb(sim, ev, args...)
   ev.callbacks[func] = ev.cid+=one(UInt)
@@ -43,12 +43,8 @@ function Event(eval::Function, fev::Event, events...)
   oper = Event()
   event_state_values = Dict{Event, StateValue}()
   for ev in tuple(fev, events...)
-    if ev.state == processing
-      throw(EventProcessing())
-    else
-      event_state_values[ev] = StateValue(ev.state)
-      append_callback(ev, check, oper, eval, event_state_values)
-    end
+    event_state_values[ev] = StateValue(ev.state)
+    append_callback(ev, check, oper, eval, event_state_values)
   end
   return oper
 end
@@ -73,11 +69,11 @@ function check(sim::Simulation, ev::Event, oper::Event, eval::Function, event_st
 end
 
 function eval_and(state_values::Vector{StateValue})
-  return all(map((sv)->sv.state == processing, state_values))
+  return all(map((sv)->sv.state == processed, state_values))
 end
 
 function eval_or(state_values::Vector{StateValue})
-  return any(map((sv)->sv.state == processing, state_values))
+  return any(map((sv)->sv.state == processed, state_values))
 end
 
 function (&)(ev1::Event, ev2::Event)

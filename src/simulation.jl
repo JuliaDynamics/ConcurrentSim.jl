@@ -74,11 +74,11 @@ If the event is already scheduled, the key is updated with the new `delay` and `
 If the event is being processed, an [`EventProcessing`](@ref) exception is thrown.
 """
 function schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
-  if (ev.state == processing) || (ev.state == processed)
-    throw(EventProcessing)
+  if ev.state == processed
+    throw(EventProcessed)
   end
   ev.value = value
-  if ev.state == processing
+  if ev.state == triggered
     id = sim.heap[ev].id
   else
     id = sim.sid+=one(UInt)
@@ -128,10 +128,9 @@ function step(sim::Simulation)
   (ev, key) = peek(sim.heap)
   dequeue!(sim.heap)
   sim.time = key.time
-  ev.state = processing
+  ev.state = processed
   while !isempty(ev.callbacks)
     cb = dequeue!(ev.callbacks)
     cb(sim, ev)
   end
-  ev.state = processed
 end

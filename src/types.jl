@@ -5,19 +5,17 @@ Enum with values:
 
 - `idle=0`
 - `triggered=1`
-- `processing=2`
-- `processed=3`
+- `processed=2`
 """
-@enum EVENT_STATE idle=0 triggered=1 processing=2 processed=3
+@enum EVENT_STATE idle=0 triggered=1 processed=2
 
 """
   `Event`
 
-An event is a state machine with four states:
+An event is a state machine with three states:
 
 - `idle`
 - `triggered`
-- `processing`
 - `processed`
 
 An event is initially not triggered. Events get trigerred after they are scheduled for processing.

@@ -22,7 +22,7 @@ function execute(sim::Simulation, ev::Event, proc::Process)
 end
 
 function yield(sim::Simulation, target::Event) :: Any
-  if target.state == processing
+  if target.state == processed
     return target.value
   end
   proc = get(sim.active_proc)
