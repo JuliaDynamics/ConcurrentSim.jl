@@ -73,7 +73,15 @@ sim = Simulation()
 ev = Event()
 append_callback(ev, test_cb)
 schedule(sim, ev, 1)
-or_event = ev | timeout(sim, 1) | timeout(sim, 1, value=TestException)
+or_event = ev | timeout(sim, 1)
+append_callback(or_event, or_cb)
+run(sim)
+
+sim = Simulation()
+ev = Event()
+append_callback(ev, test_cb)
+schedule(sim, ev, 1)
+or_event = timeout(sim, 1, value=TestException()) | ev
 append_callback(or_event, or_cb)
 run(sim)
 
