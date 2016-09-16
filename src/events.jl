@@ -61,7 +61,7 @@ function check(sim::Simulation, ev::Event, oper::Event, eval::Function, event_st
     end
   elseif oper.state == triggered
     if isa(ev.value, Exception)
-      schedule!(sim, oper, value=ev.value)
+      schedule!(sim, oper, priority=true, value=ev.value)
     else
       event_state_values[ev] = StateValue(ev.state, ev.value)
     end
