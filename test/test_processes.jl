@@ -5,11 +5,23 @@ function fib(sim::Simulation)
   b = 1
   while true
     println("time: $(now(sim)); value: $b")
-    yield(sim, schedule(sim, Event(), 1))
+    try
+      yield(sim, timeout(sim, 1))
+    catch(exc)
+      break
+    end
     a, b = b, a+b
   end
 end
 
+function inter(sim::Simulation, p::Process)
+  yield(sim, timeout(sim, 5))
+  interrupt(sim, p)
+  yield(sim, p)
+  println("Fibonnaci has ended")
+end
+
 sim = Simulation()
-Process(sim, fib)
-run(sim, 6)
+p = Process(sim, fib)
+Process(sim, inter, p)
+run(sim)

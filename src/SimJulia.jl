@@ -8,14 +8,14 @@ Main module for SimJulia.jl – a combined continuous time / discrete event proc
 module SimJulia
   using Base.Collections, Base.Dates
 
-  import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.yield, Base.get
+  import Base.show, Base.isless, Base.run, Base.now, Base.schedule, Base.yield, Base.get, Base.interrupt
   import Base.&, Base.|, Base.+, Base.==
 
   export Event, Process, Simulation
   export Container, Resource, Store
   export run, append_callback, schedule, schedule!
   export timeout
-  export yield
+  export yield, interrupt
   export now, value
   export (&), (|)
   export get, put, release, request
