@@ -29,11 +29,17 @@ Process(sim, inter, p)
 run(sim)
 
 function throwexc(sim::Simulation)
+  yield(sim, timeout(sim, 1))
   throw(TestException())
 end
 
 function yield_p(sim::Simulation, p::Process)
-  yield(sim, p)
+  println("yield_p")
+  try
+    yield(sim, p)
+  catch exc
+    rethrow(exc)
+  end
 end
 
 sim = Simulation()
@@ -41,7 +47,7 @@ p = Process(sim, throwexc)
 Process(sim, yield_p, p)
 try
   run(sim)
-catch(exc)
+catch exc
   println(exc)
 end
 
