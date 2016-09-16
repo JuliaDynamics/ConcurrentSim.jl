@@ -16,7 +16,7 @@ module SimJulia
   export run, append_callback, schedule, schedule!
   export timeout
   export yield, interrupt
-  export now, value
+  export now, value, state
   export (&), (|)
   export get, put, release, request
 

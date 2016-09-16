@@ -44,3 +44,12 @@ try
 catch(exc)
   println(exc)
 end
+
+function yield_processed(sim::Simulation, ev::Event)
+  println(state(ev))
+  println(yield(sim, ev))
+end
+
+sim = Simulation()
+Process(sim, yield_processed, timeout(sim, value="OK"))
+run(sim)
