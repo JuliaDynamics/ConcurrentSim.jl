@@ -38,6 +38,26 @@ append_callback(and_event, and_cb)
 append_callback(and_event, test_another_cb)
 run(sim, Month(1))
 
+sim = Simulation(now())
+ev = Event()
+append_callback(ev, test_cb)
+schedule(sim, ev, Day(1))
+another_ev = timeout(sim, 3600000*24*2, value=TestException())
+and_event = ev & another_ev
+append_callback(and_event, and_cb)
+append_callback(and_event, test_another_cb)
+run(sim, Month(1))
+
+sim = Simulation(now())
+ev = Event()
+append_callback(ev, test_cb)
+schedule(sim, ev, Day(1))
+another_ev = timeout(sim, 3600000*24*2)
+and_event = ev & another_ev
+append_callback(and_event, and_cb)
+append_callback(and_event, test_another_cb)
+run(sim, Month(1))
+
 sim = Simulation()
 ev = Event()
 append_callback(ev, test_cb)
@@ -90,3 +110,6 @@ try
 catch exc
   println(exc)
 end
+
+sim = Simulation()
+ev
