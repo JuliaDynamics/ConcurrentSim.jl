@@ -17,6 +17,9 @@ function SimulationTime(value::Number=0)
   SimulationTime(SimulationInstant(SimulationPeriod(value)))
 end
 
+eps(::Union{SimulationTime,Type{SimulationTime}}) = SimulationPeriod(1)
+typemax(::Union{SimulationTime,Type{SimulationTime}}) = SimulationTime(typemax(Float64))
+
 (==)(x::SimulationTime, y::SimulationTime) = x.instant.periods.value == y.instant.periods.value
 
 function isless(t1::SimulationTime, t2::SimulationTime) :: Bool

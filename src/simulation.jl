@@ -1,22 +1,77 @@
-"""
-  - `run(sim::Simulation, until::Event)`
-  - `run(sim::Simulation, until::TimeType)`
-  - `run(sim::Simulation, period::Period)`
-  - `run(sim::Simulation, period::Number)`
-  - `run(sim::Simulation)`
+immutable EventKey
+  time :: TimeType
+  priority :: Bool
+  id :: UInt
+end
 
-Executes [`step`](@ref) until the given criterion `until` is met:
+function isless(a::EventKey, b::EventKey) :: Bool
+  (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
+end
 
-- if it is not specified, the method will return when there are no further events to be processed
-- if it is an `Event`, the method will continue stepping until this event has been triggered and will return its value
-- if it is a `TimeType`, the method will continue stepping until the simulation’s time reaches until
-- if it is a `Period`, the method will continue stepping until the simulation’s time has passed until periods
-- if it is a `Number`, the method will continue stepping until the simulation’s time has passed until elementary periods
+type Simulation{T<:TimeType} <: Environment
+  time :: T
+  heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey}
+  eid :: UInt
+  sid :: UInt
+  active_proc :: Nullable{Process}
+  granularity :: Period
+  function Simulation(initial_time::T)
+    sim = new()
+    sim.time = initial_time
+    sim.heap = PriorityQueue(BaseEvent{Simulation{T}}, EventKey)
+    sim.eid = zero(UInt)
+    sim.sid = zero(UInt)
+    sim.active_proc = Nullable{Process}()
+    sim.granularity = eps(initial_time)
+    return sim
+  end
+end
 
-In the last two cases, the simulation can prematurely stop when there are no further events to be processed.
-"""
-function run(sim::Simulation, until::Event) :: Any
-  append_callback(until, stop_simulation)
+function Simulation{T<:TimeType}(initial_time::T) :: Simulation{T}
+  Simulation{T}(initial_time)
+end
+
+function Simulation(initial_time::Number=0) :: Simulation{SimulationTime}
+  Simulation(SimulationTime(initial_time))
+end
+
+function now(sim::Simulation)
+  sim.time
+end
+
+function active_process(sim::Simulation)
+  get(sim.active_proc)
+end
+
+type StopSimulation <: Exception
+  value :: Any
+  function StopSimulation(value::Any=nothing)
+    new(value)
+  end
+end
+
+function stop_simulation(ev::AbstractEvent)
+  throw(StopSimulation(ev.bev.value))
+end
+
+type EmptySchedule <: Exception end
+
+function step(sim::Simulation)
+  if isempty(sim.heap)
+    throw(EmptySchedule())
+  end
+  (bev, key) = peek(sim.heap)
+  dequeue!(sim.heap)
+  sim.time = key.time
+  bev.state = processed
+  while !isempty(bev.callbacks)
+    cb = dequeue!(bev.callbacks)
+    cb()
+  end
+end
+
+function run(sim::Simulation, until::AbstractEvent) :: Any
+  append_callback(stop_simulation, until)
   try
     while true
       step(sim)
@@ -31,102 +86,28 @@ function run(sim::Simulation, until::Event) :: Any
 end
 
 function run(sim::Simulation, period::Period) :: Any
-  run(sim, timeout(sim, period))
+  run(sim, Timeout(sim, period))
 end
 
 function run(sim::Simulation, period::Number) :: Any
-  run(sim, timeout(sim, sim.granularity(period)))
+  run(sim, eps(sim.time)*period)
 end
 
-function run{T}(sim::Simulation{T}, until::T) :: Any
-  run(sim, timeout(sim, now(sim)-until))
+function run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any
+  run(sim, until-sim.time)
 end
 
-function run(sim::Simulation) :: Any
-  run(sim, timeout(sim, typemax(sim.granularity)))
+function run{T<:TimeType}(sim::Simulation{T}) :: Any
+  run(sim, typemax(T)-sim.time)
 end
 
-function stop_simulation(sim::Simulation, ev::Event)
-  throw(StopSimulation(ev.value))
+function schedule(bev::BaseEvent, delay::Period; priority::Bool=false, value::Any=nothing)
+  sim = bev.env
+  bev.value = value
+  sim.heap[bev] = EventKey(sim.time + delay, priority, sim.sid+=one(UInt))
+  bev.state = triggered
 end
 
-"""
-  `now(sim::Simulation) :: TimeType`
-
-Returns the current simulation time.
-"""
-function now(sim::Simulation) :: TimeType
-  return sim.time
-end
-
-"""
-  - `schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event`
-  - `schedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event`
-
-Schedules an event at time `sim.time + delay` with a `priority` and a `value`.
-
-If the event is already scheduled, the key is updated with the new `delay` and `priority`. The new `value` is also set.
-
-If the event is being processed, an [`EventProcessing`](@ref) exception is thrown.
-"""
-function schedule!(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
-  if ev.state == processed
-    throw(EventProcessed())
-  end
-  ev.value = value
-  if ev.state == triggered
-    id = sim.heap[ev].id
-  else
-    id = sim.sid+=one(UInt)
-  end
-  sim.heap[ev] = EventKey(sim.time + delay, priority, id)
-  ev.state = triggered
-  return ev
-end
-
-function schedule!(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event
-  schedule!(sim, ev, sim.granularity(delay), priority=priority, value=value)
-end
-
-"""
-  - `schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event`
-  - `schedule(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event`
-
-Schedules an event at time `sim.time + delay` with a `priority` and a `value`.
-
-If the event is already scheduled or is being processed, an [`EventNotIdle`](@ref) exception is thrown.
-"""
-function schedule(sim::Simulation, ev::Event, delay::Period; priority::Bool=false, value::Any=nothing) :: Event
-  if !(ev.state == idle)
-    throw(EventNotIdle())
-  end
-  ev.value = value
-  sim.heap[ev] = EventKey(sim.time + delay, priority, sim.sid+=one(UInt))
-  ev.state = triggered
-  return ev
-end
-
-function schedule(sim::Simulation, ev::Event, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Event
-  schedule(sim, ev, sim.granularity(delay), priority=priority, value=value)
-end
-
-"""
-  `step(sim::Simulation) :: Bool`
-
-Does a simulation step and processes the next event.
-
-Only used internally.
-"""
-function step(sim::Simulation)
-  if isempty(sim.heap)
-    throw(EmptySchedule())
-  end
-  (ev, key) = peek(sim.heap)
-  dequeue!(sim.heap)
-  sim.time = key.time
-  ev.state = processed
-  while !isempty(ev.callbacks)
-    cb = dequeue!(ev.callbacks)
-    cb(sim, ev)
-  end
+function schedule(bev::BaseEvent, delay::Number=0; priority::Bool=false, value::Any=nothing)
+  schedule(bev, bev.env.granularity*delay, priority=priority, value=value)
 end
