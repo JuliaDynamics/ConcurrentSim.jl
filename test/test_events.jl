@@ -6,7 +6,7 @@ function test_callback_event(ev::Event)
   println("Hi $ev have value $(value(ev))")
 end
 
-function test_callback_timeout(ev::Timeout)
+function test_callback_timeout(ev::AbstractEvent)
   println("Hi $ev timed out at $(now(environment(ev)))")
 end
 
@@ -17,6 +17,10 @@ succeed(ev1, value="Succes")
 ev2 = Event(sim)
 append_callback(test_callback_event, ev2)
 fail(ev2, TestException())
-ev3 = Timeout(sim, 1)
-append_callback(test_callback_timeout, ev3)
+try
+  succeed(ev2)
+catch exc
+  println("$exc has been thrown")
+end
+append_callback(test_callback_timeout, timeout(sim, 1))
 run(sim)

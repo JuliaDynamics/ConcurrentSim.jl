@@ -4,6 +4,7 @@ abstract AbstractEvent
 @enum EVENT_STATE idle=0 triggered=1 processed=2
 
 type EventProcessed <: Exception end
+type EventNotIdle <: Exception end
 
 type BaseEvent{E<:Environment}
   env :: E

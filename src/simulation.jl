@@ -86,7 +86,7 @@ function run(sim::Simulation, until::AbstractEvent) :: Any
 end
 
 function run(sim::Simulation, period::Period) :: Any
-  run(sim, Timeout(sim, period))
+  run(sim, timeout(sim, period))
 end
 
 function run(sim::Simulation, period::Number) :: Any

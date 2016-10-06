@@ -12,19 +12,15 @@ function Event{E<:Environment}(env::E) :: Event{E}
 end
 
 function succeed(ev::Event; priority::Bool=false, value::Any=nothing) :: Event
-  if ev.bev.state == processed
-    throw(EventProcessed())
+  if ev.bev.state == triggered || ev.bev.state == processed
+    throw(EventNotIdle())
   end
   schedule(ev.bev, priority=priority, value=value)
   return ev
 end
 
 function fail(ev::Event, exc::Exception; priority::Bool=false) :: Event
-  if ev.bev.state == processed
-    throw(EventProcessed())
-  end
-  schedule(ev.bev, priority=priority, value=exc)
-  return ev
+  succeed(ev, priority=priority, value=exc)
 end
 
 type Timeout{E<:Environment} <: AbstractEvent
@@ -37,10 +33,10 @@ type Timeout{E<:Environment} <: AbstractEvent
   end
 end
 
-function Timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}
+function timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, delay, priority, value)
 end
 
-function Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}
+function timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, eps(env.time)*delay, priority, value)
 end

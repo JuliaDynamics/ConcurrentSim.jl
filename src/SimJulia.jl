@@ -10,15 +10,15 @@ module SimJulia
 
   import Base.==, Base.+
   import Base.isless, Base.yield, Base.schedule, Base.run, Base.now, Base.eps
-  import Base.show, Base.typemax
+  import Base.show, Base.typemax, Base.interrupt
 
   export AbstractEvent
   export state, value, environment, append_callback, remove_callback
   export idle, triggered, processed
-  export Event, Timeout
-  export succeed, fail
-  export Process, Interrupt
-  export yield
+  export Event
+  export succeed, fail, timeout
+  export Process
+  export yield, interrupt
   export SimulationTime
   export Simulation
   export now, run, active_process

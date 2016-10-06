@@ -1,17 +1,3 @@
-type Initialize{E<:Environment} <: AbstractEvent
-  bev :: BaseEvent{E}
-  function Initialize(env::E)
-    init = new()
-    init.bev = BaseEvent(env)
-    schedule(init.bev)
-    return init
-  end
-end
-
-function Initialize{E<:Environment}(env::E) :: Initialize{E}
-  Initialize{E}(env)
-end
-
 type Process{E<:Environment} <: AbstractEvent
   bev :: BaseEvent{E}
   task :: Task
@@ -21,7 +7,7 @@ type Process{E<:Environment} <: AbstractEvent
     proc = new()
     proc.bev = BaseEvent(env)
     proc.task = Task(()->func(env, args...))
-    proc.target = Initialize(env)
+    proc.target = timeout(env)
     proc.resume = append_callback(execute, proc.target, proc)
     return proc
   end
@@ -49,12 +35,12 @@ function execute(ev::AbstractEvent, proc::Process)
 end
 
 function yield(target::AbstractEvent) :: Any
-  if target.bev.state == processed
-    #throw(EventProcessed())
-    return target.bev.value
-  end
   proc = get(target.bev.env.active_proc)
-  proc.target = target
+  if target.bev.state == processed
+    proc.target = timeout(target.bev.env, value=target.bev.value)
+  else
+    proc.target = target
+  end
   proc.resume = append_callback(execute, proc.target, proc)
   value = produce(nothing)
   if isa(value, Exception)
@@ -67,35 +53,11 @@ type InterruptException <: Exception
   cause :: Any
 end
 
-type Interruption{E<:Environment} <: AbstractEvent
-  bev :: BaseEvent{E}
-  function Interruption(env::E, cause::Any)
-    inter = new()
-    inter.bev = BaseEvent(env)
-    schedule(inter.bev, priority=true, value=InterruptException(cause))
-    return inter
+function interrupt(proc::Process, cause::Any=nothing) :: Timeout
+  if !istaskdone(proc.task)
+    remove_callback(proc.resume, proc.target)
+    proc.target = timeout(proc.bev.env, priority=true, value=InterruptException(cause))
+    proc.resume = append_callback(execute, proc.target, proc)
   end
-end
-
-function Interruption{E<:Environment}(env::E, cause::Any=nothing) :: Interruption{E}
-  Interruption{E}(env, cause)
-end
-
-type Interrupt{E<:Environment} <: AbstractEvent
-  bev :: BaseEvent{E}
-  function Interrupt(proc::Process{E}, cause::Any=nothing)
-    if !istaskdone(proc.task)
-      remove_callback(proc.resume, proc.target)
-      proc.target = Interruption(proc.bev.env, cause)
-      proc.resume = append_callback(execute, proc.target, proc)
-    end
-    inter = new()
-    inter.bev = BaseEvent(proc.bev.env)
-    schedule(inter.bev, priority=true)
-    return inter
-  end
-end
-
-function Interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing) :: Interrupt{E}
-  Interrupt{E}(proc, cause)
+  timeout(proc.bev.env, priority=true)
 end
