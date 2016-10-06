@@ -1,4 +1,4 @@
-type StateValue
+immutable StateValue
   state :: EVENT_STATE
   value :: Any
   function StateValue(state::EVENT_STATE, value::Any=nothing)
@@ -10,9 +10,7 @@ type Operator <: AbstractEvent
   bev :: BaseEvent
   eval :: Function
   function Operator(eval::Function, fev::AbstractEvent, events::AbstractEvent...)
-    op = new()
-    op.bev = BaseEvent(fev.bev.env)
-    op.eval = eval
+    op = new(BaseEvent(fev.bev.env), eval)
     event_state_values = Dict{AbstractEvent, StateValue}()
     for ev in tuple(fev, events...)
       event_state_values[ev] = StateValue(ev.bev.state)

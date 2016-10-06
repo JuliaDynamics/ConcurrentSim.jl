@@ -13,14 +13,14 @@ type Simulation{T<:TimeType} <: Environment
   heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey}
   eid :: UInt
   sid :: UInt
-  active_proc :: Nullable{Process}
+  active_proc :: Nullable{Process{Simulation{T}}}
   function Simulation(initial_time::T)
     sim = new()
     sim.time = initial_time
     sim.heap = PriorityQueue(BaseEvent{Simulation{T}}, EventKey)
     sim.eid = zero(UInt)
     sim.sid = zero(UInt)
-    sim.active_proc = Nullable{Process}()
+    sim.active_proc = Nullable{Process{Simulation{T}}}()
     return sim
   end
 end
@@ -63,8 +63,7 @@ function step(sim::Simulation)
   sim.time = key.time
   bev.state = processed
   while !isempty(bev.callbacks)
-    cb = dequeue!(bev.callbacks)
-    cb()
+    dequeue!(bev.callbacks)()
   end
 end
 
@@ -100,9 +99,8 @@ function run(sim::Simulation) :: Any
 end
 
 function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; priority::Bool=false, value::Any=nothing)
-  sim = bev.env
   bev.value = value
-  sim.heap[bev] = EventKey(sim.time + delay, priority, sim.sid+=one(UInt))
+  bev.env.heap[bev] = EventKey(bev.env.time + delay, priority, bev.env.sid+=one(UInt))
   bev.state = triggered
 end
 

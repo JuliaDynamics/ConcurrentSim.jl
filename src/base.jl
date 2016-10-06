@@ -38,15 +38,15 @@ function state(ev::AbstractEvent) :: EVENT_STATE
   ev.bev.state
 end
 
-function append_callback(cb::Function, ev::AbstractEvent, args::Any...) :: Function
+function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
   if ev.bev.state == processed
     throw(EventProcessed())
   end
-  func = ()->cb(ev, args...)
-  ev.bev.callbacks[func] = ev.bev.cid+=one(UInt)
-  return func
+  cb = ()->func(ev, args...)
+  ev.bev.callbacks[cb] = ev.bev.cid+=one(UInt)
+  return cb
 end
 
-function remove_callback(func::Function, ev::AbstractEvent)
-  dequeue!(ev.bev.callbacks, func)
+function remove_callback(cb::Function, ev::AbstractEvent)
+  dequeue!(ev.bev.callbacks, cb)
 end

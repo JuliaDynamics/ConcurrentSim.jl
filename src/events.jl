@@ -1,9 +1,7 @@
 type Event{E<:Environment} <: AbstractEvent
   bev :: BaseEvent{E}
   function Event(env::E)
-    ev = new()
-    ev.bev = BaseEvent(env)
-    return ev
+    new(BaseEvent(env))
   end
 end
 
@@ -26,8 +24,7 @@ end
 type Timeout{E<:Environment} <: AbstractEvent
   bev :: BaseEvent{E}
   function Timeout(env::E, delay::Union{Period, Number}, priority::Bool, value::Any)
-    ev = new()
-    ev.bev = BaseEvent(env)
+    ev = new(BaseEvent(env))
     schedule(ev.bev, delay, priority=priority, value=value)
     return ev
   end
