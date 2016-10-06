@@ -14,7 +14,6 @@ type Simulation{T<:TimeType} <: Environment
   eid :: UInt
   sid :: UInt
   active_proc :: Nullable{Process}
-  granularity :: Period
   function Simulation(initial_time::T)
     sim = new()
     sim.time = initial_time
@@ -22,7 +21,6 @@ type Simulation{T<:TimeType} <: Environment
     sim.eid = zero(UInt)
     sim.sid = zero(UInt)
     sim.active_proc = Nullable{Process}()
-    sim.granularity = eps(initial_time)
     return sim
   end
 end
@@ -97,17 +95,17 @@ function run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any
   run(sim, until-sim.time)
 end
 
-function run{T<:TimeType}(sim::Simulation{T}) :: Any
-  run(sim, typemax(T)-sim.time)
+function run(sim::Simulation) :: Any
+  run(sim, typemax(sim.time)-sim.time)
 end
 
-function schedule(bev::BaseEvent, delay::Period; priority::Bool=false, value::Any=nothing)
+function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; priority::Bool=false, value::Any=nothing)
   sim = bev.env
   bev.value = value
   sim.heap[bev] = EventKey(sim.time + delay, priority, sim.sid+=one(UInt))
   bev.state = triggered
 end
 
-function schedule(bev::BaseEvent, delay::Number=0; priority::Bool=false, value::Any=nothing)
-  schedule(bev, bev.env.granularity*delay, priority=priority, value=value)
+function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Number=0; priority::Bool=false, value::Any=nothing)
+  schedule(bev, eps(bev.env.time)*delay, priority=priority, value=value)
 end

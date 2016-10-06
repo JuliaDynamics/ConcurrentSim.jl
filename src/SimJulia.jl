@@ -13,16 +13,13 @@ module SimJulia
   import Base.show, Base.typemax, Base.interrupt
 
   export AbstractEvent
-  export state, value, environment, append_callback, remove_callback, show
+  export state, value, environment, append_callback, remove_callback
   export idle, triggered, processed
   export Event
   export succeed, fail, timeout
-  export (&), (|)
   export Process
-  export yield, interrupt
-  export SimulationTime
   export Simulation
-  export now, run, active_process
+  export active_process
 
   include("base.jl")
   include("events.jl")

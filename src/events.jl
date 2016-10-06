@@ -25,7 +25,7 @@ end
 
 type Timeout{E<:Environment} <: AbstractEvent
   bev :: BaseEvent{E}
-  function Timeout(env::E, delay::Period, priority::Bool, value::Any)
+  function Timeout(env::E, delay::Union{Period, Number}, priority::Bool, value::Any)
     ev = new()
     ev.bev = BaseEvent(env)
     schedule(ev.bev, delay, priority=priority, value=value)
@@ -38,5 +38,5 @@ function timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, va
 end
 
 function timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}
-  Timeout{E}(env, eps(env.time)*delay, priority, value)
+  Timeout{E}(env, delay, priority, value)
 end
