@@ -13,21 +13,21 @@ type Operator <: AbstractEvent
     op = new()
     op.bev = BaseEvent(fev.bev.env)
     op.eval = eval
-    event_state_values = Dict{BaseEvent, StateValue}()
+    event_state_values = Dict{AbstractEvent, StateValue}()
     for ev in tuple(fev, events...)
-      event_state_values[ev.bev] = StateValue(ev.bev.state)
+      event_state_values[ev] = StateValue(ev.bev.state)
       append_callback(check, ev, op, event_state_values)
     end
     return op
   end
 end
 
-function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{BaseEvent, StateValue})
+function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{AbstractEvent, StateValue})
   if op.bev.state == idle
     if isa(ev.bev.value, Exception)
       schedule(op.bev, value=ev.bev.value)
     else
-      event_state_values[ev.bev] = StateValue(ev.bev.state, ev.bev.value)
+      event_state_values[ev] = StateValue(ev.bev.state, ev.bev.value)
       if op.eval(collect(values(event_state_values)))
         schedule(op.bev, value=event_state_values)
       end
@@ -36,7 +36,7 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{BaseEve
     if isa(ev.bev.value, Exception)
       schedule(op.bev, priority=true, value=ev.bev.value)
     else
-      event_state_values[ev.bev] = StateValue(ev.bev.state, ev.bev.value)
+      event_state_values[ev] = StateValue(ev.bev.state, ev.bev.value)
     end
   end
 end
