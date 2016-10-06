@@ -31,7 +31,3 @@ end
 function show(io::IO, t::SimulationTime)
   print(io, "$(t.instant.periods.value)")
 end
-
-function show(io::IO, p::SimulationPeriod)
-  print(io, "$(p.value)")
-end
