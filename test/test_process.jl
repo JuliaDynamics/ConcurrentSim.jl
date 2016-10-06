@@ -42,6 +42,7 @@ function test_interrupted(sim::Simulation)
     end
   end
   yield(timeout(sim, 10))
+  throw(TestException())
 end
 
 sim = Simulation()
@@ -67,4 +68,8 @@ run(sim)
 sim = Simulation()
 proc = Process(test_interrupted, sim)
 append_callback(test_callback_exception, Process(test_interrupter, sim, proc))
-run(sim)
+try
+  run(sim)
+catch exc
+  println("$exc has been thrown")
+end

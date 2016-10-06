@@ -22,19 +22,19 @@ type Operator <: AbstractEvent
   end
 end
 
-function check(ev::Event, op::Event, event_state_values::Dict{BaseEvent, StateValue})
+function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{BaseEvent, StateValue})
   if op.bev.state == idle
     if isa(ev.bev.value, Exception)
-      schedule(ev.bev.env, oper, value=ev.bev.value)
+      schedule(op.bev, value=ev.bev.value)
     else
       event_state_values[ev.bev] = StateValue(ev.bev.state, ev.bev.value)
       if op.eval(collect(values(event_state_values)))
-        schedule(op, value=event_state_values)
+        schedule(op.bev, value=event_state_values)
       end
     end
-  elseif op.state == triggered
+  elseif op.bev.state == triggered
     if isa(ev.bev.value, Exception)
-      schedule(ev.bev.env, op, priority=true, value=ev.bev.value)
+      schedule(op.bev, priority=true, value=ev.bev.value)
     else
       event_state_values[ev.bev] = StateValue(ev.bev.state, ev.bev.value)
     end
@@ -50,9 +50,9 @@ function eval_or(state_values::Vector{StateValue})
 end
 
 function (&)(ev1::AbstractEvent, ev2::AbstractEvent)
-  return Event(eval_and, ev1, ev2)
+  return Operator(eval_and, ev1, ev2)
 end
 
 function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
-  return Event(eval_or, ev1, ev2)
+  return Operator(eval_or, ev1, ev2)
 end
