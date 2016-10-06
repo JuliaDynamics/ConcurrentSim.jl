@@ -13,7 +13,7 @@ module SimJulia
   import Base.show, Base.typemax, Base.interrupt
 
   export AbstractEvent
-  export state, value, environment, append_callback, remove_callback
+  export state, value, environment, append_callback, remove_callback, show
   export idle, triggered, processed
   export Event
   export succeed, fail, timeout
