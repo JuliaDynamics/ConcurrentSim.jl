@@ -10,7 +10,8 @@ function Event{E<:Environment}(env::E) :: Event{E}
 end
 
 function succeed(ev::Event; priority::Bool=false, value::Any=nothing) :: Event
-  if ev.bev.state == triggered || ev.bev.state == processed
+  sta = state(ev)
+  if sta == triggered || sta == processed
     throw(EventNotIdle())
   end
   schedule(ev.bev, priority=priority, value=value)

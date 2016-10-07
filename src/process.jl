@@ -19,11 +19,12 @@ end
 
 function execute(ev::AbstractEvent, proc::Process)
   try
-    ev.bev.env.active_proc = Nullable(proc)
-    value = consume(proc.task, ev.bev.value)
-    ev.bev.env.active_proc = Nullable{Process}()
+    env = environment(ev)
+    env.active_proc = Nullable(proc)
+    ret = consume(proc.task, value(ev))
+    env.active_proc = Nullable{Process}()
     if istaskdone(proc.task)
-      schedule(proc.bev, value=value)
+      schedule(proc.bev, value=ret)
     end
   catch exc
     if !isempty(proc.bev.callbacks)
@@ -35,18 +36,19 @@ function execute(ev::AbstractEvent, proc::Process)
 end
 
 function yield(target::AbstractEvent) :: Any
-  proc = get(target.bev.env.active_proc)
+  env = environment(target)
+  proc = get(env.active_proc)
   if target.bev.state == processed
-    proc.target = timeout(target.bev.env, value=target.bev.value)
+    proc.target = timeout(env, value=value(target))
   else
     proc.target = target
   end
   proc.resume = append_callback(execute, proc.target, proc)
-  value = produce(nothing)
-  if isa(value, Exception)
-    throw(value)
+  ret = produce(nothing)
+  if isa(ret, Exception)
+    throw(ret)
   end
-  return value
+  return ret
 end
 
 type InterruptException <: Exception
@@ -54,10 +56,11 @@ type InterruptException <: Exception
 end
 
 function interrupt(proc::Process, cause::Any=nothing) :: Timeout
+  env = environment(proc)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
-    proc.target = timeout(proc.bev.env, priority=true, value=InterruptException(cause))
+    proc.target = timeout(env, priority=true, value=InterruptException(cause))
     proc.resume = append_callback(execute, proc.target, proc)
   end
-  timeout(proc.bev.env, priority=true)
+  timeout(env, priority=true)
 end

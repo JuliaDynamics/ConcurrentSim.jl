@@ -15,13 +15,7 @@ type Simulation{T<:TimeType} <: Environment
   sid :: UInt
   active_proc :: Nullable{Process{Simulation{T}}}
   function Simulation(initial_time::T)
-    sim = new()
-    sim.time = initial_time
-    sim.heap = PriorityQueue(BaseEvent{Simulation{T}}, EventKey)
-    sim.eid = zero(UInt)
-    sim.sid = zero(UInt)
-    sim.active_proc = Nullable{Process{Simulation{T}}}()
-    return sim
+    new(initial_time, PriorityQueue(BaseEvent{Simulation{T}}, EventKey), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
   end
 end
 
@@ -49,7 +43,7 @@ type StopSimulation <: Exception
 end
 
 function stop_simulation(ev::AbstractEvent)
-  throw(StopSimulation(ev.bev.value))
+  throw(StopSimulation(value(ev)))
 end
 
 type EmptySchedule <: Exception end

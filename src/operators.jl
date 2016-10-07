@@ -10,10 +10,11 @@ type Operator <: AbstractEvent
   bev :: BaseEvent
   eval :: Function
   function Operator(eval::Function, fev::AbstractEvent, events::AbstractEvent...)
-    op = new(BaseEvent(fev.bev.env), eval)
+    env = environment(fev)
+    op = new(BaseEvent(env), eval)
     event_state_values = Dict{AbstractEvent, StateValue}()
     for ev in tuple(fev, events...)
-      event_state_values[ev] = StateValue(ev.bev.state)
+      event_state_values[ev] = StateValue(state(ev))
       append_callback(check, ev, op, event_state_values)
     end
     return op
@@ -21,20 +22,21 @@ type Operator <: AbstractEvent
 end
 
 function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{AbstractEvent, StateValue})
-  if op.bev.state == idle
-    if isa(ev.bev.value, Exception)
-      schedule(op.bev, value=ev.bev.value)
+  val = value(ev)
+  if state(op) == idle
+    if isa(val, Exception)
+      schedule(op.bev, value=val)
     else
-      event_state_values[ev] = StateValue(ev.bev.state, ev.bev.value)
+      event_state_values[ev] = StateValue(state(ev), val)
       if op.eval(collect(values(event_state_values)))
         schedule(op.bev, value=event_state_values)
       end
     end
-  elseif op.bev.state == triggered
-    if isa(ev.bev.value, Exception)
-      schedule(op.bev, priority=true, value=ev.bev.value)
+  elseif state(op) == triggered
+    if isa(val, Exception)
+      schedule(op.bev, priority=true, value=val)
     else
-      event_state_values[ev] = StateValue(ev.bev.state, ev.bev.value)
+      event_state_values[ev] = StateValue(state(ev), val)
     end
   end
 end

@@ -17,9 +17,11 @@ module SimJulia
   export idle, triggered, processed
   export Event
   export succeed, fail, timeout
+  export (&), (|)
   export Process
+  export yield, interrupt
   export Simulation
-  export active_process
+  export run, now, active_process
 
   include("base.jl")
   include("events.jl")
