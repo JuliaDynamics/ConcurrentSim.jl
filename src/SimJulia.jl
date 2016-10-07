@@ -22,7 +22,7 @@ module SimJulia
   export yield, interrupt
   export Simulation
   export run, now, active_process
-  export Container, Resource
+  export Container, Resource, Store
   export put, get, request, release
 
   include("base.jl")
@@ -33,4 +33,5 @@ module SimJulia
   include("simulation.jl")
   include("resources/base.jl")
   include("resources/containers.jl")
+  include("resources/stores.jl")
 end
