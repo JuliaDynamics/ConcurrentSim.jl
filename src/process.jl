@@ -20,25 +20,21 @@ end
 function execute(ev::AbstractEvent, proc::Process)
   try
     env = environment(ev)
-    env.active_proc = Nullable(proc)
+    set_active_process(env, proc)
     ret = consume(proc.task, value(ev))
-    env.active_proc = Nullable{Process}()
+    set_active_process(env)
     if istaskdone(proc.task)
       schedule(proc.bev, value=ret)
     end
   catch exc
-    if !isempty(proc.bev.callbacks)
-      schedule(proc.bev, value=exc)
-    else
-      rethrow(exc)
-    end
+    rethrow(exc)
   end
 end
 
 function yield(target::AbstractEvent) :: Any
   env = environment(target)
-  proc = get(env.active_proc)
-  if target.bev.state == processed
+  proc = active_process(env)
+  if state(target) == processed
     proc.target = timeout(env, value=value(target))
   else
     proc.target = target
@@ -51,7 +47,7 @@ function yield(target::AbstractEvent) :: Any
   return ret
 end
 
-type InterruptException <: Exception
+immutable InterruptException <: Exception
   cause :: Any
 end
 

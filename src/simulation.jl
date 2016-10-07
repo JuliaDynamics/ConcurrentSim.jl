@@ -1,21 +1,21 @@
-immutable EventKey
-  time :: TimeType
+immutable EventKey{T<:TimeType}
+  time :: T
   priority :: Bool
   id :: UInt
 end
 
-function isless(a::EventKey, b::EventKey) :: Bool
+function isless{T<:TimeType}(a::EventKey{T}, b::EventKey{T}) :: Bool
   (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
 
 type Simulation{T<:TimeType} <: Environment
   time :: T
-  heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey}
+  heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
   eid :: UInt
   sid :: UInt
   active_proc :: Nullable{Process{Simulation{T}}}
   function Simulation(initial_time::T)
-    new(initial_time, PriorityQueue(BaseEvent{Simulation{T}}, EventKey), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
+    new(initial_time, PriorityQueue(BaseEvent{Simulation{T}}, EventKey{T}), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
   end
 end
 
@@ -27,15 +27,23 @@ function Simulation(initial_time::Number=0) :: Simulation{SimulationTime}
   Simulation(SimulationTime(initial_time))
 end
 
-function now(sim::Simulation)
+function now{T<:TimeType}(sim::Simulation{T}) :: T
   sim.time
 end
 
-function active_process(sim::Simulation)
+function active_process{T<:TimeType}(sim::Simulation{T}) :: Process{Simulation{T}}
   get(sim.active_proc)
 end
 
-type StopSimulation <: Exception
+function set_active_process{T<:TimeType}(sim::Simulation{T})
+  sim.active_proc = Nullable{Process{Simulation{T}}}()
+end
+
+function set_active_process{T<:TimeType}(sim::Simulation{T}, proc::Process{Simulation{T}})
+  sim.active_proc = Nullable(proc)
+end
+
+immutable StopSimulation <: Exception
   value :: Any
   function StopSimulation(value::Any=nothing)
     new(value)
@@ -46,7 +54,7 @@ function stop_simulation(ev::AbstractEvent)
   throw(StopSimulation(value(ev)))
 end
 
-type EmptySchedule <: Exception end
+immutable EmptySchedule <: Exception end
 
 function step(sim::Simulation)
   if isempty(sim.heap)

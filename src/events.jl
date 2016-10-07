@@ -1,4 +1,4 @@
-type Event{E<:Environment} <: AbstractEvent
+type Event{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}
   function Event(env::E)
     new(BaseEvent(env))
@@ -22,7 +22,7 @@ function fail(ev::Event, exc::Exception; priority::Bool=false) :: Event
   succeed(ev, priority=priority, value=exc)
 end
 
-type Timeout{E<:Environment} <: AbstractEvent
+type Timeout{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}
   function Timeout(env::E, delay::Union{Period, Number}, priority::Bool, value::Any)
     ev = new(BaseEvent(env))

@@ -1,10 +1,10 @@
 abstract Environment
-abstract AbstractEvent
+abstract AbstractEvent{E<:Environment}
 
 @enum EVENT_STATE idle=0 triggered=1 processed=2
 
-type EventProcessed <: Exception end
-type EventNotIdle <: Exception end
+immutable EventProcessed <: Exception end
+immutable EventNotIdle <: Exception end
 
 type BaseEvent{E<:Environment}
   env :: E

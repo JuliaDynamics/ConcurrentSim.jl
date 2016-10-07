@@ -6,13 +6,13 @@ immutable StateValue
   end
 end
 
-type Operator <: AbstractEvent
+type Operator{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent
   eval :: Function
-  function Operator(eval::Function, fev::AbstractEvent, events::AbstractEvent...)
+  function Operator(eval::Function, fev::AbstractEvent{E}, events::AbstractEvent{E}...)
     env = environment(fev)
     op = new(BaseEvent(env), eval)
-    event_state_values = Dict{AbstractEvent, StateValue}()
+    event_state_values = Dict{AbstractEvent{E}, StateValue}()
     for ev in tuple(fev, events...)
       event_state_values[ev] = StateValue(state(ev))
       append_callback(check, ev, op, event_state_values)
@@ -21,7 +21,11 @@ type Operator <: AbstractEvent
   end
 end
 
-function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{AbstractEvent, StateValue})
+function Operator{E<:Environment}(eval::Function, fev::AbstractEvent{E}, events::AbstractEvent{E}...) :: Operator{E}
+  Operator{E}(eval, fev, events...)
+end
+
+function check{E<:Environment}(ev::AbstractEvent{E}, op::Operator{E}, event_state_values::Dict{AbstractEvent{E}, StateValue})
   val = value(ev)
   if state(op) == idle
     if isa(val, Exception)
@@ -49,10 +53,10 @@ function eval_or(state_values::Vector{StateValue})
   return any(map((sv)->sv.state == processed, state_values))
 end
 
-function (&)(ev1::AbstractEvent, ev2::AbstractEvent)
+function (&){E<:Environment}(ev1::AbstractEvent{E}, ev2::AbstractEvent{E})
   return Operator(eval_and, ev1, ev2)
 end
 
-function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
+function (|){E<:Environment}(ev1::AbstractEvent{E}, ev2::AbstractEvent{E})
   return Operator(eval_or, ev1, ev2)
 end

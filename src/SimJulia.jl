@@ -17,6 +17,7 @@ module SimJulia
   export idle, triggered, processed
   export Event
   export succeed, fail, timeout
+  export Operator
   export (&), (|)
   export Process
   export yield, interrupt

@@ -14,10 +14,6 @@ function test_process(sim::Simulation, ev::AbstractEvent)
   yield(ev)
 end
 
-function test_callback_exception(ev::AbstractEvent)
-  println("$(value(ev)) has been thrown")
-end
-
 function test_process_exception(sim::Simulation, ev::AbstractEvent)
   try
     value = yield(ev)
@@ -30,7 +26,6 @@ end
 function test_interrupter(sim::Simulation, proc::Process)
   yield(timeout(sim, 2))
   yield(interrupt(proc))
-  throw(TestException())
 end
 
 function test_interrupted(sim::Simulation)
@@ -67,7 +62,7 @@ run(sim)
 
 sim = Simulation()
 proc = Process(test_interrupted, sim)
-append_callback(test_callback_exception, Process(test_interrupter, sim, proc))
+Process(test_interrupter, sim, proc)
 try
   run(sim)
 catch exc

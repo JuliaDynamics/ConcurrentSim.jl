@@ -3,7 +3,7 @@ using SimJulia
 type TestException <: Exception end
 
 function test_callback_event(ev::Event)
-  println("Hi $ev have value $(value(ev))")
+  println("Hi $ev has value $(value(ev))")
 end
 
 function test_callback_timeout(ev::AbstractEvent)
