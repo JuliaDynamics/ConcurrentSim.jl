@@ -9,16 +9,16 @@ function Event{E<:Environment}(env::E) :: Event{E}
   Event{E}(env)
 end
 
-function succeed(ev::Event; priority::Bool=false, value::Any=nothing) :: Event
+function succeed{E<:Environment}(ev::Event{E}; priority::Bool=false, value::Any=nothing) :: Event{E}
   sta = state(ev)
   if sta == triggered || sta == processed
-    throw(EventNotIdle())
+    throw(EventNotIdle(ev))
   end
   schedule(ev.bev, priority=priority, value=value)
   return ev
 end
 
-function fail(ev::Event, exc::Exception; priority::Bool=false) :: Event
+function fail{E<:Environment}(ev::Event{E}, exc::Exception; priority::Bool=false) :: Event{E}
   succeed(ev, priority=priority, value=exc)
 end
 

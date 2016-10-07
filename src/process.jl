@@ -47,15 +47,16 @@ function yield(target::AbstractEvent) :: Any
   return ret
 end
 
-immutable InterruptException <: Exception
+immutable InterruptException{E<:Environment} <: Exception
+  by :: Process{E}
   cause :: Any
 end
 
-function interrupt(proc::Process, cause::Any=nothing) :: Timeout
+function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing) :: Timeout{E}
   env = environment(proc)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
-    proc.target = timeout(env, priority=true, value=InterruptException(cause))
+    proc.target = timeout(env, priority=true, value=InterruptException(proc, cause))
     proc.resume = append_callback(execute, proc.target, proc)
   end
   timeout(env, priority=true)

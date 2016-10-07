@@ -14,7 +14,6 @@ module SimJulia
 
   export AbstractEvent
   export state, value, environment, append_callback, remove_callback
-  export idle, triggered, processed
   export Event
   export succeed, fail, timeout
   export Operator

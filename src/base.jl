@@ -3,8 +3,13 @@ abstract AbstractEvent{E<:Environment}
 
 @enum EVENT_STATE idle=0 triggered=1 processed=2
 
-immutable EventProcessed <: Exception end
-immutable EventNotIdle <: Exception end
+immutable EventProcessed{E<:Environment} <: Exception
+  ev :: AbstractEvent{E}
+end
+
+immutable EventNotIdle{E<:Environment} <: Exception
+  ev :: AbstractEvent{E}
+end
 
 type BaseEvent{E<:Environment}
   env :: E
@@ -40,7 +45,7 @@ end
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
   if ev.bev.state == processed
-    throw(EventProcessed())
+    throw(EventProcessed(ev))
   end
   cb = ()->func(ev, args...)
   ev.bev.callbacks[cb] = ev.bev.cid+=one(UInt)
