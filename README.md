@@ -38,6 +38,7 @@ julia> Pkg.add("SimJulia")
 #### Release Notes
 
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
+* Only supports Julia v0.5.
 * Scheduling is based on TimeType and Period.
 * The discrete event features are on par with version 0.3. (STABLE)
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
@@ -46,8 +47,8 @@ julia> Pkg.add("SimJulia")
 
 #### Todo
 
-* Integration of stiff ODE
-* Extension to PDE by method of lines Integration
+* Integration of stiff ODE.
+* Extension to PDE by method of lines Integration.
 
 
 #### Authors
