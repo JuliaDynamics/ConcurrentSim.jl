@@ -84,12 +84,8 @@ function run(sim::Simulation, until::AbstractEvent) :: Any
   end
 end
 
-function run(sim::Simulation, period::Period) :: Any
+function run(sim::Simulation, period::Union{Period, Number}) :: Any
   run(sim, timeout(sim, period))
-end
-
-function run(sim::Simulation, period::Number) :: Any
-  run(sim, eps(sim.time)*period)
 end
 
 function run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any
@@ -107,5 +103,6 @@ function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; pri
 end
 
 function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Number=0; priority::Bool=false, value::Any=nothing)
-  schedule(bev, eps(bev.env.time)*delay, priority=priority, value=value)
+  P = typeof(eps(bev.env.time))
+  schedule(bev, P(delay), priority=priority, value=value)
 end
