@@ -10,19 +10,19 @@ SimJulia contains tutorials, in-depth documentation, and a large number of examp
 
 New ideas or interesting examples are always welcome and can be submitted as an issue or a pull request on GitHub.
 
-## Authors
+### Authors
 
 - [Ben Lauwens](http://www.rma.ac.be/), Royal Military Academy, Brussels, Belgium
 
-## License
+### License
 
 SimJulia is licensed under the [MIT "Expat" license](https://github.com/BenLauwens/SimJulia.jl/blob/master/LICENSE.md).
 
-## Installation
+### Installation
 
 SimJulia.jl is a [registered package](http://pkg.julialang.org), and is
 simply installed by running
 
-```julia
-julia> Pkg.add("SimJulia")
+```@repl
+Pkg.add("SimJulia")
 ```
