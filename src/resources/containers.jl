@@ -36,6 +36,19 @@ end
 
 request{E<:Environment}(res::Resource{E}; priority::Int=0) = put(res, 1, priority=priority)
 
+function request{E<:Environment}(func::Function, res::Resource{E}; priority::Int=0)
+  req = request(res, priority=priority)
+  try
+    func(req)
+  finally
+    if state(req) == processed
+      yield(release(res, priority=priority))
+    else
+      cancel(res, req)
+    end
+  end
+end
+
 function get{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: GetEvent{E}
   get_ev = GetEvent(con.env)
   con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)

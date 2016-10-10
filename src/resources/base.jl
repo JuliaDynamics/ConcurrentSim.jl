@@ -61,3 +61,15 @@ function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractReso
     end
   end
 end
+
+function cancel{E<:Environment}(res::AbstractResource{E}, put_ev::PutEvent{E})
+  dequeue!(res.put_queue, put_ev)
+end
+
+function cancel{E<:Environment}(res::AbstractResource{E}, get_ev::GetEvent{E})
+  dequeue!(res.get_queue, get_ev)
+end
+
+function capacity(res::AbstractResource)
+  return res.capacity
+end

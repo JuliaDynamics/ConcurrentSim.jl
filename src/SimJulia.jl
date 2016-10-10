@@ -23,7 +23,7 @@ module SimJulia
   export Simulation
   export run, now, active_process
   export Container, Resource, Store
-  export put, get, request, release
+  export put, get, request, release, cancel, capacity
 
   include("base.jl")
   include("events.jl")
