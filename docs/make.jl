@@ -8,7 +8,9 @@ makedocs(
   sitename = "SimJulia.jl",
   pages    = [
     "Home" => "index.md",
-    "Intro" => "intro.md",
+    "Intro" => [
+      "10_min/installation.md",
+    ],
     "Manual" => "topics.md",
     "Library" => "api.md"
     ]
