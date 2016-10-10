@@ -53,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "-",
     "title": "Installation",
     "category": "section",
-    "text": "SimJulia is implemented in pure Julia and has no dependencies. SimJulia runs on Julia v0.5... note::    Julia can be run from the browser without setup: JuliaBox.The built-in package manager of Julia is used to install SimJulia::Pkg.add(\"SimJulia\")You can now optionally run SimJulia’s tests to see if everything is working fine::Pkg.test(\"SimJulia\")"
+    "text": "SimJulia is implemented in pure Julia and has no dependencies. SimJulia runs on Julia v0.5.note: Note\nJulia can be run from the browser without setup: JuliaBox.The built-in package manager of Julia is used to install SimJulia::Pkg.add(\"SimJulia\")You can now optionally run SimJulia’s tests to see if everything is working fine::Pkg.test(\"SimJulia\")"
 },
 
 {
