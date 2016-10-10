@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "SimJulia.jl",
     "category": "section",
-    "text": "SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy."
+    "text": "SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.Its event dispatcher is based on a :class:Task. This is a control flow feature in Julia that allows computations to be suspended and resumed in a flexible manner. Processes in SimJulia are defined by functions yielding Events. SimJulia also provides three types of shared resources to model limited capacity congestion points: Resources, Containers and Stores. The API is modeled after the SimPy API but using some specific Julia semantics.The continuous time simulation framework is still under development and is based on a quantized state system solver that naturally integrates in the discrete event framework. Events can be triggered on Zerocrossings of functions depending on the continuous Variables.SimJulia contains tutorials, in-depth documentation, and a large number of examples. Most of the tutorials and the examples are borrowed from the SimPy distribution to allow a direct comparison and an easy migration path for users. The examples of continuous time simulation are heavily influenced by the examples in the DISCO library.New ideas or interesting examples are always welcome and can be submitted as an issue or a pull request on GitHub."
 },
 
 {
@@ -46,6 +46,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Intro",
     "category": "page",
     "text": ""
+},
+
+{
+    "location": "intro.html#Installation-1",
+    "page": "Intro",
+    "title": "Installation",
+    "category": "section",
+    "text": "SimJulia is implemented in pure Julia and has no dependencies. SimJulia runs on Julia v0.5... note::    Julia can be run from the browser without setup: JuliaBox <https://www.juliabox.com/>_The built-in package manager of Julia is used to install SimJulia::julia> Pkg.add(\"SimJulia\")You can now optionally run SimJulia’s tests to see if everything is working fine::julia> Pkg.test(\"SimJulia\")   ...   INFO: SimJulia tests passed   ..."
 },
 
 {
