@@ -8,6 +8,29 @@ function isless{T<:TimeType}(a::EventKey{T}, b::EventKey{T}) :: Bool
   (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
 
+"""
+Execution environment for a simulation.
+
+The passing of time is implemented by stepping from event to event.
+
+**Signature**:
+Simulation{T<:TimeType} <: Environment
+
+**Fields**:
+
+- `time :: T`
+- `heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}`
+- `eid :: UInt`
+- `sid :: UInt`
+- `active_proc :: Nullable{Process}`
+
+**Constructors**:
+
+- `Simulation{T<:TimeType}(initial_time::T) :: Simulation{T}`
+- `Simulation(initial_time::Number=0) :: Simulation{SimulationTime}`
+
+An initial_time for the simulation can be specified. By default, it starts at 0.
+"""
 type Simulation{T<:TimeType} <: Environment
   time :: T
   heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
@@ -27,6 +50,12 @@ function Simulation(initial_time::Number=0) :: Simulation{SimulationTime}
   Simulation(SimulationTime(initial_time))
 end
 
+"""
+Returns the current simulation time.
+
+**Method**:
+`now{T<:TimeType}(sim::Simulation{T}) :: T`
+"""
 function now{T<:TimeType}(sim::Simulation{T}) :: T
   sim.time
 end
@@ -56,6 +85,13 @@ end
 
 immutable EmptySchedule <: Exception end
 
+"""
+Does a simulation step and processes the next event.
+
+**Method**:
+
+`step(sim::Simulation) :: Bool`
+"""
 function step(sim::Simulation)
   if isempty(sim.heap)
     throw(EmptySchedule())
@@ -69,6 +105,26 @@ function step(sim::Simulation)
   end
 end
 
+"""
+Executes [`step`](@ref) until the given criterion is met:
+
+- if nothing is not specified, the method will return when there are no further events to be processed
+- if it is a subtype of `AbstractEvent`, the simulation will continue stepping until this event has been triggered and will return its value
+- if it is a subtype of `TimeType`, the simulation will continue stepping until the simulation’s time reaches until
+- if it is a subtype of `Period`, the simulation will continue stepping during the given period
+- if it is a subtype of `Number`, the method will continue stepping during a period of elementary time units
+
+In the first two cases, the simulation can prematurely stop when there are no further events to be processed.
+
+If the stepping end with a `StopSimulation` exception the function return the value of the exception, in all other cases the exception is rethrown.
+
+**Methods**:
+
+  - `run(sim::Simulation, until::AbstractEvent) :: Any`
+  - `run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any`
+  - `run(sim::Simulation, period::Union{Period, Number}) :: Any`
+  - `run(sim::Simulation) :: Any`
+"""
 function run(sim::Simulation, until::AbstractEvent) :: Any
   append_callback(stop_simulation, until)
   try

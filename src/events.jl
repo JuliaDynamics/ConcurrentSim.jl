@@ -31,6 +31,16 @@ type Timeout{E<:Environment} <: AbstractEvent{E}
   end
 end
 
+"""
+Returns an event that gets triggered after a delay has passed.
+
+This event is automatically scheduled when it is created.
+
+**Methods**:
+
+- `timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
+- `timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
+"""
 function timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, delay, priority, value)
 end

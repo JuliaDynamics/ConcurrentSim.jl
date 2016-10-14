@@ -6,6 +6,10 @@ immutable StateValue
   end
 end
 
+function state(sv::StateValue) :: EVENT_STATE
+  sv.state
+end
+
 type Operator{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent
   eval :: Function

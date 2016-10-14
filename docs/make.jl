@@ -4,14 +4,18 @@ using SimJulia
 makedocs(
   modules = [SimJulia],
   clean   = true,
-  format   = Documenter.Formats.HTML,
+  format   = :html,
   sitename = "SimJulia.jl",
   pages    = [
     "Home" => "index.md",
     "Intro" => [
-      "10_min/installation.md",
+      "10_min/1_installation.md",
+      "10_min/2_basic_concepts.md",
     ],
     "Manual" => "topics.md",
+    "Examples" => [
+      "examples/1_bank-renege.md"
+    ],
     "Library" => "api.md"
     ]
 

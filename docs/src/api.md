@@ -8,34 +8,40 @@ Pages   = ["SimJulia.jl"]
 Private  = false
 ```
 
-### Base
+### Events
 
 ```@autodocs
 Modules = [SimJulia]
-Pages   = ["base.jl"]
+Pages   = ["base.jl", "events.jl", "operators.jl"]
+Order   = [:type, :function]
+Private  = false
+```
+
+### Simulation
+
+```@autodocs
+Modules = [SimJulia]
+Pages   = ["simulation.jl"]
+Order   = [:type, :function]
 Private  = false
 ```
 
 ### Processes
+
 ```@autodocs
 Modules = [SimJulia]
 Pages   = ["process.jl"]
-Private  = false
-```
-
-### Continuous
-
-### Resources
-```@autodocs
-Modules = [SimJulia]
-Pages   = ["resources/base.jl", "resources/containers.jl", "resources/stores.jl"]
+Order   = [:type, :function]
 Private  = false
 ```
 
 ## Internals
 
+### Simulation
+
 ```@autodocs
 Modules = [SimJulia]
-Pages   = ["SimJulia.jl", "base.jl"]
+Pages   = ["simulation.jl"]
+Order   = [:type, :function]
 Public  = false
 ```
