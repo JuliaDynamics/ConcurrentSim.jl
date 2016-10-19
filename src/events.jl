@@ -11,7 +11,7 @@ end
 
 function succeed{E<:Environment}(ev::Event{E}; priority::Bool=false, value::Any=nothing) :: Event{E}
   sta = state(ev)
-  if sta == triggered || sta == processed
+  if sta == scheduled || sta == triggered
     throw(EventNotIdle(ev))
   end
   schedule(ev.bev, priority=priority, value=value)
@@ -22,6 +22,25 @@ function fail{E<:Environment}(ev::Event{E}, exc::Exception; priority::Bool=false
   succeed(ev, priority=priority, value=exc)
 end
 
+"""
+An event that gets triggered after a delay has passed.
+
+This event is automatically scheduled when it is created.
+
+**Signature**:
+
+Timeout{E<:Environment} <: AbstractEvent{E}
+
+**Field**:
+
+- `bev :: BaseEvent{E}`
+
+**Constructors**:
+
+- `Timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
+- `Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
+"""
+
 type Timeout{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}
   function Timeout(env::E, delay::Union{Period, Number}, priority::Bool, value::Any)
@@ -31,20 +50,10 @@ type Timeout{E<:Environment} <: AbstractEvent{E}
   end
 end
 
-"""
-Returns an event that gets triggered after a delay has passed.
-
-This event is automatically scheduled when it is created.
-
-**Methods**:
-
-- `timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
-- `timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
-"""
-function timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}
+function Timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, delay, priority, value)
 end
 
-function timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}
+function Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, delay, priority, value)
 end

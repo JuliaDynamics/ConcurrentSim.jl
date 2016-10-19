@@ -1,9 +1,25 @@
 abstract Environment
+
+"""
+The parent type for all events.
+
+An events holds a pointer to an instance of a subtype of `Environment`.
+
+An event has a state:
+
+- may happen (idle),
+- is going to happen (scheduled),
+- has happened (triggered).
+
+Once the events is scheduled, it has a value.
+
+An event has also a list of callbacks. A callback can be any function as long as it accepts an instance of a subtype of `AbstractEvent` as its first argument. Once an event gets triggered, all callbacks will be invoked. Callbacks can do further processing with the value it has produced.
+"""
 abstract AbstractEvent{E<:Environment}
 
-@enum EVENT_STATE idle=0 triggered=1 processed=2
+@enum EVENT_STATE idle=0 scheduled=1 triggered=2
 
-immutable EventProcessed{E<:Environment} <: Exception
+immutable EventTriggered{E<:Environment} <: Exception
   ev :: AbstractEvent{E}
 end
 
@@ -44,8 +60,8 @@ function state(ev::AbstractEvent) :: EVENT_STATE
 end
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
-  if ev.bev.state == processed
-    throw(EventProcessed(ev))
+  if ev.bev.state == triggered
+    throw(EventTriggered(ev))
   end
   cb = ()->func(ev, args...)
   ev.bev.callbacks[cb] = ev.bev.cid+=one(UInt)

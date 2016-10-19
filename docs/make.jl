@@ -11,10 +11,11 @@ makedocs(
     "Intro" => [
       "10_min/1_installation.md",
       "10_min/2_basic_concepts.md",
+      "10_min/3_process_interaction.md",
     ],
     "Manual" => "topics.md",
     "Examples" => [
-      "examples/1_bank-renege.md"
+      "examples/1_bank_renege.md",
     ],
     "Library" => "api.md"
     ]

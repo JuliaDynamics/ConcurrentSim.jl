@@ -6,10 +6,6 @@ immutable StateValue
   end
 end
 
-function state(sv::StateValue) :: EVENT_STATE
-  sv.state
-end
-
 type Operator{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent
   eval :: Function
@@ -40,7 +36,7 @@ function check{E<:Environment}(ev::AbstractEvent{E}, op::Operator{E}, event_stat
         schedule(op.bev, value=event_state_values)
       end
     end
-  elseif state(op) == triggered
+  elseif state(op) == scheduled
     if isa(val, Exception)
       schedule(op.bev, priority=true, value=val)
     else
@@ -50,11 +46,11 @@ function check{E<:Environment}(ev::AbstractEvent{E}, op::Operator{E}, event_stat
 end
 
 function eval_and(state_values::Vector{StateValue})
-  return all(map((sv)->sv.state == processed, state_values))
+  return all(map((sv)->sv.state == triggered, state_values))
 end
 
 function eval_or(state_values::Vector{StateValue})
-  return any(map((sv)->sv.state == processed, state_values))
+  return any(map((sv)->sv.state == triggered, state_values))
 end
 
 function (&){E<:Environment}(ev1::AbstractEvent{E}, ev2::AbstractEvent{E})

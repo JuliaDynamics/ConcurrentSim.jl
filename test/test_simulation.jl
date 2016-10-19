@@ -10,8 +10,8 @@ function test_callback_exception(ev::Event)
 end
 
 sim = Simulation(now())
-append_callback(test_callback, timeout(sim, Day(1)))
-append_callback(test_callback, timeout(sim, 3600000))
+append_callback(test_callback, Timeout(sim, Day(1)))
+append_callback(test_callback, Timeout(sim, 3600000))
 run(sim, Day(2))
 sim = Simulation()
 try
@@ -20,7 +20,7 @@ catch exc
   println("$exc has been thrown")
 end
 sim = Simulation(now())
-append_callback(test_callback, timeout(sim, Day(1)))
+append_callback(test_callback, Timeout(sim, Day(1)))
 run(sim, now()+Day(2))
 println(now(sim))
 sim = Simulation()

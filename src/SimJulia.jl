@@ -10,12 +10,12 @@ module SimJulia
 
   import Base.==, Base.+, Base.*, Base.&, Base.|
   import Base.isless, Base.yield, Base.schedule, Base.run, Base.now, Base.eps
-  import Base.show, Base.typemax, Base.interrupt, Base.get
+  import Base.show, Base.typemax, Base.interrupt
 
   export AbstractEvent
   export state, value, environment, append_callback, remove_callback
-  export Event
-  export succeed, fail, timeout
+  export Event, Timeout
+  export succeed, fail
   export Operator
   export (&), (|)
   export Process
@@ -23,7 +23,7 @@ module SimJulia
   export Simulation
   export run, now, active_process
   export Container, Resource, Store
-  export put, get, request, release, cancel, capacity
+  export Put, Get, Request, Release, cancel, capacity
 
   include("base.jl")
   include("events.jl")

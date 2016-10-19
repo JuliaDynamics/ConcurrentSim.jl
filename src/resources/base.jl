@@ -4,26 +4,18 @@ abstract AbstractResource{E<:Environment}
 
 abstract ResourceEvent{E<:Environment} <: AbstractEvent{E}
 
-type PutEvent{E<:Environment} <: ResourceEvent{E}
+type Put{E<:Environment} <: ResourceEvent{E}
   bev :: BaseEvent{E}
-  function PutEvent(env::E)
+  function Put(env::E)
     new(BaseEvent(env))
   end
 end
 
-function PutEvent{E<:Environment}(env::E) :: PutEvent{E}
-  PutEvent{E}(env)
-end
-
-type GetEvent{E<:Environment} <: ResourceEvent{E}
+type Get{E<:Environment} <: ResourceEvent{E}
   bev :: BaseEvent{E}
-  function GetEvent(env::E)
+  function Get(env::E)
     new(BaseEvent(env))
   end
-end
-
-function GetEvent{E<:Environment}(env::E) :: GetEvent{E}
-  GetEvent{E}(env)
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
@@ -31,12 +23,12 @@ function isless(a::ResourceKey, b::ResourceKey)
 end
 
 function trigger_put{E<:Environment}(put_ev::ResourceEvent{E}, res::AbstractResource{E})
-  queue = PriorityQueue(res.put_queue)
+  queue = PriorityQueue(res.Put_queue)
   while length(queue) > 0
     (put_ev, key) = peek(queue)
     proceed = do_put(res, put_ev, key)
-    if state(put_ev) == triggered
-      dequeue!(res.put_queue, put_ev)
+    if state(put_ev) == scheduled
+      dequeue!(res.Put_queue, put_ev)
     end
     if proceed
       dequeue!(queue)
@@ -47,12 +39,12 @@ function trigger_put{E<:Environment}(put_ev::ResourceEvent{E}, res::AbstractReso
 end
 
 function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractResource{E})
-  queue = PriorityQueue(res.get_queue)
+  queue = PriorityQueue(res.Get_queue)
   while length(queue) > 0
     (get_ev, key) = peek(queue)
     proceed = do_get(res, get_ev, key)
-    if state(get_ev) == triggered
-      dequeue!(res.get_queue, get_ev)
+    if state(get_ev) == scheduled
+      dequeue!(res.Get_queue, get_ev)
     end
     if proceed
       dequeue!(queue)
@@ -62,12 +54,12 @@ function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractReso
   end
 end
 
-function cancel{E<:Environment}(res::AbstractResource{E}, put_ev::PutEvent{E})
-  dequeue!(res.put_queue, put_ev)
+function cancel{E<:Environment}(res::AbstractResource{E}, put_ev::Put{E})
+  dequeue!(res.Put_queue, put_ev)
 end
 
-function cancel{E<:Environment}(res::AbstractResource{E}, get_ev::GetEvent{E})
-  dequeue!(res.get_queue, get_ev)
+function cancel{E<:Environment}(res::AbstractResource{E}, get_ev::Get{E})
+  dequeue!(res.Get_queue, get_ev)
 end
 
 function capacity(res::AbstractResource)

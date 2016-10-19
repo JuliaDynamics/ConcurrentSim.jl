@@ -9,10 +9,10 @@ type Container{N<:Number, E<:Environment} <: AbstractResource{E}
   capacity :: N
   level :: N
   seid :: UInt
-  put_queue :: PriorityQueue{PutEvent{E}, ContainerKey{N}}
-  get_queue :: PriorityQueue{GetEvent{E}, ContainerKey{N}}
+  Put_queue :: PriorityQueue{Put{E}, ContainerKey{N}}
+  Get_queue :: PriorityQueue{Get{E}, ContainerKey{N}}
   function Container(env::E, capacity::N, level::N)
-    new(env, capacity, level, zero(UInt), PriorityQueue(PutEvent{E}, ContainerKey{N}), PriorityQueue(GetEvent{E}, ContainerKey{N}))
+    new(env, capacity, level, zero(UInt), PriorityQueue(Put{E}, ContainerKey{N}), PriorityQueue(Get{E}, ContainerKey{N}))
   end
 end
 
@@ -26,40 +26,44 @@ function Resource{E<:Environment}(env::E, capacity::Int=1; level::Int=0) :: Reso
   Resource{E}(env, capacity, level)
 end
 
-function put{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: PutEvent{E}
-  put_ev = PutEvent(con.env)
-  con.put_queue[put_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
+function Put{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: Put{E}
+  put_ev = Put{E}(con.env)
+  con.Put_queue[put_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   append_callback(trigger_get, put_ev, con)
   trigger_put(put_ev, con)
   return put_ev
 end
 
-request{E<:Environment}(res::Resource{E}; priority::Int=0) = put(res, 1, priority=priority)
+typealias Request Put
 
-function request{E<:Environment}(func::Function, res::Resource{E}; priority::Int=0)
-  req = request(res, priority=priority)
+Request{E<:Environment}(res::Resource{E}; priority::Int=0) = Put(res, 1, priority=priority)
+
+function Request{E<:Environment}(func::Function, res::Resource{E}; priority::Int=0)
+  req = Request(res, priority=priority)
   try
     func(req)
   finally
-    if state(req) == processed
-      yield(release(res, priority=priority))
+    if state(req) == triggered
+      yield(Release(res, priority=priority))
     else
       cancel(res, req)
     end
   end
 end
 
-function get{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: GetEvent{E}
-  get_ev = GetEvent(con.env)
-  con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
+function Get{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: Get{E}
+  get_ev = Get{E}(con.env)
+  con.Get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   append_callback(trigger_put, get_ev, con)
   trigger_get(get_ev, con)
   return get_ev
 end
 
-release{E<:Environment}(res::Resource{E}; priority::Int=0) = get(res, 1, priority=priority)
+typealias Release Get
 
-function do_put{N<:Number, E<:Environment}(con::Container{N, E}, put_ev::PutEvent{E}, key::ContainerKey{N}) :: Bool
+Release{E<:Environment}(res::Resource{E}; priority::Int=0) = Get(res, 1, priority=priority)
+
+function do_put{N<:Number, E<:Environment}(con::Container{N, E}, put_ev::Put{E}, key::ContainerKey{N}) :: Bool
   if con.level + key.amount <= con.capacity
     schedule(put_ev.bev)
     con.level += key.amount
@@ -68,7 +72,7 @@ function do_put{N<:Number, E<:Environment}(con::Container{N, E}, put_ev::PutEven
   return false
 end
 
-function do_get{N<:Number, E<:Environment}(con::Container{N, E}, get_ev::GetEvent{E}, key::ContainerKey{N}) :: Bool
+function do_get{N<:Number, E<:Environment}(con::Container{N, E}, get_ev::Get{E}, key::ContainerKey{N}) :: Bool
   if con.level - key.amount >= zero(N)
     schedule(get_ev.bev)
     con.level -= key.amount

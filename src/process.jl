@@ -29,7 +29,7 @@ type Process{E<:Environment} <: AbstractEvent{E}
     proc = new()
     proc.bev = BaseEvent(env)
     proc.task = Task(()->func(env, args...))
-    proc.target = timeout(env)
+    proc.target = Timeout(env)
     proc.resume = append_callback(execute, proc.target, proc)
     return proc
   end
@@ -65,8 +65,8 @@ yield(target::AbstractEvent) :: Any
 function yield(target::AbstractEvent) :: Any
   env = environment(target)
   proc = active_process(env)
-  if state(target) == processed
-    proc.target = timeout(env, value=value(target))
+  if state(target) == triggered
+    proc.target = Timeout(env, value=value(target))
   else
     proc.target = target
   end
@@ -83,12 +83,11 @@ immutable InterruptException{E<:Environment} <: Exception
   cause :: Any
 end
 
-function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing) :: Timeout{E}
+function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing)
   env = environment(proc)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
-    proc.target = timeout(env, priority=true, value=InterruptException(proc, cause))
+    proc.target = Timeout(env, priority=true, value=InterruptException(proc, cause))
     proc.resume = append_callback(execute, proc.target, proc)
   end
-  timeout(env, priority=true)
 end

@@ -6,9 +6,9 @@ end
 
 function consumer(sim::Simulation, sto::Store)
   for i = 1:10
-    yield(timeout(sim, rand()))
+    yield(Timeout(sim, rand()))
     println("$(now(sim)), consumer is demanding object")
-    obj = yield(get(sto))
+    obj = yield(Get(sto))
     println("$(now(sim)), consumer is being served with object $(obj.i)")
   end
 end
@@ -16,9 +16,9 @@ end
 function producer(sim::Simulation, sto::Store)
   for i = 1:10
     println("$(now(sim)), producer is offering object $i")
-    yield(put(sto, StoreObject(i)))
+    yield(Put(sto, StoreObject(i)))
     println("$(now(sim)), producer is being served")
-    yield(timeout(sim, 2*rand()))
+    yield(Timeout(sim, 2*rand()))
   end
 end
 

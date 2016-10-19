@@ -99,7 +99,7 @@ function step(sim::Simulation)
   (bev, key) = peek(sim.heap)
   dequeue!(sim.heap)
   sim.time = key.time
-  bev.state = processed
+  bev.state = triggered
   while !isempty(bev.callbacks)
     dequeue!(bev.callbacks)()
   end
@@ -108,13 +108,13 @@ end
 """
 Executes [`step`](@ref) until the given criterion is met:
 
-- if nothing is not specified, the method will return when there are no further events to be processed
+- if nothing is not specified, the method will return when there are no further events to be triggered
 - if it is a subtype of `AbstractEvent`, the simulation will continue stepping until this event has been triggered and will return its value
 - if it is a subtype of `TimeType`, the simulation will continue stepping until the simulation’s time reaches until
 - if it is a subtype of `Period`, the simulation will continue stepping during the given period
 - if it is a subtype of `Number`, the method will continue stepping during a period of elementary time units
 
-In the first two cases, the simulation can prematurely stop when there are no further events to be processed.
+In the first two cases, the simulation can prematurely stop when there are no further events to be triggered.
 
 If the stepping end with a `StopSimulation` exception the function return the value of the exception, in all other cases the exception is rethrown.
 
@@ -125,7 +125,7 @@ If the stepping end with a `StopSimulation` exception the function return the va
   - `run(sim::Simulation, period::Union{Period, Number}) :: Any`
   - `run(sim::Simulation) :: Any`
 """
-function run(sim::Simulation, until::AbstractEvent) :: Any
+function run{T<:TimeType}(sim::Simulation{T}, until::AbstractEvent{Simulation{T}}) :: Any
   append_callback(stop_simulation, until)
   try
     while true
@@ -141,7 +141,7 @@ function run(sim::Simulation, until::AbstractEvent) :: Any
 end
 
 function run(sim::Simulation, period::Union{Period, Number}) :: Any
-  run(sim, timeout(sim, period))
+  run(sim, Timeout(sim, period))
 end
 
 function run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any
@@ -155,7 +155,7 @@ end
 function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; priority::Bool=false, value::Any=nothing)
   bev.value = value
   bev.env.heap[bev] = EventKey(bev.env.time + delay, priority, bev.env.sid+=one(UInt))
-  bev.state = triggered
+  bev.state = scheduled
 end
 
 function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Number=0; priority::Bool=false, value::Any=nothing)
