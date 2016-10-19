@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "SimJulia.jl",
     "category": "section",
-    "text": "SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.Its event dispatcher is based on a Task. This is a control flow feature in Julia that allows comPutations to be suspended and resumed in a flexible manner. Processes in SimJulia are defined by functions yielding Events. SimJulia also provides three types of shared resources to model limited capacity congestion points: Resources, Containers and Stores. The API is modeled after the SimPy API but using some specific Julia semantics.A short example simulating two clocks ticking in different time intervals looks like this:using SimJulia\n\nfunction clock(sim::Simulation, name::String, tick::Float64)\n  while true\n    println(\"$name, $(now(sim))\")\n    yield(Timeout(sim, tick))\n  end\nend\n\nsim = Simulation()\nProcess(clock, sim, \"fast\", 0.5)\nProcess(clock, sim, \"slow\", 1.0)\nrun(sim, 2.0)The continuous time simulation framework is still under development and is based on a quantized state system solver that naturally integrates in the discrete event framework. Events can be triggered on Zerocrossings of functions depending on the continuous Variables described by a system of differential equations.SimJulia contains tutorials, in-depth documentation, and a large number of examples. Most of the tutorials and the examples are borrowed from the SimPy distribution to allow a direct comparison and an easy migration path for users. The examples of continuous time simulation are heavily influenced by the examples in the DISCO library.New ideas or interesting examples are always welcome and can be submitted as an issue or a pull Request on GitHub."
+    "text": "SimJulia is a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO and the Python library SimPy.Its event dispatcher is based on a Task. This is a control flow feature in Julia that allows comPutations to be suspended and resumed in a flexible manner. Processes in SimJulia are defined by functions yielding Events. SimJulia also provides three types of shared resources to model limited capacity congestion points: Resources, Containers and Stores. The API is modeled after the SimPy API but using some specific Julia semantics.A short example simulating two clocks ticking in different time intervals looks like this:Markdown.Code(\"julia\", readstring(joinpath(\"..\", \"..\", \"examples\", \"1_intro.jl\")))include(joinpath(\"..\", \"examples\", \"1_intro.jl\")) # hideThe continuous time simulation framework is still under development and is based on a quantized state system solver that naturally integrates in the discrete event framework. Events can be triggered on Zerocrossings of functions depending on the continuous Variables described by a system of differential equations.SimJulia contains tutorials, in-depth documentation, and a large number of examples. Most of the tutorials and the examples are borrowed from the SimPy distribution to allow a direct comparison and an easy migration path for users. The examples of continuous time simulation are heavily influenced by the examples in the DISCO library.New ideas or interesting examples are always welcome and can be submitted as an issue or a pull Request on GitHub."
 },
 
 {
@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Bank Renege",
     "title": "Bank Renege",
     "category": "section",
-    "text": "Covers:Resources\nEvent operatorsA counter with a random service time and customers who renege.This example models a bank counter and customers arriving at random times. Each customer has a certain patience. It waits to get to the counter until she’s at the end of her tether. If she gets to the counter, she uses it for a while.New customers are created by the source process every few time steps.using SimJulia\nusing Distributions\n\nconst RANDOM_SEED = 150\nconst NEW_CUSTOMERS = 5  # Total number of customers\nconst INTERVAL_CUSTOMERS = 10.0  # Generate new customers roughly every x seconds\nconst MIN_PATIENCE = 1.0  # Min. customer patience\nconst MAX_PATIENCE = 3.0  # Max. customer patience\n\nfunction source(sim::Simulation, number::Int, interval::Float64, counter::Resource)\n  d = Exponential(interval)\n  for i in 1:number\n    Process(customer, sim, \"Customer $i\", counter, 12.0)\n    yield(Timeout(sim, rand(d)))\n  end\nend\n\nfunction customer(sim::Simulation, name::String, counter::Resource, time_in_bank::Float64)\n  arrive = now(sim)\n  println(\"$arrive $name: Here I am\")\n  Request(counter) do req\n    patience = rand(Uniform(MIN_PATIENCE, MAX_PATIENCE))\n    yield(req | Timeout(sim, patience))\n    wait = now(sim) - arrive\n    if state(req) == SimJulia.triggered\n      println(\"$(now(sim)) $name: Waited $wait\")\n      yield(Timeout(sim, rand(Exponential(time_in_bank))))\n      println(\"$(now(sim)) $name: Finished\")\n    else\n      println(\"$(now(sim)) $name: RENEGED after $wait\")\n    end\n  end\nend\n\n# Setup and start the simulation\nprintln(\"Bank renege\")\nsrand(RANDOM_SEED)\nsim = Simulation()\n\n# Start processes and run\ncounter = Resource(sim, 1)\nProcess(source, sim, NEW_CUSTOMERS, INTERVAL_CUSTOMERS, counter)\nrun(sim)"
+    "text": "Covers:Resources\nEvent operatorsA counter with a random service time and customers who renege.This example models a bank counter and customers arriving at random times. Each customer has a certain patience. It waits to get to the counter until she’s at the end of her tether. If she gets to the counter, she uses it for a while.New customers are created by the source process every few time steps.Markdown.Code(\"julia\", readstring(joinpath(\"..\", \"..\", \"..\", \"examples\", \"examples\", \"1_bank_renege.jl\")))include(joinpath(\"..\", \"examples\", \"examples\", \"1_bank_renege.jl\")) # hide"
 },
 
 {
@@ -217,6 +217,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "api.html#SimJulia.@Process-Tuple{Any}",
+    "page": "Library",
+    "title": "SimJulia.@Process",
+    "category": "Macro",
+    "text": "Creates a Process with process function func having a required argument env, i.e. an instance of a subtype of Environment, and a variable number of arguments args....\n\nSignature:\n\n@Process func(env, args...)\n\n\n\n"
+},
+
+{
     "location": "api.html#Base.yield-Tuple{SimJulia.AbstractEvent}",
     "page": "Library",
     "title": "Base.yield",
@@ -229,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "Processes",
     "category": "section",
-    "text": "Modules = [SimJulia]\nPages   = [\"process.jl\"]\nOrder   = [:type, :function]\nPrivate  = false"
+    "text": "Modules = [SimJulia]\nPages   = [\"process.jl\"]\nOrder   = [:type, :macro, :function]\nPrivate  = false"
 },
 
 {
