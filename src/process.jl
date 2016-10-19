@@ -39,6 +39,21 @@ function Process{E<:Environment}(func::Function, env::E, args::Any...) :: Proces
   Process{E}(func, env, args...)
 end
 
+"""
+Creates a `Process` with process function `func` having a required argument `env`, i.e. an instance of a subtype of `Environment`, and a variable number of arguments `args...`.
+
+**Signature**:
+
+@Process func(env, args...)
+"""
+macro Process(ex)
+  if ex.head == :call
+    func = esc(ex.args[1])
+    args = [esc(ex.args[n]) for n in 2:length(ex.args)]
+    return :(Process($(func), $(args...)))
+  end
+end
+
 function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Process{E})
   try
     env = environment(ev)

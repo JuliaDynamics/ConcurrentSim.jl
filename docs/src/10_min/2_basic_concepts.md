@@ -35,7 +35,7 @@ The car switches between the states parking and driving. It announces its new st
 
 Now that the behavior of the car has been modeled, we create an instance of it and see how it behaves:
 
-```@setup 10_min_2
+```@setup 10_min_1
 using SimJulia
 function car(sim::Simulation)
   while true
@@ -49,7 +49,7 @@ function car(sim::Simulation)
 end
 ```
 
-```@example 10_min_2
+```@example 10_min_1
 sim = Simulation()
 Process(car, sim)
 run(sim, 15)

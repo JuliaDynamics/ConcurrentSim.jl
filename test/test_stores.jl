@@ -24,6 +24,6 @@ end
 
 sim = Simulation()
 sto = Store(StoreObject, sim)
-Process(consumer, sim, sto)
-Process(producer, sim, sto)
+@Process consumer(sim, sto)
+@Process producer(sim, sto)
 run(sim)

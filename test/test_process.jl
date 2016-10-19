@@ -41,15 +41,15 @@ function test_interrupted(sim::Simulation)
 end
 
 sim = Simulation()
-Process(fibonnaci, sim)
+@Process fibonnaci(sim)
 run(sim, 10)
 
 sim = Simulation()
-Process(test_process, sim, succeed(Event(sim)))
+@Process test_process(sim, succeed(Event(sim)))
 run(sim)
 
 sim = Simulation()
-Process(test_process_exception, sim, Timeout(sim, 1, value=TestException()))
+@Process test_process_exception(sim, Timeout(sim, 1, value=TestException()))
 try
   run(sim)
 catch exc
@@ -57,12 +57,12 @@ catch exc
 end
 
 sim = Simulation()
-Process(test_process_exception, sim, Timeout(sim, value=TestException()))
+@Process test_process_exception(sim, Timeout(sim, value=TestException()))
 run(sim)
 
 sim = Simulation()
-proc = Process(test_interrupted, sim)
-Process(test_interrupter, sim, proc)
+proc = @Process test_interrupted(sim)
+@Process test_interrupter(sim, proc)
 try
   run(sim)
 catch exc

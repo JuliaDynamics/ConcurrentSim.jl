@@ -31,7 +31,7 @@ Private  = false
 ```@autodocs
 Modules = [SimJulia]
 Pages   = ["process.jl"]
-Order   = [:type, :function]
+Order   = [:type, :macro, :function]
 Private  = false
 ```
 

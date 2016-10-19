@@ -10,7 +10,7 @@ const MAX_PATIENCE = 3.0  # Max. customer patience
 function source(sim::Simulation, number::Int, interval::Float64, counter::Resource)
   d = Exponential(interval)
   for i in 1:number
-    Process(customer, sim, "Customer $i", counter, 12.0)
+    @Process customer(sim, "Customer $i", counter, 12.0)
     yield(Timeout(sim, rand(d)))
   end
 end
@@ -39,5 +39,5 @@ sim = Simulation()
 
 # Start processes and run
 counter = Resource(sim, 1)
-Process(source, sim, NEW_CUSTOMERS, INTERVAL_CUSTOMERS, counter)
+@Process source(sim, NEW_CUSTOMERS, INTERVAL_CUSTOMERS, counter)
 run(sim)

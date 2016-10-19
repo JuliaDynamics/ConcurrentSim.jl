@@ -18,7 +18,7 @@ module SimJulia
   export succeed, fail
   export Operator
   export (&), (|)
-  export Process
+  export Process, @Process
   export yield, interrupt
   export Simulation
   export run, now, active_process

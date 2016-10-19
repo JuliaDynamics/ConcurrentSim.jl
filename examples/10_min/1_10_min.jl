@@ -1,13 +1,16 @@
 using SimJulia
 
-function clock(sim::Simulation, name::String, tick::Float64)
+function car(sim::Simulation)
   while true
-    println("$name, $(now(sim))")
-    yield(Timeout(sim, tick))
+    println("Start parking at $(now(sim))")
+    parking_duration = 5
+    yield(Timeout(sim, parking_duration))
+    println("Start driving at $(now(sim))")
+    trip_duration = 2
+    yield(Timeout(sim, trip_duration))
   end
 end
 
 sim = Simulation()
-Process(clock, sim, "fast", 0.5)
-Process(clock, sim, "slow", 1.0)
-run(sim, 2.0)
+@Process car(sim)
+run(sim, 15)
