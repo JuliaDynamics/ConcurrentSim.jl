@@ -99,10 +99,9 @@ immutable InterruptException{E<:Environment} <: Exception
 end
 
 function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing)
-  env = environment(proc)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
-    proc.target = Timeout(env, priority=true, value=InterruptException(proc, cause))
+    proc.target = Timeout(environment(proc), priority=true, value=InterruptException(proc, cause))
     proc.resume = append_callback(execute, proc.target, proc)
   end
 end
