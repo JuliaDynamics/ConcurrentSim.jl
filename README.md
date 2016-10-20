@@ -27,7 +27,7 @@ julia> Pkg.add("SimJulia")
 #### Package Evaluator
 
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.5.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.5)
-
+[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.6.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.6)
 
 #### Documentation
 
@@ -38,7 +38,7 @@ julia> Pkg.add("SimJulia")
 #### Release Notes
 
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
-* Only supports Julia v0.5.
+* Only supports Julia v0.5 and above.
 * Scheduling is based on TimeType and Period.
 * The discrete event features are on par with version 0.3. (STABLE)
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
