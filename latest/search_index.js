@@ -141,7 +141,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia",
     "category": "Module",
-    "text": "SimJulia\n\nMain module for SimJulia.jl – a combined continuous time / discrete event process oriented simulation framework for Julia.\n\n\n\n"
+    "text": "Main module for SimJulia.jl – a combined continuous time / discrete event process oriented simulation framework for Julia.\n\n\n\n"
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.Timeout",
     "category": "Type",
-    "text": "An event that gets triggered after a delay has passed.\n\nThis event is automatically scheduled when it is created.\n\nSignature:\n\nTimeout{E<:Environment} <: AbstractEvent{E}\n\nField:\n\nbev :: BaseEvent{E}\n\nConstructors:\n\nTimeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}\nTimeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}\n\n\n\n"
+    "text": "An event that gets triggered after a delay has passed.\n\nThis event is automatically scheduled when it is created.\n\nSignature:\n\nTimeout{E<:Environment} <: AbstractEvent{E}\n\nField:\n\nbev :: BaseEvent{E}\n\nConstructors:\n\nTimeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing)\nTimeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing)\n\n\n\n"
 },
 
 {
@@ -213,7 +213,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Library",
     "title": "SimJulia.Process",
     "category": "Type",
-    "text": "A Process is an abstraction for an event yielding function, i.e. a process function.\n\nThe process function can suspend its execution by yielding an instance of AbstractEvent. The Environment will take care of resuming the process function with the value of that event once it has happened. The exception of failed events is also thrown into the process function.\n\nA Process is a subtype of AbstractEvent. It is triggered, once the process functions returns or raises an exception. The value of the process is the return value of the process function or the exception, respectively.\n\nSignature:\n\nProcess{E<:Environment} <: AbstractEvent{E}\n\nFields:\n\nbev :: BaseEvent{E}\ntask :: Task\ntarget :: AbstractEvent{E}\nresume :: Function\n\nConstructor:\n\nProcess{E<:Environment}(func::Function, env::E, args::Any...) :: Process{E}\n\n\n\n"
+    "text": "A Process is an abstraction for an event yielding function, i.e. a process function.\n\nThe process function can suspend its execution by yielding an instance of AbstractEvent. The Environment will take care of resuming the process function with the value of that event once it has happened. The exception of failed events is also thrown into the process function.\n\nA Process is a subtype of AbstractEvent. It is triggered, once the process functions returns or raises an exception. The value of the process is the return value of the process function or the exception, respectively.\n\nSignature:\n\nProcess{E<:Environment} <: AbstractEvent{E}\n\nFields:\n\nbev :: BaseEvent{E}\ntask :: Task\ntarget :: AbstractEvent{E}\nresume :: Function\n\nConstructor:\n\nProcess{E<:Environment}(func::Function, env::E, args::Any...)\n\n\n\n"
 },
 
 {
