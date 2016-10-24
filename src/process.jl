@@ -11,14 +11,14 @@ Process{E<:Environment} <: AbstractEvent{E}
 
 **Fields**:
 
-- `bev :: BaseEvent{E}`
-- `task :: Task`
-- `target :: AbstractEvent{E}`
-- `resume :: Function`
+- bev :: BaseEvent{E}
+- task :: Task
+- target :: AbstractEvent{E}
+- resume :: Function
 
 **Constructor**:
 
-Process{E<:Environment}(func::Function, env::E, args::Any...) :: Process{E}
+Process{E<:Environment}(func::Function, env::E, args::Any...)
 """
 type Process{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}

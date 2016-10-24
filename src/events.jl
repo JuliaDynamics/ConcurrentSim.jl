@@ -33,12 +33,12 @@ Timeout{E<:Environment} <: AbstractEvent{E}
 
 **Field**:
 
-- `bev :: BaseEvent{E}`
+- bev :: BaseEvent{E}
 
 **Constructors**:
 
-- `Timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
-- `Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}`
+- Timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing)
+- Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing)
 """
 
 type Timeout{E<:Environment} <: AbstractEvent{E}

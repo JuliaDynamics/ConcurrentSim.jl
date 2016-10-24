@@ -1,8 +1,6 @@
 isdefined(Base, :__precompile__) && __precompile__()
 
 """
-  `SimJulia`
-
 Main module for SimJulia.jl – a combined continuous time / discrete event process oriented simulation framework for Julia.
 """
 module SimJulia

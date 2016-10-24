@@ -18,16 +18,16 @@ Simulation{T<:TimeType} <: Environment
 
 **Fields**:
 
-- `time :: T`
-- `heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}`
-- `eid :: UInt`
-- `sid :: UInt`
-- `active_proc :: Nullable{Process}`
+- time :: T
+- heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
+- eid :: UInt
+- sid :: UInt
+- active_proc :: Nullable{Process}
 
 **Constructors**:
 
-- `Simulation{T<:TimeType}(initial_time::T) :: Simulation{T}`
-- `Simulation(initial_time::Number=0) :: Simulation{SimulationTime}`
+- Simulation{T<:TimeType}(initial_time::T) :: Simulation{T}
+- Simulation(initial_time::Number=0) :: Simulation{SimulationTime}
 
 An initial_time for the simulation can be specified. By default, it starts at 0.
 """
@@ -54,7 +54,7 @@ end
 Returns the current simulation time.
 
 **Method**:
-`now{T<:TimeType}(sim::Simulation{T}) :: T`
+now{T<:TimeType}(sim::Simulation{T}) :: T
 """
 function now{T<:TimeType}(sim::Simulation{T}) :: T
   sim.time
@@ -90,7 +90,7 @@ Does a simulation step and processes the next event.
 
 **Method**:
 
-`step(sim::Simulation) :: Bool`
+step(sim::Simulation) :: Bool
 """
 function step(sim::Simulation)
   if isempty(sim.heap)
@@ -120,10 +120,10 @@ If the stepping end with a `StopSimulation` exception the function return the va
 
 **Methods**:
 
-  - `run(sim::Simulation, until::AbstractEvent) :: Any`
-  - `run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any`
-  - `run(sim::Simulation, period::Union{Period, Number}) :: Any`
-  - `run(sim::Simulation) :: Any`
+  - run(sim::Simulation, until::AbstractEvent) :: Any
+  - run{T<:TimeType}(sim::Simulation{T}, until::T) :: Any
+  - run(sim::Simulation, period::Union{Period, Number}) :: Any
+  - run(sim::Simulation) :: Any
 """
 function run{T<:TimeType}(sim::Simulation{T}, until::AbstractEvent{Simulation{T}}) :: Any
   append_callback(stop_simulation, until)
@@ -154,7 +154,7 @@ end
 
 function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; priority::Bool=false, value::Any=nothing)
   bev.value = value
-  bev.env.heap[bev] = EventKey(bev.env.time + delay, priority, bev.env.sid+=one(UInt))
+  bev.env.heap[bev] = EventKey{T}(bev.env.time + delay, priority, bev.env.sid+=one(UInt))
   bev.state = scheduled
 end
 
