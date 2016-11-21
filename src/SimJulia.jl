@@ -18,7 +18,7 @@ module SimJulia
   export (&), (|)
   export Process, @Process
   export yield, interrupt
-  export Simulation
+  export Simulation, StopSimulation
   export run, now, active_process
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity
