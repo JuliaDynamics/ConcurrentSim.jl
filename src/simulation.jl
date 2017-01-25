@@ -33,12 +33,12 @@ An initial_time for the simulation can be specified. By default, it starts at 0.
 """
 type Simulation{T<:TimeType} <: Environment
   time :: T
-  heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
+  heap :: DataStructures.PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
   eid :: UInt
   sid :: UInt
   active_proc :: Nullable{Process{Simulation{T}}}
   function Simulation(initial_time::T)
-    new(initial_time, PriorityQueue(BaseEvent{Simulation{T}}, EventKey{T}), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
+    new(initial_time, DataStructures.PriorityQueue(BaseEvent{Simulation{T}}, EventKey{T}), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
   end
 end
 
@@ -96,12 +96,12 @@ function step(sim::Simulation)
   if isempty(sim.heap)
     throw(EmptySchedule())
   end
-  (bev, key) = peek(sim.heap)
-  dequeue!(sim.heap)
+  (bev, key) = DataStructures.peek(sim.heap)
+  DataStructures.dequeue!(sim.heap)
   sim.time = key.time
   bev.state = triggered
   while !isempty(bev.callbacks)
-    dequeue!(bev.callbacks)()
+    DataStructures.dequeue!(bev.callbacks)()
   end
 end
 

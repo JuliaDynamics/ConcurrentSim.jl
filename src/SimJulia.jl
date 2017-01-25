@@ -5,6 +5,7 @@ Main module for SimJulia.jl – a combined continuous time / discrete event proc
 """
 module SimJulia
   using Base.Collections, Base.Dates
+  using DataStructures
 
   import Base.==, Base.+, Base.*, Base.&, Base.|
   import Base.isless, Base.yield, Base.schedule, Base.run, Base.now, Base.eps

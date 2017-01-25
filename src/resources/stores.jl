@@ -15,10 +15,10 @@ type Store{T, E<:Environment} <: AbstractResource{E}
   capacity :: UInt
   items :: Set{T}
   seid :: UInt
-  Put_queue :: PriorityQueue{Put{E}, StorePutKey{T}}
-  Get_queue :: PriorityQueue{Get{E}, StoreGetKey}
+  Put_queue :: DataStructures.PriorityQueue{Put{E}, StorePutKey{T}}
+  Get_queue :: DataStructures.PriorityQueue{Get{E}, StoreGetKey}
   function Store(env::E, capacity::UInt)
-    new(env, capacity, Set{T}(), zero(UInt), PriorityQueue(Put{E}, StorePutKey{T}), PriorityQueue(Get{E}, StoreGetKey))
+    new(env, capacity, Set{T}(), zero(UInt), DataStructures.PriorityQueue(Put{E}, StorePutKey{T}), DataStructures.PriorityQueue(Get{E}, StoreGetKey))
   end
 end
 

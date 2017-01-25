@@ -9,10 +9,10 @@ type Container{N<:Number, E<:Environment} <: AbstractResource{E}
   capacity :: N
   level :: N
   seid :: UInt
-  Put_queue :: PriorityQueue{Put{E}, ContainerKey{N}}
-  Get_queue :: PriorityQueue{Get{E}, ContainerKey{N}}
+  Put_queue :: DataStructures.PriorityQueue{Put{E}, ContainerKey{N}}
+  Get_queue :: DataStructures.PriorityQueue{Get{E}, ContainerKey{N}}
   function Container(env::E, capacity::N, level::N)
-    new(env, capacity, level, zero(UInt), PriorityQueue(Put{E}, ContainerKey{N}), PriorityQueue(Get{E}, ContainerKey{N}))
+    new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue(Put{E}, ContainerKey{N}), DataStructures.PriorityQueue(Get{E}, ContainerKey{N}))
   end
 end
 

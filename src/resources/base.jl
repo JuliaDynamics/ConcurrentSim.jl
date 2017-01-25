@@ -23,15 +23,15 @@ function isless(a::ResourceKey, b::ResourceKey)
 end
 
 function trigger_put{E<:Environment}(put_ev::ResourceEvent{E}, res::AbstractResource{E})
-  queue = PriorityQueue(res.Put_queue)
+  queue = DataStructures.PriorityQueue(res.Put_queue)
   while length(queue) > 0
-    (put_ev, key) = peek(queue)
+    (put_ev, key) = DataStructures.peek(queue)
     proceed = do_put(res, put_ev, key)
     if state(put_ev) == scheduled
-      dequeue!(res.Put_queue, put_ev)
+      DataStructures.dequeue!(res.Put_queue, put_ev)
     end
     if proceed
-      dequeue!(queue)
+      DataStructures.dequeue!(queue)
     else
       break
     end
@@ -39,15 +39,15 @@ function trigger_put{E<:Environment}(put_ev::ResourceEvent{E}, res::AbstractReso
 end
 
 function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractResource{E})
-  queue = PriorityQueue(res.Get_queue)
+  queue = DataStructures.PriorityQueue(res.Get_queue)
   while length(queue) > 0
-    (get_ev, key) = peek(queue)
+    (get_ev, key) = DataStructures.peek(queue)
     proceed = do_get(res, get_ev, key)
     if state(get_ev) == scheduled
-      dequeue!(res.Get_queue, get_ev)
+      DataStructures.dequeue!(res.Get_queue, get_ev)
     end
     if proceed
-      dequeue!(queue)
+      DataStructures.dequeue!(queue)
     else
       break
     end
@@ -55,11 +55,11 @@ function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractReso
 end
 
 function cancel{E<:Environment}(res::AbstractResource{E}, put_ev::Put{E})
-  dequeue!(res.Put_queue, put_ev)
+  DataStructures.dequeue!(res.Put_queue, put_ev)
 end
 
 function cancel{E<:Environment}(res::AbstractResource{E}, get_ev::Get{E})
-  dequeue!(res.Get_queue, get_ev)
+  DataStructures.dequeue!(res.Get_queue, get_ev)
 end
 
 function capacity(res::AbstractResource)

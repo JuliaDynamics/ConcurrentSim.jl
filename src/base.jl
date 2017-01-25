@@ -31,11 +31,11 @@ type BaseEvent{E<:Environment}
   env :: E
   id :: UInt
   cid :: UInt
-  callbacks :: PriorityQueue{Function, UInt}
+  callbacks :: DataStructures.PriorityQueue{Function, UInt}
   state :: EVENT_STATE
   value :: Any
   function BaseEvent(env::E)
-    new(env, env.eid+=one(UInt), zero(UInt), PriorityQueue(Function, UInt), idle, nothing)
+    new(env, env.eid+=one(UInt), zero(UInt), DataStructures.PriorityQueue(Function, UInt), idle, nothing)
   end
 end
 
@@ -69,5 +69,5 @@ function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Fun
 end
 
 function remove_callback(cb::Function, ev::AbstractEvent)
-  dequeue!(ev.bev.callbacks, cb)
+  DataStructures.dequeue!(ev.bev.callbacks, cb)
 end
