@@ -1,8 +1,10 @@
-abstract ResourceKey
+using Compat
 
-abstract AbstractResource{E<:Environment}
+@compat abstract type ResourceKey end
 
-abstract ResourceEvent{E<:Environment} <: AbstractEvent{E}
+@compat abstract type AbstractResource{E<:Environment} end
+
+@compat abstract type ResourceEvent{E<:Environment} <: AbstractEvent{E} end
 
 type Put{E<:Environment} <: ResourceEvent{E}
   bev :: BaseEvent{E}

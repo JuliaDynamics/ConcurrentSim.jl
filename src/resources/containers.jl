@@ -1,3 +1,5 @@
+using Compat
+
 type ContainerKey{N<:Number} <: ResourceKey
   priority :: Int
   id :: UInt
@@ -20,7 +22,7 @@ function Container{N<:Number, E<:Environment}(env::E, capacity::N; level::N=zero
   Container{N, E}(env, capacity, level)
 end
 
-typealias Resource{E<:Environment} Container{Int, E}
+@compat const Resource{E<:Environment} = Container{Int, E}
 
 function Resource{E<:Environment}(env::E, capacity::Int=1; level::Int=0) :: Resource{E}
   Resource{E}(env, capacity, level)
@@ -34,7 +36,7 @@ function Put{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priorit
   return put_ev
 end
 
-typealias Request Put
+const Request = Put
 
 Request{E<:Environment}(res::Resource{E}; priority::Int=0) = Put(res, 1, priority=priority)
 
@@ -59,7 +61,7 @@ function Get{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priorit
   return get_ev
 end
 
-typealias Release Get
+const Release = Get
 
 Release{E<:Environment}(res::Resource{E}; priority::Int=0) = Get(res, 1, priority=priority)
 

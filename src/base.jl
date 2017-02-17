@@ -1,4 +1,6 @@
-abstract Environment
+using Compat
+
+@compat abstract type Environment end
 
 """
 The parent type for all events.
@@ -15,7 +17,7 @@ Once the events is scheduled, it has a value.
 
 An event has also a list of callbacks. A callback can be any function as long as it accepts an instance of a subtype of `AbstractEvent` as its first argument. Once an event gets triggered, all callbacks will be invoked. Callbacks can do further processing with the value it has produced.
 """
-abstract AbstractEvent{E<:Environment}
+@compat abstract type AbstractEvent{E<:Environment} end
 
 @enum EVENT_STATE idle=0 scheduled=1 triggered=2
 
@@ -42,6 +44,18 @@ end
 function BaseEvent{E<:Environment}(env::E) :: BaseEvent
   BaseEvent{E}(env)
 end
+
+  # type BaseEvent{E<:Environment}
+  #   env :: E
+  #   id :: UInt
+  #   cid :: UInt
+  #   callbacks :: DataStructures.PriorityQueue{Function, UInt}
+  #   state :: EVENT_STATE
+  #   value :: Any
+  #   function BaseEvent{E}(env::E) where E<:Environment
+  #     new(env, env.eid+=one(UInt), zero(UInt), DataStructures.PriorityQueue(Function, UInt), idle, nothing)
+  #   end
+  # end
 
 function show(io::IO, ev::AbstractEvent)
   print(io, "$(typeof(ev)) $(ev.bev.id)")
