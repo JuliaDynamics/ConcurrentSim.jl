@@ -17,16 +17,20 @@ module SimJulia
   export succeed, fail
   export Operator
   export (&), (|)
+  export FiniteStateMachine, @stateful, @yield
   export Process, @Process
-  export yield, interrupt
+  export interrupt
   export Simulation, StopSimulation
   export run, now, active_process
   export Container, Resource, Store
-  export Put, Get, Request, Release, cancel, capacity
+  export Put, Get, Request, Release, cancel, capacity, @Request
 
   include("base.jl")
   include("events.jl")
   include("operators.jl")
+  include("coroutine/utils.jl")
+  include("coroutine/transforms.jl")
+  include("coroutine/macro.jl")
   include("process.jl")
   include("time.jl")
   include("simulation.jl")

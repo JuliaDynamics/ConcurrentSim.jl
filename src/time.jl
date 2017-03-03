@@ -1,15 +1,15 @@
-immutable SimulationPeriod <: Period
+struct SimulationPeriod <: Period
   value :: Float64
   function SimulationPeriod(value::Number=0)
     new(value)
   end
 end
 
-immutable SimulationInstant <: Dates.Instant
+struct SimulationInstant <: Dates.Instant
   periods :: SimulationPeriod
 end
 
-immutable SimulationTime <: TimeType
+struct SimulationTime <: TimeType
   instant :: SimulationInstant
 end
 

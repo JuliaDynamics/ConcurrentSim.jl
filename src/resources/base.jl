@@ -1,21 +1,19 @@
-using Compat
+abstract type ResourceKey end
 
-@compat abstract type ResourceKey end
+abstract type AbstractResource{E<:Environment} end
 
-@compat abstract type AbstractResource{E<:Environment} end
+abstract type ResourceEvent{E<:Environment} <: AbstractEvent{E} end
 
-@compat abstract type ResourceEvent{E<:Environment} <: AbstractEvent{E} end
-
-type Put{E<:Environment} <: ResourceEvent{E}
+struct Put{E<:Environment} <: ResourceEvent{E}
   bev :: BaseEvent{E}
-  function Put(env::E)
+  function Put{E}(env::E) where E<:Environment
     new(BaseEvent(env))
   end
 end
 
-type Get{E<:Environment} <: ResourceEvent{E}
+struct Get{E<:Environment} <: ResourceEvent{E}
   bev :: BaseEvent{E}
-  function Get(env::E)
+  function Get{E}(env::E) where E<:Environment
     new(BaseEvent(env))
   end
 end

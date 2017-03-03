@@ -1,4 +1,4 @@
-immutable StateValue
+struct StateValue
   state :: EVENT_STATE
   value :: Any
   function StateValue(state::EVENT_STATE, value::Any=nothing)
@@ -6,10 +6,10 @@ immutable StateValue
   end
 end
 
-type Operator{E<:Environment} <: AbstractEvent{E}
+struct Operator{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent
   eval :: Function
-  function Operator(eval::Function, fev::AbstractEvent{E}, events::AbstractEvent{E}...)
+  function Operator{E}(eval::Function, fev::AbstractEvent{E}, events::AbstractEvent{E}...) where E<:Environment
     env = environment(fev)
     op = new(BaseEvent(env), eval)
     event_state_values = Dict{AbstractEvent{E}, StateValue}()
@@ -21,7 +21,7 @@ type Operator{E<:Environment} <: AbstractEvent{E}
   end
 end
 
-function Operator{E<:Environment}(eval::Function, fev::AbstractEvent{E}, events::AbstractEvent{E}...) :: Operator{E}
+function Operator{E<:Environment}(eval::Function, fev::AbstractEvent{E}, events::AbstractEvent{E}...)
   Operator{E}(eval, fev, events...)
 end
 

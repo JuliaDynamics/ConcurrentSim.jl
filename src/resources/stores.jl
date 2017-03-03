@@ -1,28 +1,28 @@
-type StorePutKey{T} <: ResourceKey
+struct StorePutKey{T} <: ResourceKey
   priority :: Int
   id :: UInt
   item :: T
 end
 
-type StoreGetKey <: ResourceKey
+struct StoreGetKey <: ResourceKey
   priority :: Int
   id :: UInt
   filter :: Function
 end
 
-type Store{T, E<:Environment} <: AbstractResource{E}
+mutable struct Store{T, E<:Environment} <: AbstractResource{E}
   env :: E
   capacity :: UInt
   items :: Set{T}
   seid :: UInt
   Put_queue :: DataStructures.PriorityQueue{Put{E}, StorePutKey{T}}
   Get_queue :: DataStructures.PriorityQueue{Get{E}, StoreGetKey}
-  function Store(env::E, capacity::UInt)
+  function Store{T, E}(env::E, capacity::UInt) where {T, E<:Environment}
     new(env, capacity, Set{T}(), zero(UInt), DataStructures.PriorityQueue(Put{E}, StorePutKey{T}), DataStructures.PriorityQueue(Get{E}, StoreGetKey))
   end
 end
 
-function Store{E<:Environment}(t::Type, env::E, capacity::UInt=typemax(UInt)) :: Store{t, E}
+function Store{E<:Environment}(t::Type, env::E, capacity::UInt=typemax(UInt))
   Store{t, E}(env, capacity)
 end
 

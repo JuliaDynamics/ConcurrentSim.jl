@@ -1,4 +1,4 @@
-immutable EventKey{T<:TimeType}
+struct EventKey{T<:TimeType}
   time :: T
   priority :: Bool
   id :: UInt
@@ -31,23 +31,23 @@ Simulation{T<:TimeType} <: Environment
 
 An initial_time for the simulation can be specified. By default, it starts at 0.
 """
-type Simulation{T<:TimeType} <: Environment
+mutable struct Simulation{T<:TimeType} <: Environment
   time :: T
   heap :: DataStructures.PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
   eid :: UInt
   sid :: UInt
   active_proc :: Nullable{Process{Simulation{T}}}
-  function Simulation(initial_time::T)
+  function Simulation{T}(initial_time::T) where T<:TimeType
     new(initial_time, DataStructures.PriorityQueue(BaseEvent{Simulation{T}}, EventKey{T}), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
   end
 end
 
-function Simulation{T<:TimeType}(initial_time::T) :: Simulation{T}
+function Simulation{T<:TimeType}(initial_time::T)
   Simulation{T}(initial_time)
 end
 
 function Simulation(initial_time::Number=0) :: Simulation{SimulationTime}
-  Simulation(SimulationTime(initial_time))
+  Simulation{SimulationTime}(SimulationTime(initial_time))
 end
 
 """

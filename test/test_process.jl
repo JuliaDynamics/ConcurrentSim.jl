@@ -1,42 +1,42 @@
 using SimJulia
 
-function fibonnaci(sim::Simulation)
+@stateful function fibonnaci(sim::Simulation)
   a = 0
   b = 1
   while true
     println(a)
-    yield(Timeout(sim, 1))
+    @yield return Timeout(sim, 1)
     a, b = b, a+b
   end
 end
 
-function test_process(sim::Simulation, ev::AbstractEvent)
-  yield(ev)
+@stateful function test_process(sim::Simulation, ev::AbstractEvent)
+  @yield return ev
 end
 
-function test_process_exception(sim::Simulation, ev::AbstractEvent)
+@stateful function test_process_exception(sim::Simulation, ev::AbstractEvent)
   try
-    value = yield(ev)
+    value = @yield return ev
     println("hi")
-  catch exc
-    println("$exc has been thrown")
+  catch
+    println("$value has been thrown")
   end
 end
 
-function test_interrupter(sim::Simulation, proc::Process)
-  yield(Timeout(sim, 2))
+@stateful function test_interrupter(sim::Simulation, proc::Process)
+  @yield return Timeout(sim, 2)
   interrupt(proc)
 end
 
-function test_interrupted(sim::Simulation)
+@stateful function test_interrupted(sim::Simulation)
   try
-    yield(Timeout(sim, 10))
-  catch exc
+    exc = @yield return Timeout(sim, 10)
+  catch
     if isa(exc, SimJulia.InterruptException)
       println("$(active_process(sim)) interrupted")
     end
   end
-  yield(Timeout(sim, 10))
+  @yield return Timeout(sim, 10)
   throw(TestException())
 end
 

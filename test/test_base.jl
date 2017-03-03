@@ -6,6 +6,7 @@ end
 
 sim = Simulation()
 ev = Event(sim)
+println(typeof(ev))
 cb = append_callback(test_callback, ev)
 remove_callback(cb, ev)
 println(state(ev))

@@ -1,28 +1,28 @@
 using Compat
 
-type ContainerKey{N<:Number} <: ResourceKey
+struct ContainerKey{N<:Number} <: ResourceKey
   priority :: Int
   id :: UInt
   amount :: N
 end
 
-type Container{N<:Number, E<:Environment} <: AbstractResource{E}
+mutable struct Container{N<:Number, E<:Environment} <: AbstractResource{E}
   env :: E
   capacity :: N
   level :: N
   seid :: UInt
   Put_queue :: DataStructures.PriorityQueue{Put{E}, ContainerKey{N}}
   Get_queue :: DataStructures.PriorityQueue{Get{E}, ContainerKey{N}}
-  function Container(env::E, capacity::N, level::N)
+  function Container{N, E}(env::E, capacity::N, level::N) where {N<:Number, E<:Environment}
     new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue(Put{E}, ContainerKey{N}), DataStructures.PriorityQueue(Get{E}, ContainerKey{N}))
   end
 end
 
-function Container{N<:Number, E<:Environment}(env::E, capacity::N; level::N=zero(N)) :: Container{N, E}
+function Container{N<:Number, E<:Environment}(env::E, capacity::N; level::N=zero(N))
   Container{N, E}(env, capacity, level)
 end
 
-@compat const Resource{E<:Environment} = Container{Int, E}
+const Resource{E<:Environment} = Container{Int, E}
 
 function Resource{E<:Environment}(env::E, capacity::Int=1; level::Int=0) :: Resource{E}
   Resource{E}(env, capacity, level)
@@ -40,17 +40,16 @@ const Request = Put
 
 Request{E<:Environment}(res::Resource{E}; priority::Int=0) = Put(res, 1, priority=priority)
 
-function Request{E<:Environment}(func::Function, res::Resource{E}; priority::Int=0)
-  req = Request(res, priority=priority)
-  try
-    func(req)
-  finally
-    if state(req) == triggered
-      yield(Release(res, priority=priority))
+macro Request(res, req, expr)
+  esc(quote
+    $req = Request($res)
+    $expr
+    if state($req) == SimJulia.triggered
+      @yield return Release($res)
     else
-      cancel(res, req)
+      cancel($res, $req)
     end
-  end
+  end)
 end
 
 function Get{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: Get{E}
