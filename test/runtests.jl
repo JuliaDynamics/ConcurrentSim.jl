@@ -1,6 +1,8 @@
 testpath(f) = joinpath(dirname(@__FILE__), f)
 
 for test_file in [
+  "finitestatemachines/test_transforms.jl",
+  "finitestatemachines/test_utils.jl",
   "test_base.jl",
   "test_events.jl",
   "test_operators.jl",

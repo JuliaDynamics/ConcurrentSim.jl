@@ -75,7 +75,7 @@ function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Coroutine{E})
   end
 end
 
-function interrupt{E<:Environment}(proc::Coroutine{E}, cause::Any=nothing)
+function interrupt(proc::Coroutine, cause::Any=nothing)
   if !iscoroutinedone(proc.fsm)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc), priority=true, value=InterruptException(proc, cause))

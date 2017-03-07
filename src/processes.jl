@@ -84,8 +84,8 @@ function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Process{E})
   end
 end
 
-function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing)
-  if !istaskdone(proc.fsm)
+function interrupt(proc::Process, cause::Any=nothing)
+  if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc), priority=true, value=InterruptException(proc, cause))
     proc.resume = append_callback(execute, proc.target, proc)

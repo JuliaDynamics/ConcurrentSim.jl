@@ -1,10 +1,3 @@
-function produce(consumer::Task, values...)
-  ct = current_task()
-  ct.result = length(values)==1 ? values[1] : values
-  Base.schedule_and_wait(consumer)
-  return consumer.result
-end
-
 function produce(v)
   ct = current_task()
   consumer = ct.consumers
