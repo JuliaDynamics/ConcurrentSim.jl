@@ -42,8 +42,38 @@ julia> Pkg.add("SimJulia")
 * Scheduling is based on TimeType and Period.
 * The discrete event features are on par with version 0.3. (STABLE)
 * Two ways of making `Processes` are provided:
-  - using the existing concept of `Tasks`: previous behaviour
-  - using a novel finite-statemachine approach: a lot faster but less transparent for the end user
+  - using the existing concept of `Tasks`:
+  ```
+  function fibonnaci(sim::Simulation)
+    a = 0.0
+    b = 1.0
+    while true
+      println(now(sim), ": ", a)
+      yield(Timeout(sim, 1))
+      a, b = b, a+b
+    end
+  end
+
+  sim = Simulation()
+  @Process fibonnaci(sim)
+  run(sim, 10)
+  ```
+  - using a novel finite-statemachine approach:
+  ```
+  @stateful function fibonnaci(sim::Simulation)
+    a = 0.0
+    b = 1.0
+    while true
+      println(now(sim), ": ", a)
+      @yield return Timeout(sim, 1)
+      a, b = b, a+b
+    end
+  end
+
+  sim = Simulation()
+  @Coroutine fibonnaci(sim)
+  run(sim, 10)
+  ```
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
 * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
 
