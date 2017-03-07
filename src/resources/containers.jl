@@ -45,7 +45,7 @@ macro Request(res, req, expr)
     $req = Request($res)
     $expr
     if state($req) == SimJulia.triggered
-      @yield return Release($res)
+      @yield Release($res)
     else
       cancel($res, $req)
     end
