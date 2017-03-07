@@ -1,29 +1,35 @@
 using SimJulia
 
-type StoreObject
+struct StoreObject
   i :: Int
 end
 
-function consumer(sim::Simulation, sto::Store)
-  for i = 1:10
-    yield(Timeout(sim, rand()))
+@stateful function my_consumer(sim::Simulation, sto::Store)
+  i = 1
+  while true
+    @yield return Timeout(sim, rand())
     println("$(now(sim)), consumer is demanding object")
-    obj = yield(Get(sto))
+    obj = @yield return Get(sto)
     println("$(now(sim)), consumer is being served with object $(obj.i)")
+    i == 10 && break
+    i += 1
   end
 end
 
-function producer(sim::Simulation, sto::Store)
-  for i = 1:10
+@stateful function my_producer(sim::Simulation, sto::Store)
+  i = 1
+  while true
     println("$(now(sim)), producer is offering object $i")
-    yield(Put(sto, StoreObject(i)))
+    @yield return Put(sto, StoreObject(i))
     println("$(now(sim)), producer is being served")
-    yield(Timeout(sim, 2*rand()))
+    @yield return Timeout(sim, 2*rand())
+    i == 10 && break
+    i += 1
   end
 end
 
 sim = Simulation()
 sto = Store(StoreObject, sim)
-@Process consumer(sim, sto)
-@Process producer(sim, sto)
+@Coroutine my_consumer(sim, sto)
+@Coroutine my_producer(sim, sto)
 run(sim)

@@ -1,11 +1,11 @@
-type Event{E<:Environment} <: AbstractEvent{E}
+struct Event{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}
-  function Event(env::E)
+  function Event{E}(env::E) where E<:Environment
     new(BaseEvent(env))
   end
 end
 
-function Event{E<:Environment}(env::E) :: Event{E}
+function Event{E<:Environment}(env::E)
   Event{E}(env)
 end
 
@@ -41,9 +41,9 @@ Timeout{E<:Environment} <: AbstractEvent{E}
 - Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing)
 """
 
-type Timeout{E<:Environment} <: AbstractEvent{E}
+struct Timeout{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}
-  function Timeout(env::E, delay::Union{Period, Number}, priority::Bool, value::Any)
+  function Timeout{E}(env::E, delay::Union{Period, Number}, priority::Bool, value::Any) where E<:Environment
     ev = new(BaseEvent(env))
     schedule(ev.bev, delay, priority=priority, value=value)
     return ev

@@ -38,17 +38,21 @@ julia> Pkg.add("SimJulia")
 #### Release Notes
 
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
-* Only supports Julia v0.5 and above.
+* Only supports Julia v0.6 and above.
 * Scheduling is based on TimeType and Period.
 * The discrete event features are on par with version 0.3. (STABLE)
+* Two ways of making `Processes` are provided:
+  - using the existing concept of `Tasks`: previous behaviour
+  - using a novel finite-statemachine approach: a lot faster but less transparent for the end user
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
 * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
 
 
 #### Todo
 
-* Integration of stiff ODE.
+* Transparent output processing.
 * Extension to PDE by method of lines Integration.
+* Automatically running a large number of simulations (over a parameter space) on a cluster to do simulation based optimisations.
 
 
 #### Authors

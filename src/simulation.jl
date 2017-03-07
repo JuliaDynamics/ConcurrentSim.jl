@@ -1,4 +1,4 @@
-immutable EventKey{T<:TimeType}
+struct EventKey{T<:TimeType}
   time :: T
   priority :: Bool
   id :: UInt
@@ -7,6 +7,8 @@ end
 function isless{T<:TimeType}(a::EventKey{T}, b::EventKey{T}) :: Bool
   (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
 end
+
+abstract type AbstractProcess{E<:Environment} <: AbstractEvent{E} end
 
 """
 Execution environment for a simulation.
@@ -22,7 +24,7 @@ Simulation{T<:TimeType} <: Environment
 - heap :: PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
 - eid :: UInt
 - sid :: UInt
-- active_proc :: Nullable{Process}
+- active_proc :: Nullable{AbstractProcess}
 
 **Constructors**:
 
@@ -31,23 +33,23 @@ Simulation{T<:TimeType} <: Environment
 
 An initial_time for the simulation can be specified. By default, it starts at 0.
 """
-type Simulation{T<:TimeType} <: Environment
+mutable struct Simulation{T<:TimeType} <: Environment
   time :: T
   heap :: DataStructures.PriorityQueue{BaseEvent{Simulation{T}}, EventKey{T}}
   eid :: UInt
   sid :: UInt
-  active_proc :: Nullable{Process{Simulation{T}}}
-  function Simulation(initial_time::T)
-    new(initial_time, DataStructures.PriorityQueue(BaseEvent{Simulation{T}}, EventKey{T}), zero(UInt), zero(UInt), Nullable{Process{Simulation{T}}}())
+  active_proc :: Nullable{AbstractProcess{Simulation{T}}}
+  function Simulation{T}(initial_time::T) where T<:TimeType
+    new(initial_time, DataStructures.PriorityQueue(BaseEvent{Simulation{T}}, EventKey{T}), zero(UInt), zero(UInt), Nullable{AbstractProcess{Simulation{T}}}())
   end
 end
 
-function Simulation{T<:TimeType}(initial_time::T) :: Simulation{T}
+function Simulation{T<:TimeType}(initial_time::T)
   Simulation{T}(initial_time)
 end
 
 function Simulation(initial_time::Number=0) :: Simulation{SimulationTime}
-  Simulation(SimulationTime(initial_time))
+  Simulation{SimulationTime}(SimulationTime(initial_time))
 end
 
 """
@@ -60,15 +62,15 @@ function now{T<:TimeType}(sim::Simulation{T}) :: T
   sim.time
 end
 
-function active_process{T<:TimeType}(sim::Simulation{T}) :: Process{Simulation{T}}
+function active_process{T<:TimeType}(sim::Simulation{T}) :: AbstractProcess{Simulation{T}}
   get(sim.active_proc)
 end
 
 function set_active_process{T<:TimeType}(sim::Simulation{T})
-  sim.active_proc = Nullable{Process{Simulation{T}}}()
+  sim.active_proc = Nullable{AbstractProcess{Simulation{T}}}()
 end
 
-function set_active_process{T<:TimeType}(sim::Simulation{T}, proc::Process{Simulation{T}})
+function set_active_process{T<:TimeType}(sim::Simulation{T}, proc::AbstractProcess{Simulation{T}})
   sim.active_proc = Nullable(proc)
 end
 
@@ -161,4 +163,9 @@ end
 function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Number=0; priority::Bool=false, value::Any=nothing)
   P = typeof(eps(bev.env.time))
   schedule(bev, P(delay), priority=priority, value=value)
+end
+
+struct InterruptException{E<:Environment} <: Exception
+  by :: AbstractProcess{E}
+  cause :: Any
 end

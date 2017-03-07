@@ -20,22 +20,22 @@ Process{E<:Environment} <: AbstractEvent{E}
 
 Process{E<:Environment}(func::Function, env::E, args::Any...)
 """
-type Process{E<:Environment} <: AbstractEvent{E}
+type Process{E<:Environment} <: AbstractProcess{E}
   bev :: BaseEvent{E}
   task :: Task
   target :: AbstractEvent{E}
   resume :: Function
-  function Process(func::Function, env::E, args::Any...)
+  function Process{E}(func::Function, env::E, args::Any...) where E<:Environment
     proc = new()
     proc.bev = BaseEvent(env)
-    proc.task = Task(()->func(env, args...))
+    proc.task = @task func(env, args...)
     proc.target = Timeout(env)
     proc.resume = append_callback(execute, proc.target, proc)
     return proc
   end
 end
 
-function Process{E<:Environment}(func::Function, env::E, args::Any...) :: Process{E}
+function Process{E<:Environment}(func::Function, env::E, args::Any...)
   Process{E}(func, env, args...)
 end
 
@@ -54,11 +54,27 @@ macro Process(ex)
   end
 end
 
+function yield{E<:Environment}(target::AbstractEvent{E})
+  env = environment(target)
+  proc = active_process(env)
+  if state(target) == triggered
+    proc.target = Timeout(env, value=value(target))
+  else
+    proc.target = target
+  end
+  proc.resume = append_callback(execute, proc.target, proc)
+  ret = SimJulia.produce(nothing)
+  if isa(ret, Exception)
+    throw(ret)
+  end
+  return ret
+end
+
 function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Process{E})
   try
     env = environment(ev)
     set_active_process(env, proc)
-    ret = consume(proc.task, value(ev))
+    ret = SimJulia.consume(proc.task, value(ev))
     set_active_process(env)
     if istaskdone(proc.task)
       schedule(proc.bev, value=ret)
@@ -68,37 +84,7 @@ function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Process{E})
   end
 end
 
-"""
-Passes the control flow back to the simulation. If the yielded event is triggered, the `Environment` will resume the function after this statement.
-
-The return value is the value from the yielded event.
-
-**Method**:
-
-yield(target::AbstractEvent) :: Any
-"""
-function yield(target::AbstractEvent) :: Any
-  env = environment(target)
-  proc = active_process(env)
-  if state(target) == triggered
-    proc.target = Timeout(env, value=value(target))
-  else
-    proc.target = target
-  end
-  proc.resume = append_callback(execute, proc.target, proc)
-  ret = produce(nothing)
-  if isa(ret, Exception)
-    throw(ret)
-  end
-  return ret
-end
-
-immutable InterruptException{E<:Environment} <: Exception
-  by :: Process{E}
-  cause :: Any
-end
-
-function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing)
+function interrupt(proc::Process, cause::Any=nothing)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc), priority=true, value=InterruptException(proc, cause))
