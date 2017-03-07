@@ -18,6 +18,7 @@ module SimJulia
   export Operator
   export (&), (|)
   export FiniteStateMachine, @stateful, @yield
+  export Coroutine, @Coroutine
   export Process, @Process
   export interrupt
   export Simulation, StopSimulation
@@ -28,12 +29,14 @@ module SimJulia
   include("base.jl")
   include("events.jl")
   include("operators.jl")
-  include("coroutine/utils.jl")
-  include("coroutine/transforms.jl")
-  include("coroutine/macro.jl")
-  include("process.jl")
   include("time.jl")
   include("simulation.jl")
+  include("coroutines/utils.jl")
+  include("coroutines/transforms.jl")
+  include("coroutines/macro.jl")
+  include("coroutines.jl")
+  include("processes/base.jl")
+  include("processes.jl")
   include("resources/base.jl")
   include("resources/containers.jl")
   include("resources/stores.jl")

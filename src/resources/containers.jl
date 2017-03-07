@@ -52,6 +52,19 @@ macro Request(res, req, expr)
   end)
 end
 
+function Request{E<:Environment}(func::Function, res::Resource{E}; priority::Int=0)
+  req = Request(res, priority=priority)
+  try
+    func(req)
+  finally
+    if state(req) == triggered
+      yield(Release(res, priority=priority))
+    else
+      cancel(res, req)
+    end
+  end
+end
+
 function Get{N<:Number, E<:Environment}(con::Container{N, E}, amount::N; priority::Int=0) :: Get{E}
   get_ev = Get{E}(con.env)
   con.Get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)

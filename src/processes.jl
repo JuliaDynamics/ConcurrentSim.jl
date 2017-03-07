@@ -20,15 +20,15 @@ Process{E<:Environment} <: AbstractEvent{E}
 
 Process{E<:Environment}(func::Function, env::E, args::Any...)
 """
-type Process{E<:Environment} <: AbstractEvent{E}
+type Process{E<:Environment} <: AbstractProcess{E}
   bev :: BaseEvent{E}
-  fsm :: FiniteStateMachine
+  task :: Task
   target :: AbstractEvent{E}
   resume :: Function
   function Process{E}(func::Function, env::E, args::Any...) where E<:Environment
     proc = new()
     proc.bev = BaseEvent(env)
-    proc.fsm = func(env, args...)
+    proc.task = @task func(env, args...)
     proc.target = Timeout(env)
     proc.resume = append_callback(execute, proc.target, proc)
     return proc
@@ -54,34 +54,38 @@ macro Process(ex)
   end
 end
 
+function yield{E<:Environment}(target::AbstractEvent{E})
+  env = environment(target)
+  proc = active_process(env)
+  if state(target) == triggered
+    proc.target = Timeout(env, value=value(target))
+  else
+    proc.target = target
+  end
+  proc.resume = append_callback(execute, proc.target, proc)
+  ret = SimJulia.produce(nothing)
+  if isa(ret, Exception)
+    throw(ret)
+  end
+  return ret
+end
+
 function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Process{E})
   try
     env = environment(ev)
     set_active_process(env, proc)
-    target = proc.fsm(value(ev))
-    if iscoroutinedone(proc.fsm)
-      schedule(proc.bev, value=target)
-    else
-      if state(target) == triggered
-        proc.target = Timeout(env, value=value(target))
-      else
-        proc.target = target
-      end
-      proc.resume = append_callback(execute, proc.target, proc)
-    end
+    ret = SimJulia.consume(proc.task, value(ev))
     set_active_process(env)
+    if istaskdone(proc.task)
+      schedule(proc.bev, value=ret)
+    end
   catch exc
     rethrow(exc)
   end
 end
 
-struct InterruptException{E<:Environment} <: Exception
-  by :: Process{E}
-  cause :: Any
-end
-
 function interrupt{E<:Environment}(proc::Process{E}, cause::Any=nothing)
-  if !iscoroutinedone(proc.fsm)
+  if !istaskdone(proc.fsm)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc), priority=true, value=InterruptException(proc, cause))
     proc.resume = append_callback(execute, proc.target, proc)

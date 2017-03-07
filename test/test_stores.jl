@@ -4,7 +4,7 @@ struct StoreObject
   i :: Int
 end
 
-@stateful function consumer(sim::Simulation, sto::Store)
+@stateful function my_consumer(sim::Simulation, sto::Store)
   i = 1
   while true
     @yield return Timeout(sim, rand())
@@ -16,7 +16,7 @@ end
   end
 end
 
-@stateful function producer(sim::Simulation, sto::Store)
+@stateful function my_producer(sim::Simulation, sto::Store)
   i = 1
   while true
     println("$(now(sim)), producer is offering object $i")
@@ -30,6 +30,6 @@ end
 
 sim = Simulation()
 sto = Store(StoreObject, sim)
-@Process consumer(sim, sto)
-@Process producer(sim, sto)
+@Coroutine my_consumer(sim, sto)
+@Coroutine my_producer(sim, sto)
 run(sim)

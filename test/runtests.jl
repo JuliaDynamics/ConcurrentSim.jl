@@ -5,7 +5,8 @@ for test_file in [
   "test_events.jl",
   "test_operators.jl",
   "test_simulation.jl",
-  "test_process.jl",
+  "test_processes.jl",
+  "test_coroutines.jl",
   "test_containers.jl",
   "test_stores.jl",
   ]
