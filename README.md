@@ -81,8 +81,8 @@ julia> Pkg.add("SimJulia")
 #### Todo
 
 * Transparent output processing.
-* Extension to PDE by method of lines Integration.
-* Automatically running a large number of simulations (over a parameter space) on a cluster to do simulation based optimisations.
+* Extension of continuous integration to PDEs by method of lines Integration.
+* Automatically running a large number of simulations (over a parameter space) on a cluster to do simulation based optimisation.
 
 
 #### Authors

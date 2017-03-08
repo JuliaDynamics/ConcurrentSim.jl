@@ -1,3 +1,4 @@
+workspace()
 testpath(f) = joinpath(dirname(@__FILE__), f)
 
 for test_file in [
