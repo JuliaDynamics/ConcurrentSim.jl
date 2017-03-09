@@ -9,7 +9,7 @@ function Event{E<:Environment}(env::E)
   Event{E}(env)
 end
 
-function succeed{E<:Environment}(ev::Event{E}; priority::Bool=false, value::Any=nothing) :: Event{E}
+function succeed{E<:Environment}(ev::Event{E}; priority::Int8=Int8(0), value::Any=nothing) :: Event{E}
   sta = state(ev)
   if sta == scheduled || sta == triggered
     throw(EventNotIdle(ev))
@@ -18,7 +18,7 @@ function succeed{E<:Environment}(ev::Event{E}; priority::Bool=false, value::Any=
   return ev
 end
 
-function fail{E<:Environment}(ev::Event{E}, exc::Exception; priority::Bool=false) :: Event{E}
+function fail{E<:Environment}(ev::Event{E}, exc::Exception; priority::Int8=Int8(0)) :: Event{E}
   succeed(ev, priority=priority, value=exc)
 end
 
@@ -43,17 +43,17 @@ Timeout{E<:Environment} <: AbstractEvent{E}
 
 struct Timeout{E<:Environment} <: AbstractEvent{E}
   bev :: BaseEvent{E}
-  function Timeout{E}(env::E, delay::Union{Period, Number}, priority::Bool, value::Any) where E<:Environment
+  function Timeout{E}(env::E, delay::Union{Period, Number}, priority::Int8, value::Any) where E<:Environment
     ev = new(BaseEvent(env))
     schedule(ev.bev, delay, priority=priority, value=value)
     return ev
   end
 end
 
-function Timeout{E<:Environment}(env::E, delay::Period; priority::Bool=false, value::Any=nothing) :: Timeout{E}
+function Timeout{E<:Environment}(env::E, delay::Period; priority::Int8=Int8(0), value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, delay, priority, value)
 end
 
-function Timeout{E<:Environment}(env::E, delay::Number=0; priority::Bool=false, value::Any=nothing) :: Timeout{E}
+function Timeout{E<:Environment}(env::E, delay::Number=0; priority::Int8=Int8(0), value::Any=nothing) :: Timeout{E}
   Timeout{E}(env, delay, priority, value)
 end

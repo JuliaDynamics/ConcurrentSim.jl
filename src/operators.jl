@@ -38,7 +38,7 @@ function check{E<:Environment}(ev::AbstractEvent{E}, op::Operator{E}, event_stat
     end
   elseif state(op) == scheduled
     if isa(val, Exception)
-      schedule(op.bev, priority=true, value=val)
+      schedule(op.bev, priority=typemax(Int8), value=val)
     else
       event_state_values[ev] = StateValue(state(ev), val)
     end

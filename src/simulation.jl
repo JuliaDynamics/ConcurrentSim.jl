@@ -1,6 +1,6 @@
 struct EventKey{T<:TimeType}
   time :: T
-  priority :: Bool
+  priority :: Int8
   id :: UInt
 end
 
@@ -154,13 +154,13 @@ function run(sim::Simulation) :: Any
   run(sim, typemax(sim.time)-sim.time)
 end
 
-function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; priority::Bool=false, value::Any=nothing)
+function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Period; priority::Int8=Int8(0), value::Any=nothing)
   bev.value = value
   bev.env.heap[bev] = EventKey{T}(bev.env.time + delay, priority, bev.env.sid+=one(UInt))
   bev.state = scheduled
 end
 
-function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Number=0; priority::Bool=false, value::Any=nothing)
+function schedule{T<:TimeType}(bev::BaseEvent{Simulation{T}}, delay::Number=0; priority::Int8=Int8(0), value::Any=nothing)
   P = typeof(eps(bev.env.time))
   schedule(bev, P(delay), priority=priority, value=value)
 end
