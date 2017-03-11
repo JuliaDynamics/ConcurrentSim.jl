@@ -3,7 +3,7 @@ function transformVars!(expr::Expr, symbols::Base.KeyIterator{Dict{Symbol,Type}}
     if expr.head == :kw && i == 1
 
     elseif expr.head == Symbol(".") && i == 2
-      
+
     elseif isa(expr.args[i], Symbol) && in(expr.args[i], symbols)
       expr.args[i] = :(_fsm.$(expr.args[i]))
     elseif isa(expr.args[i], Expr)
@@ -55,7 +55,6 @@ function transformYield!(expr::Expr, n::UInt8=0x00, super::Expr=:(), line_no::In
     if isa(arg, Expr)
       if arg.head == :try
         n = transformTry!(arg.args[1], n, super, line_no, expr, i)
-        println("hi")
       elseif arg.head == :line
         line_no = i+1
         super = expr

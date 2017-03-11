@@ -8,9 +8,9 @@ end
 produce(v...) = produce(v)
 
 function consume(producer::Task, values...)
-  istaskdone(producer) && return wait(producer)
+  istaskdone(producer) && return producer.value
   ct = current_task()
   ct.result = length(values)==1 ? values[1] : values
   producer.consumers = ct
-  producer.state == :runnable ? Base.schedule_and_wait(producer) : wait()
+  Base.schedule_and_wait(producer)
 end

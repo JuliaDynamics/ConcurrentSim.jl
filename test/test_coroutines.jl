@@ -17,7 +17,6 @@ end
 @stateful function test_process_exception(sim::Simulation, ev::AbstractEvent)
   try
     value = @yield return ev
-    println("hi")
   catch
     println("$value has been thrown")
   end
