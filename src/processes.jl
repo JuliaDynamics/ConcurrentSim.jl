@@ -57,16 +57,10 @@ end
 function yield{E<:Environment}(target::AbstractEvent{E})
   env = environment(target)
   proc = active_process(env)
-  if state(target) == triggered
-    proc.target = Timeout(env, value=value(target))
-  else
-    proc.target = target
-  end
+  proc.target = state(target) == triggered ? Timeout(env, value=value(target)) : target
   proc.resume = append_callback(execute, proc.target, proc)
   ret = SimJulia.produce(nothing)
-  if isa(ret, Exception)
-    throw(ret)
-  end
+  isa(ret, Exception) && throw(ret)
   return ret
 end
 
@@ -76,9 +70,7 @@ function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Process{E})
     set_active_process(env, proc)
     ret = SimJulia.consume(proc.task, value(ev))
     set_active_process(env)
-    if istaskdone(proc.task)
-      schedule(proc.bev, value=ret)
-    end
+    istaskdone(proc.task) && schedule(proc.bev, value=ret)
   catch exc
     rethrow(exc)
   end

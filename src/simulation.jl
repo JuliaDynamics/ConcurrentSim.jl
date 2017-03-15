@@ -95,9 +95,7 @@ Does a simulation step and processes the next event.
 step(sim::Simulation) :: Bool
 """
 function step(sim::Simulation)
-  if isempty(sim.heap)
-    throw(EmptySchedule())
-  end
+  isempty(sim.heap) && throw(EmptySchedule())
   (bev, key) = DataStructures.peek(sim.heap)
   DataStructures.dequeue!(sim.heap)
   sim.time = key.time

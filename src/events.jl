@@ -11,9 +11,7 @@ end
 
 function succeed{E<:Environment}(ev::Event{E}; priority::Int8=Int8(0), value::Any=nothing) :: Event{E}
   sta = state(ev)
-  if sta == scheduled || sta == triggered
-    throw(EventNotIdle(ev))
-  end
+  (sta == scheduled || sta == triggered) && throw(EventNotIdle(ev))
   schedule(ev.bev, priority=priority, value=value)
   return ev
 end

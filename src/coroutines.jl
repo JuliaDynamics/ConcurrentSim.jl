@@ -59,17 +59,13 @@ function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Coroutine{E})
     env = environment(ev)
     set_active_process(env, proc)
     target = proc.fsm(value(ev))
+    set_active_process(env)
     if iscoroutinedone(proc.fsm)
       schedule(proc.bev, value=target)
     else
-      if state(target) == triggered
-        proc.target = Timeout(env, value=value(target))
-      else
-        proc.target = target
-      end
+      proc.target = state(target) == triggered ? Timeout(env, value=value(target)) : target
       proc.resume = append_callback(execute, proc.target, proc)
     end
-    set_active_process(env)
   catch exc
     rethrow(exc)
   end

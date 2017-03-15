@@ -60,9 +60,7 @@ function state(ev::AbstractEvent) :: EVENT_STATE
 end
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
-  if ev.bev.state == triggered
-    throw(EventTriggered(ev))
-  end
+  ev.bev.state == triggered && throw(EventTriggered(ev))
   cb = ()->func(ev, args...)
   ev.bev.callbacks[cb] = ev.bev.cid+=one(UInt)
   return cb
