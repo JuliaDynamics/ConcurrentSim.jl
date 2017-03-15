@@ -37,13 +37,9 @@ macro stateful(expr::Expr)
       $((:($arg) for arg in new_expr.args)...)
     end
   )
-  if expr.args[1].head == Symbol("::")
-    func_expr.args[1] = Expr(Symbol("::"), func_expr.args[1], expr.args[1].args[2])
-  end
+  expr.args[1].head == Symbol("::") && func_expr.args[1] = Expr(Symbol("::"), func_expr.args[1], expr.args[1].args[2])
   call_expr = deepcopy(expr)
-  if call_expr.args[1].head == Symbol("::")
-    call_expr.args[1] = call_expr.args[1].args[1]
-  end
+  call_expr.args[1].head == Symbol("::") && call_expr.args[1] = call_expr.args[1].args[1]
   call_expr.head = Symbol("=")
   call_expr.args[2] = :($type_name($((:($arg) for arg in args)...)))
   esc(quote

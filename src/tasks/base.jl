@@ -5,7 +5,7 @@ function produce(v)
   Base.schedule_and_wait(consumer, v)
   return consumer.result
 end
-produce(v...) = produce(v)
+#produce(v...) = produce(v)
 
 function consume(producer::Task, values...)
   istaskdone(producer) && return producer.value
