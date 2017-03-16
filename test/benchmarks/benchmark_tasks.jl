@@ -1,8 +1,8 @@
 using SimJulia, BenchmarkTools
 
-function fibonnaci(sim::Simulation)
-  a = 0.0
-  b = 1.0
+function fibonnaci(sim::Simulation{SimJulia.SimulationTime})
+  a = BigInt(0)
+  b = BigInt(1)
   while true
     SimJulia.produce(Timeout(sim, 1))
     a, b = b, a+b

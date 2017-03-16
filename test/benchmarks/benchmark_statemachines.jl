@@ -1,10 +1,10 @@
 using SimJulia, BenchmarkTools
 
-@stateful function fibonnaci(sim::Simulation)
-  a = 0.0
-  b = 1.0
+@stateful function fibonnaci{T<:TimeType}(sim::Simulation{T})
+  a = BigInt(0)
+  b = BigInt(1)
   while true
-    @yield return nothing
+    @yield return Timeout(sim, 1)
     a, b = b, a+b
   end
 end

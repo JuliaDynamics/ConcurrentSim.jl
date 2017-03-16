@@ -1,6 +1,6 @@
 using SimJulia, Distributions, BenchmarkTools
 
-@stateful function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float64)
+@stateful function exp_source(sim::Simulation{SimJulia.SimulationTime}, lambd::Float64, server::Resource, mu::Float64)
   while true
     dt = rand(Exponential(1/lambd))
     @yield return Timeout(sim, dt)
@@ -8,14 +8,14 @@ using SimJulia, Distributions, BenchmarkTools
   end
 end
 
-@stateful function customer(sim::Simulation, server::Resource, mu::Float64)
+@stateful function customer(sim::Simulation{SimJulia.SimulationTime}, server::Resource{Simulation{SimJulia.SimulationTime}}, mu::Float64)
   @yield return Request(server)
   dt = rand(Exponential(1/mu))
   @yield return Timeout(sim, dt)
   @yield return Release(server)
 end
 
-@stateful function customer2(sim::Simulation, server::Resource, mu::Float64)
+@stateful function customer2(sim::Simulation{SimJulia.SimulationTime}, server::Resource{Simulation{SimJulia.SimulationTime}}, mu::Float64)
   @Request server req begin
     dt = rand(Exponential(1/mu))
     @yield return Timeout(sim, dt)
