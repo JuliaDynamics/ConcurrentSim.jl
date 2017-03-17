@@ -5,14 +5,14 @@ SimJulia
 
 #### Build Status
 
-[![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=master)](https://travis-ci.org/BenLauwens/SimJulia.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/master?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
+[![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=redesign)](https://travis-ci.org/BenLauwens/SimJulia.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/redesign?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
 
 
 #### Coverage
 
-[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=master)
-[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=master)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=master)
+[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=redesign)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=redesign)
+[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=redesign)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=redesign)
 
 
 #### Installation
@@ -39,7 +39,6 @@ julia> Pkg.add("SimJulia")
 
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
 * Only supports Julia v0.6 and above.
-* Scheduling is based on TimeType and Period.
 * The discrete event features are on par with version 0.3. (STABLE)
 * Two ways of making `Processes` are provided:
   - using the existing concept of `Tasks`:
@@ -81,7 +80,6 @@ julia> Pkg.add("SimJulia")
 #### Todo
 
 * Transparent output processing.
-* Extension of continuous integration to PDEs by method of lines Integration.
 * Automatically running a large number of simulations (over a parameter space) on a cluster to do simulation based optimisation.
 
 
