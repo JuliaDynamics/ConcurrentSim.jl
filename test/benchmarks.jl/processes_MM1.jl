@@ -29,5 +29,6 @@ function test_mm1(n::Float64)
   run(sim, n)
 end
 
+test_mm1(100.0)
 BenchmarkTools.DEFAULT_PARAMETERS.samples = 100
 println(mean(@benchmark test_mm1(100.0)))
