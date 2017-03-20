@@ -6,6 +6,9 @@ for test_file in [
   "events.jl",
   "operators.jl",
   "tasks/base.jl",
-  "processes.jl",]
+  "processes.jl",
+  "finitestatemachines/utils.jl",
+  "finitestatemachines/transforms.jl",
+  "coroutines.jl"]
   include(testpath(test_file))
 end

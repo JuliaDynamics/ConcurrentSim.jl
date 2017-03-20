@@ -20,6 +20,8 @@ module SimJulia
   export (&), (|)
   export Process, @process
   export yield, interrupt
+  export FiniteStateMachine, @stateful, @yield, iscoroutinedone
+  export Coroutine, @coroutine
 
   include("base.jl")
   include("simulations.jl")
@@ -27,4 +29,8 @@ module SimJulia
   include("operators.jl")
   include("tasks/base.jl")
   include("processes.jl")
+  include("finitestatemachines/utils.jl")
+  include("finitestatemachines/transforms.jl")
+  include("finitestatemachines/base.jl")
+  include("coroutines.jl")
 end
