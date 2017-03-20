@@ -22,6 +22,8 @@ module SimJulia
   export yield, interrupt
   export FiniteStateMachine, @stateful, @yield, iscoroutinedone
   export Coroutine, @coroutine
+  export Container, Resource, Store
+  export Put, Get, Request, Release, cancel, capacity, request, @request
 
   include("base.jl")
   include("simulations.jl")
@@ -31,6 +33,10 @@ module SimJulia
   include("processes.jl")
   include("finitestatemachines/utils.jl")
   include("finitestatemachines/transforms.jl")
-  include("finitestatemachines/base.jl")
+  include("finitestatemachines/macro.jl")
   include("coroutines.jl")
+  include("resources/base.jl")
+  include("resources/containers.jl")
+  include("resources/stores.jl")
+
 end
