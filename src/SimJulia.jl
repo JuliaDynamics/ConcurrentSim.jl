@@ -7,7 +7,7 @@ module SimJulia
 
   using DataStructures
 
-  import Base.run, Base.now, Base.isless, Base.show
+  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
 
   export AbstractEvent
@@ -18,10 +18,13 @@ module SimJulia
   export succeed, fail, append_callback, @callback, remove_callback
   export Operator
   export (&), (|)
+  export Process, @process
+  export yield, interrupt
 
   include("base.jl")
   include("simulations.jl")
   include("events.jl")
   include("operators.jl")
-
+  include("tasks/base.jl")
+  include("processes.jl")
 end
