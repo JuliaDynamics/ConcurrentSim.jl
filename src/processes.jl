@@ -23,8 +23,8 @@ end
 function yield(target::AbstractEvent)
   env = environment(target)
   proc = active_process(env)
-  proc.target = state(target) == triggered ? Timeout(env, value=value(target)) : target
-  proc.resume = append_callback(execute, proc.target, proc)
+  proc.target = state(target) == triggered ? Timeout(env; value=value(target)) : target
+  proc.resume = @callback execute(proc.target, proc)
   ret = SimJulia.produce(nothing)
   isa(ret, Exception) && throw(ret)
   return ret
@@ -36,7 +36,7 @@ function execute(ev::AbstractEvent, proc::Process)
     set_active_process(env, proc)
     ret = SimJulia.consume(proc.task, value(ev))
     reset_active_process(env)
-    istaskdone(proc.task) && schedule(proc.bev, value=ret)
+    istaskdone(proc.task) && schedule(proc; value=ret)
   catch exc
     rethrow(exc)
   end
@@ -45,7 +45,7 @@ end
 function interrupt(proc::Process, cause::Any=nothing)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
-    proc.target = Timeout(environment(proc), priority=typemax(Int8), value=InterruptException(proc, cause))
-    proc.resume = append_callback(execute, proc.target, proc)
+    proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))
+    proc.resume = @callback execute(proc.target, proc)
   end
 end

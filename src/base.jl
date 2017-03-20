@@ -56,3 +56,37 @@ end
 function remove_callback(cb::Function, ev::AbstractEvent)
   DataStructures.dequeue!(ev.bev.callbacks, cb)
 end
+
+function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8=zero(Int8), value::Any=nothing)
+  env = environment(ev)
+  bev = ev.bev
+  bev.value = value
+  env.heap[bev] = EventKey(env.time + delay, priority, env.sid+=one(UInt))
+  bev.state = scheduled
+end
+
+struct StopSimulation <: Exception
+  value :: Any
+  function StopSimulation(value::Any=nothing)
+    new(value)
+  end
+end
+
+function stop_simulation(ev::AbstractEvent)
+  throw(StopSimulation(value(ev)))
+end
+
+function run(env::Environment, until::AbstractEvent)
+  @callback stop_simulation(until)
+  try
+    while true
+      step(env)
+    end
+  catch exc
+    if isa(exc, StopSimulation)
+      return exc.value
+    else
+      rethrow(exc)
+    end
+  end
+end

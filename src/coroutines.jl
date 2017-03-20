@@ -27,10 +27,10 @@ function execute(ev::AbstractEvent, proc::Coroutine)
     target = proc.fsm(value(ev))
     reset_active_process(env)
     if iscoroutinedone(proc.fsm)
-      schedule(proc.bev, value=target)
+      schedule(proc; value=target)
     else
-      proc.target = state(target) == triggered ? Timeout(env, value=value(target)) : target
-      proc.resume = append_callback(execute, proc.target, proc)
+      proc.target = state(target) == triggered ? Timeout(env; value=value(target)) : target
+      proc.resume = @callback execute(proc.target, proc)
     end
   catch exc
     rethrow(exc)
@@ -40,7 +40,7 @@ end
 function interrupt(proc::Coroutine, cause::Any=nothing)
   if !iscoroutinedone(proc.fsm)
     remove_callback(proc.resume, proc.target)
-    proc.target = Timeout(environment(proc), priority=typemax(Int8), value=InterruptException(proc, cause))
-    proc.resume = append_callback(execute, proc.target, proc)
+    proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))
+    proc.resume = @callback execute(proc.target, proc)
   end
 end

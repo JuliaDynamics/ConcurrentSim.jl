@@ -15,7 +15,7 @@ struct Operator <: AbstractEvent
     event_state_values = Dict{AbstractEvent, StateValue}()
     for ev in tuple(fev, events...)
       event_state_values[ev] = StateValue(state(ev))
-      append_callback(check, ev, op, event_state_values)
+      @callback check(ev, op, event_state_values)
     end
     op
   end
@@ -25,16 +25,16 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{Abstrac
   val = value(ev)
   if state(op) == idle
     if isa(val, Exception)
-      schedule(op.bev, value=val)
+      schedule(op; value=val)
     else
       event_state_values[ev] = StateValue(state(ev), val)
       if op.eval(collect(values(event_state_values)))
-        schedule(op.bev, value=event_state_values)
+        schedule(op; value=event_state_values)
       end
     end
   elseif state(op) == scheduled
     if isa(val, Exception)
-      schedule(op.bev, priority=typemax(Int8), value=val)
+      schedule(op; priority=typemax(Int8), value=val)
     else
       event_state_values[ev] = StateValue(state(ev), val)
     end
@@ -42,17 +42,17 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{Abstrac
 end
 
 function eval_and(state_values::Vector{StateValue})
-  return all(map((sv)->sv.state == triggered, state_values))
+  all(map((sv)->sv.state == triggered, state_values))
 end
 
 function eval_or(state_values::Vector{StateValue})
-  return any(map((sv)->sv.state == triggered, state_values))
+  any(map((sv)->sv.state == triggered, state_values))
 end
 
 function (&)(ev1::AbstractEvent, ev2::AbstractEvent)
-  return Operator(eval_and, ev1, ev2)
+  Operator(eval_and, ev1, ev2)
 end
 
 function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
-  return Operator(eval_or, ev1, ev2)
+  Operator(eval_or, ev1, ev2)
 end

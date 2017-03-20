@@ -29,7 +29,7 @@ end
 function Put{T}(sto::Store{T}, item::T; priority::Int=0) :: Put
   put_ev = Put(sto.env)
   sto.Put_queue[put_ev] = StorePutKey(priority, sto.seid+=one(UInt), item)
-  append_callback(trigger_get, put_ev, sto)
+  @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   return put_ev
 end
@@ -41,7 +41,7 @@ end
 function Get{T}(sto::Store{T}, filter::Function=get_any_item; priority::Int=0) :: Get
   get_ev = Get(sto.env)
   sto.Get_queue[get_ev] = StoreGetKey(priority, sto.seid+=one(UInt), filter)
-  append_callback(trigger_put, get_ev, sto)
+  @callback trigger_put(get_ev, sto)
   trigger_get(get_ev, sto)
   return get_ev
 end
@@ -49,7 +49,7 @@ end
 function do_put{T}(sto::Store{T}, put_ev::Put, key::StorePutKey{T}) :: Bool
   if length(sto.items) < sto.capacity
     push!(sto.items, key.item)
-    schedule(put_ev.bev)
+    schedule(put_ev)
   end
   return false
 end
@@ -58,7 +58,7 @@ function do_get{T}(sto::Store{T}, get_ev::Get, key::StoreGetKey) :: Bool
   for item in sto.items
     if key.filter(item)
       delete!(sto.items, item)
-      schedule(get_ev.bev, value=item)
+      schedule(get_ev; value=item)
       break
     end
   end

@@ -12,24 +12,24 @@ module SimJulia
 
   export AbstractEvent
   export value, state, environment
-  export Simulation
-  export run, now, active_process
   export Event, Timeout
-  export succeed, fail, append_callback, @callback, remove_callback
+  export succeed, fail, @callback, remove_callback
   export Operator
   export (&), (|)
+  export Simulation
+  export run, now, active_process
   export Process, @process
   export yield, interrupt
-  export FiniteStateMachine, @stateful, @yield, iscoroutinedone
+  export FiniteStateMachine, @stateful, @yield
   export Coroutine, @coroutine
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity, request, @request
 
   include("base.jl")
-  include("simulations.jl")
   include("events.jl")
   include("operators.jl")
   include("tasks/base.jl")
+  include("simulations.jl")
   include("processes.jl")
   include("finitestatemachines/utils.jl")
   include("finitestatemachines/transforms.jl")
