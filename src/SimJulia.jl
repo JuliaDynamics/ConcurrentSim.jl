@@ -6,6 +6,7 @@ Main module for SimJulia.jl – a combined continuous time / discrete event proc
 module SimJulia
 
   using DataStructures
+  using Base.Dates
 
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
@@ -30,6 +31,7 @@ module SimJulia
   include("operators.jl")
   include("tasks/base.jl")
   include("simulations.jl")
+  include("utils/time.jl")
   include("processes.jl")
   include("finitestatemachines/utils.jl")
   include("finitestatemachines/transforms.jl")
