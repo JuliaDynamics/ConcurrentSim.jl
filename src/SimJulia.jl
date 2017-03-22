@@ -19,6 +19,7 @@ module SimJulia
   export (&), (|)
   export Simulation
   export run, now, active_process
+  export nowDatetime
   export Process, @process
   export yield, interrupt
   export FiniteStateMachine, @stateful, @yield
@@ -28,10 +29,10 @@ module SimJulia
 
   include("base.jl")
   include("events.jl")
-  include("operators.jl")
-  include("tasks/base.jl")
+  include("utils/operators.jl")
   include("simulations.jl")
   include("utils/time.jl")
+  include("tasks/base.jl")
   include("processes.jl")
   include("finitestatemachines/utils.jl")
   include("finitestatemachines/transforms.jl")

@@ -61,7 +61,7 @@ function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8
   env = environment(ev)
   bev = ev.bev
   bev.value = value
-  env.heap[bev] = EventKey(env.time + delay, priority, env.sid+=one(UInt))
+  env.heap[bev] = EventKey(now(env) + delay, priority, env.sid+=one(UInt))
   bev.state = scheduled
 end
 
