@@ -7,7 +7,7 @@ abstract type FiniteStateMachine end
 iscoroutinedone(fsm::FiniteStateMachine) = fsm._state == 0xff
 
 macro stateful(expr::Expr)
-  expr.head != :function && error("Not a function definition!")
+  expr.head != :function && error("Expression is not a function definition!")
   args = getArguments(expr)
   func_name = shift!(args)
   type_name = gensym()

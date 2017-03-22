@@ -7,6 +7,7 @@ module SimJulia
 
   using DataStructures
   using Base.Dates
+  using TaylorSeries
 
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
@@ -26,6 +27,8 @@ module SimJulia
   export Coroutine, @coroutine
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity, request, @request
+  export Continuous
+  export @model, @continuous
 
   include("base.jl")
   include("events.jl")
@@ -36,10 +39,11 @@ module SimJulia
   include("processes.jl")
   include("finitestatemachines/utils.jl")
   include("finitestatemachines/transforms.jl")
-  include("finitestatemachines/macro.jl")
+  include("finitestatemachines/macros.jl")
   include("coroutines.jl")
   include("resources/base.jl")
   include("resources/containers.jl")
   include("resources/stores.jl")
-
+  include("odes/macros.jl")
+  include("continuous.jl")
 end

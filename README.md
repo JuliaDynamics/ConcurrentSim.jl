@@ -54,7 +54,6 @@ datetime = now()
 sim = Simulation(datetime)
 @process datetimetest(sim)
 run(sim, datetime+Month(3))
-println(nowDatetime(sim))
 ```
 * The discrete event features are on par with version 0.3. (STABLE)
 * Two ways of making `Processes` are provided:
