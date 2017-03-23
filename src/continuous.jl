@@ -3,17 +3,27 @@ struct Continuous <: AbstractProcess
   f :: Vector{Function}
   order :: UInt8
   stiff :: Bool
+  t :: Vector{Float64}
   q :: Vector{Taylor1}
   x :: Vector{Taylor1}
   p :: Vector{Float64}
   function Continuous(func::Function, env::Environment, q::Vector{Float64}, p::Vector{Float64}=Float64[]; order::Number=4, stiff::Bool=false)
-    cont = new(BaseEvent(env), func(), UInt8(order), stiff, Vector{Taylor1}(), Vector{Taylor1}(), p)
+    cont = new(BaseEvent(env), func(), UInt8(order), stiff, Vector{Float64}(), Vector{Taylor1}(), Vector{Taylor1}(), p)
     for q₀ in q
+      push!(cont.t, now(env))
       push!(cont.q, q₀ + Taylor1(Float64, order+1))
     end
-    t = now(env) + Taylor1(Float64, order+1)
+    t₀ = now(env) + Taylor1(Float64, order+1)
     for (i, q₀) in enumerate(q)
-      push!(cont.x, integrate(cont.f[i](t, cont.q, cont.p), q₀))
+      push!(cont.x, integrate(cont.f[i](t₀, cont.q, cont.p), q₀))
+    end
+    for i in 1:order-1
+      for (i, xᵢ) in enumerate(cont.x)
+        cont.q[i] = deepcopy(cont.x[i])
+      end
+      for (i, qᵢ) in enumerate(cont.q)
+        cont.x[i] = integrate(cont.f[i](t₀, cont.q, cont.p), q[i])
+      end
     end
     cont
   end

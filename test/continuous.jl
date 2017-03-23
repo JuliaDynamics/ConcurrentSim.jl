@@ -8,3 +8,5 @@ end
 sim = Simulation()
 cont = @continuous stiffeq(sim, [0.0, 20.0], [2020.0]; order=6, stiff=true)
 run(sim, 500.0)
+println(cont.x)
+println(cont.q)
