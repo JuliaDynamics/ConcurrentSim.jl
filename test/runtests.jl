@@ -12,6 +12,7 @@ for test_file in [
   "finitestatemachines/transforms.jl",
   "coroutines.jl",
   "containers.jl",
-  "stores.jl",]
+  "stores.jl",
+  "continuous.jl",]
   include(testpath(test_file))
 end

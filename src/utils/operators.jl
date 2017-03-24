@@ -28,9 +28,7 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{Abstrac
       schedule(op; value=val)
     else
       event_state_values[ev] = StateValue(state(ev), val)
-      if op.eval(collect(values(event_state_values)))
-        schedule(op; value=event_state_values)
-      end
+      op.eval(collect(values(event_state_values))) && schedule(op; value=event_state_values)
     end
   elseif state(op) == scheduled
     if isa(val, Exception)
