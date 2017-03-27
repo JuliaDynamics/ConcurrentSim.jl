@@ -11,6 +11,7 @@ module SimJulia
 
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
+  import TaylorSeries.integrate
 
   export AbstractEvent
   export value, state, environment
@@ -44,6 +45,9 @@ module SimJulia
   include("resources/base.jl")
   include("resources/containers.jl")
   include("resources/stores.jl")
+  include("odes/base.jl")
   include("odes/macros.jl")
+  include("odes/QSS.jl")
   include("continuous.jl")
+  include("odes/commons.jl")
 end

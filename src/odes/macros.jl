@@ -1,3 +1,15 @@
+function check_dependencies(ex, deps::Array{Bool}, i::Int)
+  if ex isa Expr
+    if ex.head == :ref
+      deps[i, ex.args[2]] = true
+    else
+      for arg in ex.args
+        check_dependencies(arg, deps, i)
+      end
+    end
+  end
+end
+
 macro model(expr::Expr)
   expr.head != :function && error("Expression is not a function definition!")
   args = getArguments(expr)
@@ -6,9 +18,16 @@ macro model(expr::Expr)
   for ex in expr.args[2].args
     ex isa Expr && ex.head == Symbol("=") && push!(f_vec, ex)
   end
+  n = length(f_vec)
+  deps = zeros(Bool, n, n)
+  for ex in expr.args[2].args
+    if ex isa Expr && ex.head == Symbol("=")
+      check_dependencies(ex.args[2], deps, ex.args[1].args[2])
+    end
+  end
   esc(:(function $func_name()
       f = Array{Function}(length($f_vec))
       $((:(f[$(f_vec[i].args[1].args[2])] = (t::TaylorSeries.Taylor1, q::Vector{TaylorSeries.Taylor1}, p::Vector{Float64})->$(f_vec[i].args[2])) for i in 1:length(:($f_vec)))...)
-      f
+      f, $deps
     end))
 end

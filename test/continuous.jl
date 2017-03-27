@@ -6,7 +6,8 @@ using SimJulia
 end
 
 sim = Simulation()
-cont = @continuous stiffeq(sim, [0.0, 20.0], [2020.0]; order=6, stiff=true)
+cont = @continuous stiffeq(sim, [0.0, 20.0], [2020.0])
 run(sim, 500.0)
-println(cont.x)
-println(cont.q)
+for var in cont.vars
+  println(var.x)
+end

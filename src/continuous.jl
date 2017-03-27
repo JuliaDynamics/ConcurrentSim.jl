@@ -1,31 +1,21 @@
+mutable struct Variable <: AbstractEvent
+  bev :: BaseEvent
+  id :: UInt
+  f :: Function
+  x :: Taylor1
+  t :: Float64
+  function Variable(env::Environment, id::Int, f::Vector{Function}, x₀::Taylor1)
+    new(BaseEvent(env), UInt(id), f[id], x₀, now(env))
+  end
+end
+
 struct Continuous <: AbstractProcess
   bev :: BaseEvent
-  f :: Vector{Function}
-  order :: UInt8
-  stiff :: Bool
-  t :: Vector{Float64}
-  q :: Vector{Taylor1}
-  x :: Vector{Taylor1}
+  vars :: Vector{Variable}
   p :: Vector{Float64}
-  function Continuous(func::Function, env::Environment, q::Vector{Float64}, p::Vector{Float64}=Float64[]; order::Number=4, stiff::Bool=false)
-    cont = new(BaseEvent(env), func(), UInt8(order), stiff, Vector{Float64}(), Vector{Taylor1}(), Vector{Taylor1}(), p)
-    zero_taylor = 0*Taylor1(Float64, order+1)
-    for q₀ in q
-      push!(cont.t, now(env))
-      push!(cont.q, q₀ + zero_taylor)
-    end
-    t₀ = now(env) + Taylor1(Float64, order+1)
-    for (i, q₀) in enumerate(q)
-      push!(cont.x, integrate(cont.f[i](t₀, cont.q, cont.p), q₀))
-    end
-    for i in 1:order-1
-      for (i, xᵢ) in enumerate(cont.x)
-        cont.q[i] = copy(cont.x[i])
-      end
-      for (i, qᵢ) in enumerate(cont.q)
-        cont.x[i] = integrate(cont.f[i](t₀, cont.q, cont.p), q[i])
-      end
-    end
+  function Continuous(model::Function, env::Environment, x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; integrator::Integrator=QSS())
+    cont = new(BaseEvent(env), Vector{Variable}(), p)
+    init(env, cont, integrator, model, x₀)
     cont
   end
 end
