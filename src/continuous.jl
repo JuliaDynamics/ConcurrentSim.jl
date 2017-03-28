@@ -4,20 +4,40 @@ mutable struct Variable <: AbstractEvent
   f :: Function
   x :: Taylor1
   t :: Float64
-  function Variable(env::Environment, id::Int, f::Vector{Function}, x₀::Taylor1)
-    new(BaseEvent(env), UInt(id), f[id], x₀, now(env))
+  function Variable(env::Environment, id::Int)
+    new(BaseEvent(env), UInt(id))
   end
+end
+
+function advance_time(var::Variable, t::Float64)
+  x = var.x
+  Δt = t - var.t
+  var.x = evaluate(x, Δt + Taylor1(x.order))
+  var.t = t
+  var.x.coeffs[1]
+end
+
+struct ZeroCrossing <: AbstractEvent
+
 end
 
 struct Continuous <: AbstractProcess
   bev :: BaseEvent
   vars :: Vector{Variable}
   p :: Vector{Float64}
-  function Continuous(model::Function, env::Environment, x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; integrator::Integrator=QSS())
-    cont = new(BaseEvent(env), Vector{Variable}(), p)
-    init(env, cont, integrator, model, x₀)
-    cont
+  zcs :: Vector{ZeroCrossing}
+  function Continuous(env::Environment, p::Vector{Float64})
+    new(BaseEvent(env), Vector{Variable}(), p, Vector{ZeroCrossing}())
   end
+end
+
+function Continuous{I<:Integrator}(model::Function, ::Type{I}, env::Environment, x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...)
+  cont = Continuous(env, p)
+  for i in 1:length(x₀)
+    push!(cont.vars, Variable(env, i))
+  end
+  I(model, cont, now(env), x₀; args...)
+  cont
 end
 
 macro continuous(expr::Expr)
