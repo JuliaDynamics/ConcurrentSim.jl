@@ -32,5 +32,10 @@ function step(var::Variable, cont::Continuous, integrator::QSS)
   i = var.id
   env = environment(var)
   t = now(env)
-  println(integrator.q)
+  x₀ = advance_time(var, t)
+  #update_quantized_state(cont, integrator, i)
+  #for (j, istrue) in enumerate(integrator.deps[i, :])
+  #  istrue && advance_time(cont, j, t)
+  #end
+  q₋ = deepcopy(integrator.q)
 end

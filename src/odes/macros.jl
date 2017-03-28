@@ -1,10 +1,10 @@
-function check_dependencies(ex, deps::Array{Bool}, i::Int)
+function check_dependencies(ex, deps::Array{Bool}, i::Int, x::Symbol)
   if ex isa Expr
-    if ex.head == :ref
+    if ex.head == :ref && x == ex.args[1]
       deps[i, ex.args[2]] = true
     else
       for arg in ex.args
-        check_dependencies(arg, deps, i)
+        check_dependencies(arg, deps, i, x)
       end
     end
   end
@@ -21,9 +21,7 @@ macro model(expr::Expr)
   n = length(f_vec)
   deps = zeros(Bool, n, n)
   for ex in expr.args[2].args
-    if ex isa Expr && ex.head == Symbol("=")
-      check_dependencies(ex.args[2], deps, ex.args[1].args[2])
-    end
+    ex isa Expr && ex.head == Symbol("=") && check_dependencies(ex.args[2], deps, ex.args[1].args[2], expr.args[1].args[3])
   end
   esc(:(function $func_name()
       f = Array{Function}(length($f_vec))
