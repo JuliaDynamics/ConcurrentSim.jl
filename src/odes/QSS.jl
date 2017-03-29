@@ -3,13 +3,14 @@
 struct QSS{T} <: Integrator
   order :: UInt8
   model :: Model
+  p :: Vector{Float64}
   q :: Vector{Taylor1}
   t :: Vector{Float64}
   Δrel :: Float64
   Δabs :: Float64
-  function QSS{T}(model::Model, t::Float64, x₀::Vector{Float64};
+  function QSS{T}(model::Model, t::Float64, x₀::Vector{Float64}, p::Vector{Float64};
                   order::Number=4, Δrel::Float64=1e-6, Δabs::Float64=1e-6) where T
-    qss = new(UInt8(order), model, Vector{Taylor1}(), Vector{Float64}(), Δrel, Δabs)
+    qss = new(UInt8(order), model, p, Vector{Taylor1}(), Vector{Float64}(), Δrel, Δabs)
     t₀ = t + Taylor1(Float64, qss.order+1)
     for q₀ in x₀
       push!(qss.t, t)
@@ -17,7 +18,7 @@ struct QSS{T} <: Integrator
     end
     for i in 1:qss.order-1
       for (j, q₀) in enumerate(x₀)
-        qss.q[j] = integrate(model.f[j](t₀, qss.q, model.p), q₀)
+        qss.q[j] = integrate(model.f[j](t₀, qss.q, p), q₀)
       end
     end
     qss
@@ -34,7 +35,7 @@ function initial_values(qss::QSS, t::Float64)
   t₀ = t + Taylor1(Float64, qss.order+1)
   x₀ = Vector{Taylor1}()
   for (i, f) in enumerate(qss.model.f)
-    push!(x₀, integrate(f(t₀, qss.q, qss.model.p), qss.q[i].coeffs[1]))
+    push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i].coeffs[1]))
   end
   x₀
 end
@@ -56,7 +57,7 @@ function step(var::Variable, cont::Continuous, qss::QSS)
     for k in filter(k->qss.model.deps[j,k], 1:n)
       advance_time(qss, k, t)
     end
-    dep.x = integrate(qss.model.f[j](t₀, qss.q, qss.model.p), x₀)
+    dep.x = integrate(qss.model.f[j](t₀, qss.q, qss.p), x₀)
     Δt = recompute_next_time(qss, var.x, qss.q[j], max(qss.Δrel*x₀, qss.Δabs))
     schedule(dep, cont, qss, Δt)
   end

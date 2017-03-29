@@ -15,7 +15,7 @@ end
 sim = Simulation()
 cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0]; stiff=false, order=4)
 zc = @zerocrossing less_prey(cont)
-run(sim, 500.0)
+run(sim, 10.0)
 for var in cont.vars
   println(var.x)
 end

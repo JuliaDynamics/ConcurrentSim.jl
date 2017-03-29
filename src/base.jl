@@ -14,12 +14,11 @@ end
 mutable struct BaseEvent
   env :: Environment
   id :: UInt
-  cid :: UInt
-  callbacks :: DataStructures.PriorityQueue{Function, UInt}
+  callbacks :: Vector{Function}
   state :: EVENT_STATE
   value :: Any
   function BaseEvent(env::Environment)
-    new(env, env.eid+=one(UInt), zero(UInt), DataStructures.PriorityQueue(Function, UInt), idle, nothing)
+    new(env, env.eid+=one(UInt), Vector{Function}(), idle, nothing)
   end
 end
 
@@ -42,7 +41,7 @@ end
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
   ev.bev.state == triggered && throw(EventTriggered(ev))
   cb = ()->func(ev, args...)
-  ev.bev.callbacks[cb] = ev.bev.cid+=one(UInt)
+  push!(ev.bev.callbacks, cb)
   cb
 end
 
@@ -54,7 +53,8 @@ macro callback(expr::Expr)
 end
 
 function remove_callback(cb::Function, ev::AbstractEvent)
-  DataStructures.dequeue!(ev.bev.callbacks, cb)
+  i = indexin(ev.bev.callbacks, [cb])[1]
+  deleteat!(ev.bev.callbacks, i)
 end
 
 function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8=zero(Int8), value::Any=nothing)

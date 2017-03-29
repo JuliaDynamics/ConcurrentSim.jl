@@ -41,11 +41,9 @@ struct Continuous <: AbstractProcess
   end
 end
 
-function Continuous{I<:Integrator}(model::Model, env::Environment, ::Type{I}, x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...)
-  for p₀ in p
-    push!(model.p, p₀)
-  end
-  integrator = I(model, now(env), x₀; args...)
+function Continuous{I<:Integrator}(model::Model, env::Environment, ::Type{I},
+    x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...)
+  integrator = I(model, now(env), x₀, p; args...)
   Continuous(env, integrator)
 end
 

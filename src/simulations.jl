@@ -34,8 +34,8 @@ function step(sim::Simulation)
   DataStructures.dequeue!(sim.heap)
   sim.time = key.time
   bev.state = triggered
-  while !isempty(bev.callbacks)
-    DataStructures.dequeue!(bev.callbacks)()
+  for callback in bev.callbacks
+    callback()
   end
 end
 
