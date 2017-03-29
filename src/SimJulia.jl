@@ -28,8 +28,8 @@ module SimJulia
   export Coroutine, @coroutine
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity, request, @request
-  export Continuous, Variable, ZeroCrossing
-  export @model, @continuous
+  export Model, Continuous, Variable, ZeroCrossing
+  export @model, @continuous, @trigger, @zerocrossing
   export QSS
   export non_stiff, stiff
 
@@ -50,5 +50,6 @@ module SimJulia
   include("odes/base.jl")
   include("odes/macros.jl")
   include("continuous.jl")
+  include("odes/roots.jl")
   include("odes/QSS.jl")
 end

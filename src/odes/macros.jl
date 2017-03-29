@@ -24,8 +24,13 @@ macro model(expr::Expr)
     ex isa Expr && ex.head == Symbol("=") && check_dependencies(ex.args[2], deps, ex.args[1].args[2], expr.args[1].args[3])
   end
   esc(:(function $func_name()
-      f = Array{Function}(length($f_vec))
-      $((:(f[$(f_vec[i].args[1].args[2])] = (t::TaylorSeries.Taylor1, q::Vector{TaylorSeries.Taylor1}, p::Vector{Float64})->$(f_vec[i].args[2])) for i in 1:length(:($f_vec)))...)
-      f, $deps
+      f = Array{Function}($n)
+      $((:(f[$(f_vec[i].args[1].args[2])] = ($(expr.args[1].args[2])::TaylorSeries.Taylor1, $(expr.args[1].args[3])::Vector{TaylorSeries.Taylor1}, $(expr.args[1].args[4])::Vector{Float64})->$(f_vec[i].args[2])) for i in 1:length(:($f_vec)))...)
+      Model(f, $deps)
     end))
+end
+
+macro trigger(expr::Expr)
+  expr.head != :function && error("Expression is not a function definition!")
+  nothing
 end

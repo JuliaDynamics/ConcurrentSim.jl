@@ -1,18 +1,15 @@
 mutable struct Variable <: AbstractEvent
   bev :: BaseEvent
   id :: UInt
-  f :: Function
   x :: Taylor1
   t :: Float64
-  function Variable(env::Environment, id::Int)
-    new(BaseEvent(env), UInt(id))
+  function Variable(env::Environment, id::Int, x::Taylor1, t::Float64)
+    new(BaseEvent(env), id, x, t)
   end
 end
 
 function advance_time(var::Variable, t::Float64)
-  x = var.x
-  Δt = t - var.t
-  var.x = evaluate(x, Δt + Taylor1(x.order))
+  var.x = evaluate(var.x, t - var.t + Taylor1(var.x.order))
   var.t = t
   var.x.coeffs[1]
 end
@@ -21,23 +18,35 @@ struct ZeroCrossing <: AbstractEvent
 
 end
 
+macro zerocrossing(expr::Expr)
+  expr.head != :call && error("Expression is not a function call!")
+  nothing
+end
+
 struct Continuous <: AbstractProcess
   bev :: BaseEvent
+  integrator :: Integrator
   vars :: Vector{Variable}
-  p :: Vector{Float64}
-  zcs :: Vector{ZeroCrossing}
-  function Continuous(env::Environment, p::Vector{Float64})
-    new(BaseEvent(env), Vector{Variable}(), p, Vector{ZeroCrossing}())
+  function Continuous(env::Environment, integrator::Integrator)
+    cont = new(BaseEvent(env), integrator, Vector{Variable}())
+    t = now(env)
+    x = initial_values(integrator, t)
+    for (i, x₀) in enumerate(x)
+      push!(cont.vars, Variable(env, i, x₀, t))
+    end
+    for var in cont.vars
+      schedule(var, cont, integrator)
+    end
+    cont
   end
 end
 
-function Continuous{I<:Integrator}(model::Function, ::Type{I}, env::Environment, x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...)
-  cont = Continuous(env, p)
-  for i in 1:length(x₀)
-    push!(cont.vars, Variable(env, i))
+function Continuous{I<:Integrator}(model::Model, env::Environment, ::Type{I}, x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...)
+  for p₀ in p
+    push!(model.p, p₀)
   end
-  I(model, cont, now(env), x₀; args...)
-  cont
+  integrator = I(model, now(env), x₀; args...)
+  Continuous(env, integrator)
 end
 
 macro continuous(expr::Expr)
@@ -54,5 +63,11 @@ macro continuous(expr::Expr)
       push!(args, expr.args[i])
     end
   end
-  esc(:(Continuous($(func), $(args...); $(params...))))
+  esc(:(Continuous($func(), $(args...); $(params...))))
+end
+
+function schedule(var::Variable, cont::Continuous, integrator::Integrator, Δt::Float64=0.0)
+  var.bev = BaseEvent(environment(var))
+  @callback step(var, cont, integrator)
+  schedule(var, Δt)
 end
