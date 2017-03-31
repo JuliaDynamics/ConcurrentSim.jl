@@ -12,13 +12,16 @@ end
   end
 end
 
+function report(sim::Simulation, cont::Continuous)
+  while true
+    t = now(sim)
+    println(t, " ", evaluate(cont.vars[1], t), " ", evaluate(cont.vars[2], t))
+    yield(Timeout(sim, 1.0))
+  end
+end
+
 sim = Simulation()
-cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0]; stiff=false, order=4)
+cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0]; stiff=false, order=5)
+@process report(sim, cont)
 zc = @zerocrossing less_prey(cont)
-run(sim, 10.0)
-for var in cont.vars
-  println(var.x)
-end
-for q in cont.integrator.q
-  println(q)
-end
+run(sim, 71)

@@ -46,7 +46,6 @@ function step(var::Variable, cont::Continuous, qss::QSS)
   i = var.id
   t₀ = t + Taylor1(Float64, qss.order+1)
   x₀ = advance_time(var, t)
-  println(t, " ", i, " ", x₀)
   update_quantized_state(qss, cont.vars, i, t)
   Δt = compute_next_time(var.x, max(qss.Δrel*x₀, qss.Δabs))
   schedule(var, cont, qss, Δt)

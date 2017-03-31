@@ -54,7 +54,7 @@ end
 
 function remove_callback(cb::Function, ev::AbstractEvent)
   i = indexin(ev.bev.callbacks, [cb])[1]
-  deleteat!(ev.bev.callbacks, i)
+  i != 0 && deleteat!(ev.bev.callbacks, i)
 end
 
 function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8=zero(Int8), value::Any=nothing)
@@ -63,6 +63,10 @@ function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8
   bev.value = value
   env.heap[bev] = EventKey(now(env) + delay, priority, env.sid+=one(UInt))
   bev.state = scheduled
+end
+
+function reset(ev::AbstractEvent)
+  ev.bev.state = idle
 end
 
 struct StopSimulation <: Exception

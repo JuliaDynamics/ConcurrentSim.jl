@@ -14,6 +14,10 @@ function advance_time(var::Variable, t::Float64)
   var.x.coeffs[1]
 end
 
+function evaluate(var::Variable, t::Float64)
+  evaluate(var.x, t - var.t)
+end
+
 struct ZeroCrossing <: AbstractEvent
 
 end
@@ -35,7 +39,8 @@ struct Continuous <: AbstractProcess
       push!(cont.vars, Variable(env, i, x₀, t))
     end
     for var in cont.vars
-      schedule(var, cont, integrator)
+      @callback step(var, cont, integrator)
+      schedule(var)
     end
     cont
   end

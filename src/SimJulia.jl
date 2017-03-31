@@ -11,7 +11,7 @@ module SimJulia
 
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
-  import TaylorSeries.integrate
+  import TaylorSeries.integrate, TaylorSeries.evaluate
 
   export AbstractEvent
   export value, state, environment
@@ -30,6 +30,7 @@ module SimJulia
   export Put, Get, Request, Release, cancel, capacity, request, @request
   export Model, Continuous, Variable, ZeroCrossing
   export @model, @continuous, @trigger, @zerocrossing
+  export evaluate
   export QSS
   export non_stiff, stiff
 
