@@ -11,10 +11,10 @@ struct QSS{T} <: Integrator
   function QSS{T}(model::Model, t::Float64, x₀::Vector{Float64}, p::Vector{Float64};
                   order::Number=4, Δrel::Float64=1e-6, Δabs::Float64=1e-6) where T
     qss = new(UInt8(order), model, p, Vector{Taylor1}(), Vector{Float64}(), Δrel, Δabs)
-    t₀ = t + Taylor1(Float64, qss.order+1)
+    t₀ = t + Taylor1(Float64, order)
     for q₀ in x₀
       push!(qss.t, t)
-      push!(qss.q, q₀ + Taylor1(zeros(Float64, qss.order+1)))
+      push!(qss.q, q₀ + Taylor1(zeros(Float64, order+1)))
     end
     for i in 1:qss.order-1
       for (j, q₀) in enumerate(x₀)
@@ -32,7 +32,7 @@ function Continuous(model::Model, env::Environment, x₀::Vector{Float64}, p::Ve
 end
 
 function initial_values(qss::QSS, t::Float64)
-  t₀ = t + Taylor1(Float64, qss.order+1)
+  t₀ = t + Taylor1(Float64, qss.order+0)
   x₀ = Vector{Taylor1}()
   for (i, f) in enumerate(qss.model.f)
     push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i].coeffs[1]))
@@ -44,7 +44,7 @@ function step(var::Variable, cont::Continuous, qss::QSS)
   t = now(environment(var))
   n = length(qss.model.f)
   i = var.id
-  t₀ = t + Taylor1(Float64, qss.order+1)
+  t₀ = t + Taylor1(Float64, qss.order+0)
   x₀ = advance_time(var, t)
   update_quantized_state(qss, cont.vars, i, t)
   Δt = compute_next_time(var.x, max(qss.Δrel*x₀, qss.Δabs))
@@ -63,7 +63,7 @@ function step(var::Variable, cont::Continuous, qss::QSS)
 end
 
 function advance_time(qss::QSS, i::Int, t::Float64)
-  qss.q[i] = evaluate(qss.q[i], t - qss.t[i] + Taylor1(qss.q[i].order))
+  qss.q[i] = evaluate(qss.q[i], t - qss.t[i] + Taylor1(qss.order+0))
   qss.t[i] = t
   qss.q[i].coeffs[1]
 end
@@ -86,7 +86,7 @@ function compute_next_time(x::Taylor1, Δq::Float64)
 end
 
 function recompute_next_time(::QSS{non_stiff}, x::Taylor1, q::Taylor1, Δq::Float64)
-  p = x.coeffs - q.coeffs
+  p = (x-q).coeffs
   p[1] -= Δq
   neg = roots(p)
   p[1] += 2Δq
