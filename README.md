@@ -31,8 +31,8 @@ julia> Pkg.add("SimJulia")
 
 #### Documentation
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://BenLauwens.github.io/SimJulia.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://BenLauwens.github.io/SimJulia.jl/latest)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://simjuliajl.readthedocs.io/en/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://simjuliajl.readthedocs.io/en/latest)
 
 
 #### Release Notes
