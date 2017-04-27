@@ -1,7 +1,7 @@
 using SimJulia
 
 @model function diffeq(t, x, p, dx)
-  dx[1] = 0.01*x[2]
+  dx[1] = p[2]+0.01*x[2]
   dx[2] = p[1]-100.0*x[1]-100.0*x[2]
 end
 
@@ -13,7 +13,7 @@ function report(sim::Simulation, cont::Continuous)
 end
 
 sim = Simulation()
-cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0]; stiff=false, order=4)
+cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0, 0.0]; stiff=false, order=4)
 @process report(sim, cont)
 run(sim, 71)
 

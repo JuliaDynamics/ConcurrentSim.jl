@@ -28,8 +28,8 @@ module SimJulia
   export Coroutine, @coroutine
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity, request, @request
-  export Model, Continuous, Variable, ZeroCrossing
-  export @model, @continuous, @trigger, @zerocrossing
+  export Model, Continuous, Variable
+  export @model, @continuous
   export evaluate
   export QSS
   export non_stiff, stiff

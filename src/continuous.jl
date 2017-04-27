@@ -18,14 +18,13 @@ function evaluate(var::Variable, t::Float64=now(environment(var)))
   evaluate(var.x, t - var.t)
 end
 
-struct ZeroCrossing <: AbstractEvent
-
+struct Handler <: AbstractEvent
+  bev :: BaseEvent
+  function(env::Environment)
+    new(BaseEvent(env))
+  end
 end
 
-macro trigger(expr::Expr)
-  expr.head != :call && error("Expression is not a function call!")
-  nothing
-end
 
 struct Continuous <: AbstractProcess
   bev :: BaseEvent
