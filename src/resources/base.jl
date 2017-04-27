@@ -1,19 +1,19 @@
 abstract type ResourceKey end
 
-abstract type AbstractResource{E<:Environment} end
+abstract type AbstractResource end
 
-abstract type ResourceEvent{E<:Environment} <: AbstractEvent{E} end
+abstract type ResourceEvent <: AbstractEvent end
 
-struct Put{E<:Environment} <: ResourceEvent{E}
-  bev :: BaseEvent{E}
-  function Put{E}(env::E) where E<:Environment
+struct Put <: ResourceEvent
+  bev :: BaseEvent
+  function Put(env::Environment)
     new(BaseEvent(env))
   end
 end
 
-struct Get{E<:Environment} <: ResourceEvent{E}
-  bev :: BaseEvent{E}
-  function Get{E}(env::E) where E<:Environment
+struct Get <: ResourceEvent
+  bev :: BaseEvent
+  function Get(env::Environment)
     new(BaseEvent(env))
   end
 end
@@ -22,7 +22,7 @@ function isless(a::ResourceKey, b::ResourceKey)
   (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
 end
 
-function trigger_put{E<:Environment}(put_ev::ResourceEvent{E}, res::AbstractResource{E})
+function trigger_put(put_ev::ResourceEvent, res::AbstractResource)
   queue = DataStructures.PriorityQueue(res.Put_queue)
   while length(queue) > 0
     (put_ev, key) = DataStructures.peek(queue)
@@ -32,7 +32,7 @@ function trigger_put{E<:Environment}(put_ev::ResourceEvent{E}, res::AbstractReso
   end
 end
 
-function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractResource{E})
+function trigger_get(get_ev::ResourceEvent, res::AbstractResource)
   queue = DataStructures.PriorityQueue(res.Get_queue)
   while length(queue) > 0
     (get_ev, key) = DataStructures.peek(queue)
@@ -42,14 +42,14 @@ function trigger_get{E<:Environment}(get_ev::ResourceEvent{E}, res::AbstractReso
   end
 end
 
-function cancel{E<:Environment}(res::AbstractResource{E}, put_ev::Put{E})
+function cancel(res::AbstractResource, put_ev::Put)
   DataStructures.dequeue!(res.Put_queue, put_ev)
 end
 
-function cancel{E<:Environment}(res::AbstractResource{E}, get_ev::Get{E})
+function cancel(res::AbstractResource, get_ev::Get)
   DataStructures.dequeue!(res.Get_queue, get_ev)
 end
 
 function capacity(res::AbstractResource)
-  return res.capacity
+  res.capacity
 end

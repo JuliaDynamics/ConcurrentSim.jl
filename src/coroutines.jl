@@ -1,70 +1,36 @@
-"""
-A `Coroutine` is an abstraction for an event yielding function, i.e. a process function.
-
-The process function can suspend its execution by yielding an instance of `AbstractEvent`. The `Environment` will take care of resuming the process function with the value of that event once it has happened. The exception of failed events is also thrown into the process function.
-
-A `Coroutine` is a subtype of `AbstractEvent`. It is triggered, once the process functions returns or raises an exception. The value of the process is the return value of the process function or the exception, respectively.
-
-**Signature**:
-
-Coroutine{E<:Environment} <: AbstractEvent{E}
-
-**Fields**:
-
-- bev :: BaseEvent{E}
-- task :: Task
-- target :: AbstractEvent{E}
-- resume :: Function
-
-**Constructor**:
-
-Coroutine{E<:Environment}(func::Function, env::E, args::Any...)
-"""
-type Coroutine{E<:Environment} <: AbstractProcess{E}
-  bev :: BaseEvent{E}
+type Coroutine <: AbstractProcess
+  bev :: BaseEvent
   fsm :: FiniteStateMachine
-  target :: AbstractEvent{E}
+  target :: AbstractEvent
   resume :: Function
-  function Coroutine{E}(func::Function, env::E, args::Any...) where E<:Environment
-    proc = new()
-    proc.bev = BaseEvent(env)
-    proc.fsm = func(env, args...)
-    proc.target = Timeout(env)
-    proc.resume = append_callback(execute, proc.target, proc)
-    return proc
+  function Coroutine(func::Function, env::Environment, args::Any...)
+    cor = new()
+    cor.bev = BaseEvent(env)
+    cor.fsm = func(env, args...)
+    cor.target = Timeout(env)
+    cor.resume = @callback execute(cor.target, cor)
+    cor
   end
 end
 
-function Coroutine{E<:Environment}(func::Function, env::E, args::Any...)
-  Coroutine{E}(func, env, args...)
+macro coroutine(expr)
+  expr.head != :call && error("Expression is not a function call!")
+  func = esc(expr.args[1])
+  args = [esc(expr.args[n]) for n in 2:length(expr.args)]
+  :(Coroutine($(func), $(args...)))
 end
 
-"""
-Creates a `Coroutine` with process function `func` having a required argument `env`, i.e. an instance of a subtype of `Environment`, and a variable number of arguments `args...`.
-
-**Signature**:
-
-@Coroutine func(env, args...)
-"""
-macro Coroutine(ex)
-  if ex.head == :call
-    func = esc(ex.args[1])
-    args = [esc(ex.args[n]) for n in 2:length(ex.args)]
-    return :(Coroutine($(func), $(args...)))
-  end
-end
-
-function execute{E<:Environment}(ev::AbstractEvent{E}, proc::Coroutine{E})
+function execute(ev::AbstractEvent, proc::Coroutine)
   try
     env = environment(ev)
     set_active_process(env, proc)
     target = proc.fsm(value(ev))
-    set_active_process(env)
+    reset_active_process(env)
     if iscoroutinedone(proc.fsm)
-      schedule(proc.bev, value=target)
+      schedule(proc; value=target)
     else
-      proc.target = state(target) == triggered ? Timeout(env, value=value(target)) : target
-      proc.resume = append_callback(execute, proc.target, proc)
+      proc.target = state(target) == triggered ? Timeout(env; value=value(target)) : target
+      proc.resume = @callback execute(proc.target, proc)
     end
   catch exc
     rethrow(exc)
@@ -74,7 +40,7 @@ end
 function interrupt(proc::Coroutine, cause::Any=nothing)
   if !iscoroutinedone(proc.fsm)
     remove_callback(proc.resume, proc.target)
-    proc.target = Timeout(environment(proc), priority=typemax(Int8), value=InterruptException(proc, cause))
-    proc.resume = append_callback(execute, proc.target, proc)
+    proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))
+    proc.resume = @callback execute(proc.target, proc)
   end
 end

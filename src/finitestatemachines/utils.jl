@@ -2,29 +2,17 @@ function getArguments(expr) :: Vector{Symbol}
   args = Symbol[]
   kws = Symbol[]
   params = Symbol[]
-  if expr.args[1].head == :call
-    expr_args = expr.args[1].args
-  else
-    expr_args = expr.args[1].args[1].args
-  end
+  expr_args = expr.args[1].head == :call ? expr.args[1].args : expr.args[1].args[1].args
   for arg in expr_args
     if isa(arg, Symbol)
       push!(args, arg)
     elseif arg.head == Symbol("::")
       push!(args, arg.args[1])
     elseif arg.head == :kw
-      if isa(arg.args[1], Symbol)
-        push!(kws, arg.args[1])
-      else
-        push!(kws, arg.args[1].args[1])
-      end
+      isa(arg.args[1], Symbol) ? push!(kws, arg.args[1]) : push!(kws, arg.args[1].args[1])
     elseif arg.head == :parameters
       for arg2 in arg.args
-        if isa(arg2.args[1], Symbol)
-          push!(params, arg2.args[1])
-        else
-          push!(params, arg2.args[1].args[1])
-        end
+        isa(arg2.args[1], Symbol) ? push!(params, arg2.args[1]) : push!(params, arg2.args[1].args[1])
       end
     end
   end
