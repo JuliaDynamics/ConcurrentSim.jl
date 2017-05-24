@@ -90,6 +90,16 @@ run(sim, datetime+Month(3))
   run(sim, 10)
   ```
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
+```
+@model function diffeq(t, x, p, dx)
+  dx[1] = p[2]+0.01*x[2]
+  dx[2] = p[1]-100.0*x[1]-100.0*x[2]
+end
+
+sim = Simulation()
+cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0, 0.0]; stiff=false, order=4)
+run(sim, 100)
+```
 * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
 
 

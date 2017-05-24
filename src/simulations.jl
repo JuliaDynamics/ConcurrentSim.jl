@@ -1,4 +1,5 @@
 abstract type AbstractProcess <: AbstractEvent end
+abstract type DiscreteProcess <: AbstractProcess end
 
 struct InterruptException <: Exception
   by :: AbstractProcess

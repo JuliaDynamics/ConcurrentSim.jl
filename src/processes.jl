@@ -1,4 +1,4 @@
-type Process <: AbstractProcess
+type Process <: DiscreteProcess
   bev :: BaseEvent
   task :: Task
   target :: AbstractEvent

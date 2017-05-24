@@ -1,3 +1,5 @@
+abstract type ContinuousProcess <: AbstractProcess end
+
 mutable struct Variable <: AbstractEvent
   bev :: BaseEvent
   id :: UInt
@@ -25,8 +27,7 @@ struct Handler <: AbstractEvent
   end
 end
 
-
-struct Continuous <: AbstractProcess
+struct Continuous <: ContinuousProcess
   bev :: BaseEvent
   vars :: Vector{Variable}
   function Continuous(env::Environment)

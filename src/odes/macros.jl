@@ -87,8 +87,3 @@ macro model(expr::Expr)
       Model(f, zc, $deps, $param_deps)
     end))
 end
-
-macro zerocrossing(expr::Expr)
-  expr.head != :function && error("Expression is not a function definition!")
-  nothing
-end

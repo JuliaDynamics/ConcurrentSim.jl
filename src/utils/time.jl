@@ -9,7 +9,7 @@ end
 function Timeout(env::Environment, delay::Period; priority::Int8=zero(Int8), value::Any=nothing)
   time = now(env)
   del = Base.Dates.datetime2epochms(Base.Dates.epochms2datetime(time)+delay)-time
-  Timeout(env, del;priority=priority, value=value)
+  Timeout(env, del; priority=priority, value=value)
 end
 
 function nowDatetime(env::Environment)

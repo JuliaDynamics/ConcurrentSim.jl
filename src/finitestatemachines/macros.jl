@@ -13,7 +13,7 @@ macro stateful(expr::Expr)
   type_name = gensym()
   slots = getSlots(expr, func_name)
   type_expr = :(
-    type $type_name <: FiniteStateMachine
+    mutable struct $type_name <: FiniteStateMachine
       _state :: UInt8
       $((:($slotname :: $(slottype == Union{} ? Any : :($slottype))) for (slotname, slottype) in slots)...)
       function $type_name($((:($arg::$(slots[:($arg)])) for arg in args)...))
