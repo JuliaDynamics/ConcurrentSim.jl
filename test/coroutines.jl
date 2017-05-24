@@ -1,6 +1,6 @@
 using SimJulia
 
-@stateful function fibonnaci(sim::Simulation)
+@resumable function fibonnaci(sim::Simulation)
   a = 0
   b = 1
   while true
@@ -10,11 +10,11 @@ using SimJulia
   end
 end
 
-@stateful function test_process(sim::Simulation, ev::AbstractEvent)
+@resumable function test_process(sim::Simulation, ev::AbstractEvent)
   @yield return ev
 end
 
-@stateful function test_process_exception(sim::Simulation, ev::AbstractEvent)
+@resumable function test_process_exception(sim::Simulation, ev::AbstractEvent)
   try
     value = @yield return ev
   catch
@@ -22,12 +22,12 @@ end
   end
 end
 
-@stateful function test_interrupter(sim::Simulation, proc::Coroutine)
+@resumable function test_interrupter(sim::Simulation, proc::Coroutine)
   @yield return Timeout(sim, 2)
   interrupt(proc)
 end
 
-@stateful function test_interrupted(sim::Simulation)
+@resumable function test_interrupted(sim::Simulation)
   try
     exc = @yield return Timeout(sim, 10)
   catch

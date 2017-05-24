@@ -1,6 +1,6 @@
 using SimJulia
 
-@stateful function client(sim::Simulation, res::Resource, i::Int, priority::Int)
+@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
   println("$(now(sim)), client $i is waiting")
   @yield return Request(res, priority=priority)
   println("$(now(sim)), client $i is being served")
@@ -9,7 +9,7 @@ using SimJulia
   @yield return Release(res)
 end
 
-@stateful function generate(sim::Simulation, res::Resource)
+@resumable function generate(sim::Simulation, res::Resource)
   i = 1
   while true
     @coroutine client(sim, res, i, 10-i)
@@ -24,7 +24,7 @@ res = Resource(sim, 2; level=1)
 @coroutine generate(sim, res)
 run(sim)
 
-@stateful function my_consumer(sim::Simulation, con::Container)
+@resumable function my_consumer(sim::Simulation, con::Container)
   i = 1
   while true
     amount = 3*rand()
@@ -45,7 +45,7 @@ run(sim)
   end
 end
 
-@stateful function my_producer(sim::Simulation, con::Container)
+@resumable function my_producer(sim::Simulation, con::Container)
   i = 1
   while true
     amount = 2*rand()
@@ -66,7 +66,7 @@ con = Container(sim, 10.0; level=5.0)
 @coroutine my_producer(sim, con)
 run(sim)
 
-@stateful function resource_user(sim::Simulation, res::Resource, i::Int)
+@resumable function resource_user(sim::Simulation, res::Resource, i::Int)
   @request res req begin
     println("Requested $i")
     val = @yield return req | Timeout(sim, rand())
@@ -80,7 +80,7 @@ run(sim)
   println("Released automatically $i")
 end
 
-@stateful function create_users(sim::Simulation)
+@resumable function create_users(sim::Simulation)
   res = Resource(sim)
   i = 1
   while true

@@ -75,7 +75,7 @@ run(sim, datetime+Month(3))
   ```
   - using a novel finite-statemachine approach:
   ```
-  @stateful function fibonnaci(sim::Simulation)
+  @resumable function fibonnaci(sim::Simulation)
     a = 0.0
     b = 1.0
     while true

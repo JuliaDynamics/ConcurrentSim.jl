@@ -1,6 +1,6 @@
 using SimJulia, BenchmarkTools
 
-@stateful function fibonnaci(sim::Simulation)
+@resumable function fibonnaci(sim::Simulation)
   a = 0.0
   b = 1.0
   while true

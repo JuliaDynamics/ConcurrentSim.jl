@@ -4,7 +4,7 @@ struct StoreObject
   i :: Int
 end
 
-@stateful function my_consumer(sim::Simulation, sto::Store)
+@resumable function my_consumer(sim::Simulation, sto::Store)
   i = 1
   while true
     @yield return Timeout(sim, rand())
@@ -16,7 +16,7 @@ end
   end
 end
 
-@stateful function my_producer(sim::Simulation, sto::Store)
+@resumable function my_producer(sim::Simulation, sto::Store)
   i = 1
   while true
     println("$(now(sim)), producer is offering object $i")

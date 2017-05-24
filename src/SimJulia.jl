@@ -24,7 +24,7 @@ module SimJulia
   export nowDatetime
   export Process, @process
   export yield, interrupt
-  export FiniteStateMachine, @stateful, @yield
+  export FiniteStateMachine, @resumable, @yield
   export Coroutine, @coroutine
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity, request, @request
