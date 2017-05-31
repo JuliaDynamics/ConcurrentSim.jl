@@ -10,10 +10,10 @@ mutable struct Variable <: AbstractEvent
   end
 end
 
-function advance_time(var::Variable, t::Float64)
+function advance_time(var::Variable, t::Float64=now(environment(var)))
   var.x = evaluate(var.x, t - var.t + Taylor1(var.x.order))
   var.t = t
-  var.x.coeffs[1]
+  var.x[1]
 end
 
 function evaluate(var::Variable, t::Float64=now(environment(var)))

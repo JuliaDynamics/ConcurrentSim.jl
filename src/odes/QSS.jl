@@ -19,6 +19,7 @@ struct QSS{T} <: Integrator
     for i in 1:qss.order-1
       for (j, q₀) in enumerate(x₀)
         qss.q[j] = integrate(model.f[j](t₀, qss.q, p), q₀)
+        println(qss.q[j])
       end
     end
     qss
@@ -35,8 +36,9 @@ function initial_values(qss::QSS, t::Float64)
   t₀ = t + Taylor1(Float64, qss.order+0)
   x₀ = Vector{Taylor1}()
   for (i, f) in enumerate(qss.model.f)
-    push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i].coeffs[1]))
+    push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i][1]))
   end
+  println(x₀)
   x₀
 end
 
@@ -47,6 +49,7 @@ function step(var::Variable, cont::Continuous, qss::QSS)
   t₀ = t + Taylor1(Float64, qss.order+0)
   x₀ = advance_time(var, t)
   update_quantized_state(qss, cont.vars, i, t)
+  println(x₀)
   Δt = compute_next_time(var.x, max(qss.Δrel*x₀, qss.Δabs))
   schedule(var, cont, qss, Δt)
   for j in filter(j->qss.model.deps[j,i], 1:n)
@@ -57,7 +60,7 @@ function step(var::Variable, cont::Continuous, qss::QSS)
       advance_time(qss, k, t)
     end
     dep.x = integrate(qss.model.f[j](t₀, qss.q, qss.p), x₀)
-    Δt = recompute_next_time(qss, var.x, qss.q[j], max(qss.Δrel*x₀, qss.Δabs))
+    Δt = recompute_next_time(qss, dep.x, qss.q[j], max(qss.Δrel*x₀, qss.Δabs))
     schedule(dep, cont, qss, Δt)
   end
 end
@@ -65,12 +68,12 @@ end
 function advance_time(qss::QSS, i::Int, t::Float64)
   qss.q[i] = evaluate(qss.q[i], t - qss.t[i] + Taylor1(qss.order+0))
   qss.t[i] = t
-  qss.q[i].coeffs[1]
+  qss.q[i][1]
 end
 
 function update_quantized_state(qss::QSS{non_stiff}, vars::Vector{Variable}, i::UInt, t::Float64)
   qss.q[i] = copy(vars[i].x)
-  qss.q[i].coeffs[end] = 0.0
+  qss.q[i][end] = 0.0
   qss.t[i] = t
 end
 
@@ -82,7 +85,7 @@ function update_quantized_state(qss::QSS{stiff}, vars::Vector{Variable}, i::UInt
 end
 
 function compute_next_time(x::Taylor1, Δq::Float64)
-  (abs(Δq/x.coeffs[end]))^(1.0/x.order)
+  (abs(Δq/x[end]))^(1.0/x.order)
 end
 
 function recompute_next_time(::QSS{non_stiff}, x::Taylor1, q::Taylor1, Δq::Float64)
