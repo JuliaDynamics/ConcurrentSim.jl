@@ -72,13 +72,13 @@ macro model(expr::Expr)
   println(zc_deps)
   esc(:(function $func_name()
       f = Array{Function}($n)
-      $((:(f[$(f_vec[i].args[1].args[2])] = ($(expr.args[1].args[2])::TaylorSeries.Taylor1, $(expr.args[1].args[3])::Vector{TaylorSeries.Taylor1}, $(expr.args[1].args[4])::Vector{Float64})->begin
+      $((:(f[$(f_vec[i].args[1].args[2])] = ($(expr.args[1].args[2])::TaylorSeries.Taylor1{Float64}, $(expr.args[1].args[3])::Vector{TaylorSeries.Taylor1{Float64}}, $(expr.args[1].args[4])::Vector{Float64})->begin
       $((:($(c)) for c in :($c_vec))...)
       $((:($(a)) for a in :($a_vec))...)
       $(f_vec[i].args[2])
       end) for i in 1:length(:($f_vec)))...)
       zc = Vector{Function}()
-      $((:(push!(zc, ($(expr.args[1].args[2])::TaylorSeries.Taylor1, $(expr.args[1].args[3])::Vector{TaylorSeries.Taylor1}, $(expr.args[1].args[4])::Vector{Float64})->begin
+      $((:(push!(zc, ($(expr.args[1].args[2])::TaylorSeries.Taylor1{Float64}, $(expr.args[1].args[3])::Vector{TaylorSeries.Taylor1{Float64}}, $(expr.args[1].args[4])::Vector{Float64})->begin
       $((:($(c)) for c in :($c_vec))...)
       $((:($(a)) for a in :($a_vec))...)
       $(f_vec[i].args[2])

@@ -4,13 +4,13 @@ struct QSS{T} <: Integrator
   order :: UInt8
   model :: Model
   p :: Vector{Float64}
-  q :: Vector{Taylor1}
+  q :: Vector{Taylor1{Float64}}
   t :: Vector{Float64}
   Δrel :: Float64
   Δabs :: Float64
   function QSS{T}(model::Model, t::Float64, x₀::Vector{Float64}, p::Vector{Float64};
                   order::Number=4, Δrel::Float64=1e-6, Δabs::Float64=1e-6) where T
-    qss = new(UInt8(order), model, p, Vector{Taylor1}(), Vector{Float64}(), Δrel, Δabs)
+    qss = new(UInt8(order), model, p, Vector{Taylor1{Float64}}(), Vector{Float64}(), Δrel, Δabs)
     t₀ = t + Taylor1(Float64, order)
     for q₀ in x₀
       push!(qss.t, t)
@@ -21,6 +21,7 @@ struct QSS{T} <: Integrator
         qss.q[j] = integrate(model.f[j](t₀, qss.q, p), q₀)
       end
     end
+    println(qss.q)
     qss
   end
 end
@@ -33,7 +34,7 @@ end
 
 function initial_values(qss::QSS, t::Float64)
   t₀ = t + Taylor1(Float64, qss.order+0)
-  x₀ = Vector{Taylor1}()
+  x₀ = Vector{Taylor1{Float64}}()
   for (i, f) in enumerate(qss.model.f)
     push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i][1]))
   end
