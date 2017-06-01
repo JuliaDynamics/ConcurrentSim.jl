@@ -11,7 +11,7 @@ module SimJulia
 
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
-  import TaylorSeries.integrate, TaylorSeries.evaluate
+  import TaylorSeries.evaluate
 
   export AbstractEvent
   export value, state, environment

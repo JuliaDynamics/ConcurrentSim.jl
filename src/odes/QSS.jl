@@ -16,10 +16,9 @@ struct QSS{T} <: Integrator
       push!(qss.t, t)
       push!(qss.q, q₀ + Taylor1(zeros(Float64, order+1)))
     end
-    for i in 1:qss.order-1
+    for i in 1:order-1
       for (j, q₀) in enumerate(x₀)
         qss.q[j] = integrate(model.f[j](t₀, qss.q, p), q₀)
-        println(qss.q[j])
       end
     end
     qss
