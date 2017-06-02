@@ -17,28 +17,27 @@ struct QSS{T} <: Integrator
       push!(qss.q, q₀ + Taylor1(zeros(Float64, order+1)))
     end
     for i in 1:order-1
+      q = deepcopy(qss.q)
       for (j, q₀) in enumerate(x₀)
-        qss.q[j] = integrate(model.f[j](t₀, qss.q, p), q₀)
+        qss.q[j] = integrate(model.f[j](t₀, q, p), q₀)
       end
     end
-    println(qss.q)
     qss
   end
 end
 
 function Continuous(model::Model, env::Environment, x₀::Vector{Float64}, p::Vector{Float64}=Float64[];
-                    stiff::Bool=false, order::Number=4, Δrel::Float64=1e-6, Δabs::Float64=1e-6)
-  stiff ? Continuous(model, env, QSS{SimJulia.stiff}, x₀, p; order=order, Δrel=Δrel, Δabs=Δabs) :
-          Continuous(model, env, QSS{SimJulia.non_stiff}, x₀, p; order=order, Δrel=Δrel, Δabs=Δabs)
+                    stiff::Bool=false, order::Number=4, Δrel::Number=1e-6, Δabs::Number=1e-6)
+  stiff ? Continuous(model, env, QSS{SimJulia.stiff}, x₀, p; order=order, Δrel=float(Δrel), Δabs=float(Δabs)) :
+          Continuous(model, env, QSS{SimJulia.non_stiff}, x₀, p; order=order, Δrel=float(Δrel), Δabs=float(Δabs))
 end
 
 function initial_values(qss::QSS, t::Float64)
-  t₀ = t + Taylor1(Float64, qss.order+0)
+  t₀ = t + Taylor1(Float64, qss.order+1)
   x₀ = Vector{Taylor1{Float64}}()
   for (i, f) in enumerate(qss.model.f)
     push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i][1]))
   end
-  println(x₀)
   x₀
 end
 
@@ -46,22 +45,24 @@ function step(var::Variable, cont::Continuous, qss::QSS)
   t = now(environment(var))
   n = length(qss.model.f)
   i = var.id
-  t₀ = t + Taylor1(Float64, qss.order+0)
+  t₀ = t + Taylor1(Float64, qss.order+1)
   x₀ = advance_time(var, t)
-  update_quantized_state(qss, cont.vars, i, t)
-  println(x₀)
+  update_quantized_state(qss, var, t)
   Δt = compute_next_time(var.x, max(qss.Δrel*x₀, qss.Δabs))
-  schedule(var, cont, qss, Δt)
+  reset(var)
+  schedule(var, Δt)
   for j in filter(j->qss.model.deps[j,i], 1:n)
     dep = cont.vars[j]
     x₀ = evaluate(dep.x, t - dep.t)
     dep.t = t
-    for k in filter(k->qss.model.deps[j,k], 1:n)
+    advance_time(qss, j, t)
+    for k in filter(k->qss.model.deps[j,k] && k!=j, 1:n)
       advance_time(qss, k, t)
     end
     dep.x = integrate(qss.model.f[j](t₀, qss.q, qss.p), x₀)
     Δt = recompute_next_time(qss, dep.x, qss.q[j], max(qss.Δrel*x₀, qss.Δabs))
-    schedule(dep, cont, qss, Δt)
+    reset(dep)
+    schedule(dep, Δt)
   end
 end
 
@@ -71,8 +72,9 @@ function advance_time(qss::QSS, i::Int, t::Float64)
   qss.q[i][1]
 end
 
-function update_quantized_state(qss::QSS{non_stiff}, vars::Vector{Variable}, i::UInt, t::Float64)
-  qss.q[i] = copy(vars[i].x)
+function update_quantized_state(qss::QSS{non_stiff}, var::Variable, t::Float64)
+  i = var.id
+  qss.q[i] = deepcopy(var.x)
   qss.q[i][end] = 0.0
   qss.t[i] = t
 end
@@ -88,7 +90,7 @@ function compute_next_time(x::Taylor1, Δq::Float64)
   (abs(Δq/x[end]))^(1.0/x.order)
 end
 
-function recompute_next_time(::QSS{non_stiff}, x::Taylor1, q::Taylor1, Δq::Float64)
+function recompute_next_time(::QSS{non_stiff}, x::Taylor1{Float64}, q::Taylor1{Float64}, Δq::Float64)
   p = (x-q).coeffs
   p[1] -= Δq
   neg = roots(p)

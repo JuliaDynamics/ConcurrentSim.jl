@@ -3,15 +3,15 @@ abstract type ContinuousProcess <: AbstractProcess end
 mutable struct Variable <: AbstractEvent
   bev :: BaseEvent
   id :: UInt
-  x :: Taylor1
+  x :: Taylor1{Float64}
   t :: Float64
-  function Variable(env::Environment, id::Int, x::Taylor1, t::Float64)
+  function Variable(env::Environment, id::Int, x::Taylor1{Float64}, t::Float64)
     new(BaseEvent(env), id, x, t)
   end
 end
 
 function advance_time(var::Variable, t::Float64=now(environment(var)))
-  var.x = evaluate(var.x, t - var.t + Taylor1(var.x.order))
+  var.x = evaluate(var.x, t - var.t + Taylor1(Float64, var.x.order))
   var.t = t
   var.x[1]
 end
@@ -66,10 +66,4 @@ macro continuous(expr::Expr)
     end
   end
   esc(:(Continuous($func(), $(args...); $(params...))))
-end
-
-function schedule(var::Variable, cont::Continuous, integrator::Integrator, Δt::Float64=0.0)
-  var.bev = BaseEvent(environment(var))
-  @callback step(var, cont, integrator)
-  schedule(var, Δt)
 end
