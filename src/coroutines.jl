@@ -1,4 +1,4 @@
-type Coroutine <: DiscreteProcess
+mutable struct Coroutine <: DiscreteProcess
   bev :: BaseEvent
   fsm :: FiniteStateMachine
   target :: AbstractEvent

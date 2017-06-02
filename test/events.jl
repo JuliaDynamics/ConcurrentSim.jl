@@ -1,6 +1,6 @@
 using SimJulia
 
-type TestException <: Exception end
+struct TestException <: Exception end
 
 function test_callback_event(ev::Event)
   println("Hi $ev has value $(value(ev))")

@@ -27,7 +27,7 @@ end
 sim = Simulation()
 cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0, 0.0]; stiff=false, order=4, Δrel=1e-16, Δabs=1e-6)
 @process report(sim, cont)
-@time run(sim, 500)
+@time run(sim, 2000)
 
 @model function bouncing_ball(t, x, p, dx)
   g = 9.81

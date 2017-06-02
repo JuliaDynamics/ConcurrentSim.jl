@@ -1,6 +1,6 @@
 using SimJulia
 
-type TestException <: Exception end
+struct TestException <: Exception end
 
 function test_callback(ev::AbstractEvent)
   println("Hi I timed out at $(now(environment(ev)))")

@@ -11,10 +11,10 @@ struct QSS{T} <: Integrator
   function QSS{T}(model::Model, t::Float64, x₀::Vector{Float64}, p::Vector{Float64};
                   order::Number=4, Δrel::Float64=1e-6, Δabs::Float64=1e-6) where T
     qss = new(UInt8(order), model, p, Vector{Taylor1{Float64}}(), Vector{Float64}(), Δrel, Δabs)
-    t₀ = t + Taylor1(Float64, order)
+    t₀ = t + Taylor1(Float64, order + 1)
     for q₀ in x₀
       push!(qss.t, t)
-      push!(qss.q, q₀ + Taylor1(zeros(Float64, order+1)))
+      push!(qss.q, q₀ + Taylor1(zeros(Float64, order + 1)))
     end
     for i in 1:order-1
       q = deepcopy(qss.q)
@@ -33,7 +33,7 @@ function Continuous(model::Model, env::Environment, x₀::Vector{Float64}, p::Ve
 end
 
 function initial_values(qss::QSS, t::Float64)
-  t₀ = t + Taylor1(Float64, qss.order+1)
+  t₀ = t + Taylor1(Float64, qss.order + 1)
   x₀ = Vector{Taylor1{Float64}}()
   for (i, f) in enumerate(qss.model.f)
     push!(x₀, integrate(f(t₀, qss.q, qss.p), qss.q[i][1]))
@@ -45,10 +45,10 @@ function step(var::Variable, cont::Continuous, qss::QSS)
   t = now(environment(var))
   n = length(qss.model.f)
   i = var.id
-  t₀ = t + Taylor1(Float64, qss.order+1)
+  t₀ = t + Taylor1(Float64, qss.order + 1)
   x₀ = advance_time(var, t)
   update_quantized_state(qss, var, t)
-  Δt = compute_next_time(var.x, max(qss.Δrel*x₀, qss.Δabs))
+  Δt = compute_next_time(qss, var)
   reset(var)
   schedule(var, Δt)
   for j in filter(j->qss.model.deps[j,i], 1:n)
@@ -60,7 +60,7 @@ function step(var::Variable, cont::Continuous, qss::QSS)
       advance_time(qss, k, t)
     end
     dep.x = integrate(qss.model.f[j](t₀, qss.q, qss.p), x₀)
-    Δt = recompute_next_time(qss, dep.x, qss.q[j], max(qss.Δrel*x₀, qss.Δabs))
+    Δt = recompute_next_time(qss, dep)
     reset(dep)
     schedule(dep, Δt)
   end
@@ -79,19 +79,82 @@ function update_quantized_state(qss::QSS{non_stiff}, var::Variable, t::Float64)
   qss.t[i] = t
 end
 
-function update_quantized_state(qss::QSS{stiff}, vars::Vector{Variable}, i::UInt, t::Float64)
+function update_quantized_state(qss::QSS{stiff}, var::Variable, t::Float64)
+  i = var.id
+  t₀ = t + Taylor1(Float64, qss.order + 1)
+  x₀ = evaluate(var.x)
+  Δq = max(qss.Δrel*x₀, qss.Δabs)
   for (j, istrue) in enumerate(qss.model.deps[i, :])
     istrue && advance_time(qss, j, t)
   end
-  q₋ = deepcopy(qss.q)
+  q̲  = deepcopy(qss.q)
+  q̲[i] = Taylor1(zeros(order+1))+x₀-Δq
+  x̲ = integrate(qss.model.f[i](t₀, q̲, qss.p), x₀)
+  for k in 1:order-1
+    q̲[i] = x̲-Δq
+    x̲ = integrate(qss.model.f[i](t₀, q̲, qss.p), x₀)
+  end
+  q̲[i] = x̲-Δq
+  q̲[i][end] = 0.0
+  q̅ = deepcopy(qss.q)
+  q̅[i] = Taylor1(zeros(order+1))+x₀+Δq
+  x̅ = integrate(qss.model.f[i](t₀, q̅, qss.p), x₀)
+  for k in 1:order-1
+    q̅[i] = x̅+Δq
+    x̅ = integrate(qss.model.f[i](t₀, q̅, qss.p), x₀)
+  end
+  q̅[i] = x̅+Δq
+  q̅[i][end] = 0.0
+  if x̲[end] * x̅[end] > 0.0
+    if x̅[end] > 0.0
+      var.x = deepcopy(x̅)
+      q = deepcopy(q̅)
+    else
+      var.x = deepcopy(x̲)
+      q = deepcopy(q̲)
+    end
+  else
+    q̃ = brent(nth_derivative, x₀-Δq, x₀+Δq, qss, i; xtol=min(Δq/100, 1e-7))
+    qss.q[i] = q̃ + Taylor1(zeros(Float64, order + 1))
+    var.x = integrate(qss.model.f[i](t₀, qss.q, qss.p), x₀)
+    for k in 1:order-1
+      qss.q[i] = deepcopy(var.x)
+      qss.q[i][1] = q̃
+      var.x = integrate(qss.model.f[i](t₀, qss.q, qss.p), x₀)
+    end
+    qss.q[i][end] = 0.0
+  end
 end
 
-function compute_next_time(x::Taylor1, Δq::Float64)
-  (abs(Δq/x[end]))^(1.0/x.order)
+function nth_derivative(q₀::Float64, qss::QSS{stiff}, i::UInt)
+  t₀ = t + Taylor1(Float64, qss.order + 1)
+  q = deepcopy(qss.q)
+  q[i][2:end] = 0.0
+  q[i][1] = q₀
+  q[i] = integrate(qss.model.f[i](t₀, q, qss.p), q₀)
+  for k in 1:order-1
+    q[i] = integrate(qss.model.f[i](t₀, q, qss.p), q₀)
+  end
+  q[i][end]
 end
 
-function recompute_next_time(::QSS{non_stiff}, x::Taylor1{Float64}, q::Taylor1{Float64}, Δq::Float64)
-  p = (x-q).coeffs
+function compute_next_time(qss::QSS{non_stiff}, var::Variable)
+  x₀ = evaluate(var.x)
+  Δq = max(qss.Δrel*x₀, qss.Δabs)
+  (abs(Δq/var.x[end]))^(1.0/qss.order)
+end
+
+function compute_next_time(qss::QSS{stiff}, var::Variable)
+  x₀ = evaluate(var.x)
+  Δq = max(qss.Δrel*x₀, qss.Δabs)
+  (abs(Δq/var.x[end]))^(1.0/qss.order)
+end
+
+function recompute_next_time(qss::QSS{non_stiff}, var::Variable)
+  i = var.id
+  x₀ = evaluate(var.x)
+  Δq = max(qss.Δrel*x₀, qss.Δabs)
+  p = (var.x-qss.q[i]).coeffs
   p[1] -= Δq
   neg = roots(p)
   p[1] += 2Δq

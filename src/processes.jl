@@ -1,4 +1,4 @@
-type Process <: DiscreteProcess
+mutable struct Process <: DiscreteProcess
   bev :: BaseEvent
   task :: Task
   target :: AbstractEvent
