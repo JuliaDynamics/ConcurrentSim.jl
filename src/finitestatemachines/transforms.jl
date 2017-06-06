@@ -67,11 +67,18 @@ function transformYield!(expr::Expr, n::UInt8=0x00, super::Expr=:(), line_no::In
           insert!(super.args, line_no, :(_fsm._state = 0xff))
         end
         insert!(super.args, line_no, :(@label $(Symbol("_STATE_",:($n)))))
-        insert!(super.args, line_no, arg.args[2])
+        if VERSION >= v"0.7.0-DEV"
+          insert!(super.args, line_no, arg.args[3])
+        else
+          insert!(super.args, line_no, arg.args[2])
+        end
         insert!(super.args, line_no, :(_fsm._state = $n))
       else
         n = transformYield!(arg, n, super, line_no)
       end
+    elseif isa(arg, LineNumberNode)
+      line_no = i+1
+      super = expr
     end
   end
   n
