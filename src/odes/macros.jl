@@ -51,9 +51,9 @@ macro model(expr::Expr)
       end
     end
   end
-  println(zc_vec)
-  println(neg_vec)
-  println(pos_vec)
+  #println(zc_vec)
+  #println(neg_vec)
+  #println(pos_vec)
   n = length(f_vec)
   m = length(zc_vec)
   deps = zeros(Bool, n, n)
@@ -67,9 +67,9 @@ macro model(expr::Expr)
   for (i, ex) in enumerate(zc_vec)
     check_dependencies(ex, zc_deps, i, expr.args[1].args[3])
   end
-  println(deps)
-  println(param_deps)
-  println(zc_deps)
+  #println(deps)
+  #println(param_deps)
+  #println(zc_deps)
   esc(:(function $func_name()
       f = Array{Function}($n)
       $((:(f[$(f_vec[i].args[1].args[2])] = ($(expr.args[1].args[2])::TaylorSeries.Taylor1{Float64}, $(expr.args[1].args[3])::Vector{TaylorSeries.Taylor1{Float64}}, $(expr.args[1].args[4])::Vector{Float64})->begin

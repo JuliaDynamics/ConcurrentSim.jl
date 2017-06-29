@@ -1,4 +1,5 @@
 using SimJulia
+using Distributions
 
 @model function simple(t, x, p, dx)
   dx[1] = x[1]
@@ -13,7 +14,7 @@ end
   dx[2] = p[1]-100.0*x[1]-100.0*x[2]
 end
 
-function report(sim::Simulation, cont::Continuous)
+function report(sim::Simulation, cont::SimJulia.Continuous)
   λ, P = eig([0.0 0.01; -100.0 -100.0])
   while true
     t = now(sim)

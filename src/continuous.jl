@@ -65,5 +65,5 @@ macro continuous(expr::Expr)
       push!(args, expr.args[i])
     end
   end
-  esc(:(Continuous($func(), $(args...); $(params...))))
+  esc(:(SimJulia.Continuous($func(), $(args...); $(params...))))
 end
