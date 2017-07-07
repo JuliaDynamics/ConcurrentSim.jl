@@ -67,7 +67,7 @@ function transformYield!(expr::Expr, n::UInt8=0x00, super::Expr=:(), line_no::In
           insert!(super.args, line_no, :(_fsm._state = 0xff))
         end
         insert!(super.args, line_no, :(@label $(Symbol("_STATE_",:($n)))))
-        if VERSION >= v"0.7.0-DEV"
+        if VERSION >= v"0.7.0-DEV.357" # julia PR #21746
           insert!(super.args, line_no, arg.args[3])
         else
           insert!(super.args, line_no, arg.args[2])
