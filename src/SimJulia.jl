@@ -9,7 +9,7 @@ module SimJulia
   using Base.Dates
   using TaylorSeries
 
-  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
+  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield, Base.length
   import Base.(&), Base.(|)
   import TaylorSeries.evaluate
 
