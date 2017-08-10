@@ -40,7 +40,7 @@ julia> Pkg.add("SimJulia")
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
 * Only supports Julia v0.6 and above.
 * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`:
-```
+```julia
 using SimJulia
 using Base.Dates
 
@@ -58,7 +58,7 @@ run(sim, datetime+Month(3))
 * The discrete event features are on par with version 0.3. (STABLE)
 * Two ways of making `Processes` are provided:
   - using the existing concept of `Tasks`:
-  ```
+  ```julia
   function fibonnaci(sim::Simulation)
     a = 0.0
     b = 1.0
@@ -90,7 +90,7 @@ run(sim, datetime+Month(3))
   run(sim, 10)
   ```
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
-```
+```julia
 @model function diffeq(t, x, p, dx)
   dx[1] = p[2]+0.01*x[2]
   dx[2] = p[1]-100.0*x[1]-100.0*x[2]
