@@ -35,8 +35,8 @@ struct Continuous <: ContinuousProcess
   end
 end
 
-function Continuous{I<:Integrator}(model::Model, env::Environment, ::Type{I},
-    x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...)
+function Continuous(model::Model, env::Environment, ::Type{I},
+x₀::Vector{Float64}, p::Vector{Float64}=Float64[]; args...) where I<:Integrator
   cont = Continuous(env)
   t = now(env)
   integrator = I(model, now(env), x₀, p; args...)
