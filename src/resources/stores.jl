@@ -29,7 +29,7 @@ end
 
 function Put{T}(sto::Store{T}, item::T; priority::Int=0) :: Put
   put_ev = Put(sto.env)
-  sto.Put_queue[put_ev] = StorePutKey{T}(priority, sto.seid+=one(UInt), item)
+  sto.put_queue[put_ev] = StorePutKey{T}(priority, sto.seid+=one(UInt), item)
   @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   return put_ev
