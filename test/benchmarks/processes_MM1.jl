@@ -17,6 +17,7 @@ end
 
 function customer2(sim::Simulation, server::Resource, mu::Float64)
   request(server) do req
+    yield(req)
     dt = rand(Exponential(1/mu))
     yield(Timeout(sim, dt))
   end

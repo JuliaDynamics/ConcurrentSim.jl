@@ -16,8 +16,8 @@ mutable struct Store{T} <: AbstractResource
   capacity :: UInt
   items :: Set{T}
   seid :: UInt
-  Put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{T}}
-  Get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey}
+  put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{T}}
+  get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey}
   function Store{T}(env::Environment, capacity::UInt) where {T}
     new(env, capacity, Set{T}(), zero(UInt), DataStructures.PriorityQueue(Put, StorePutKey{T}), DataStructures.PriorityQueue(Get, StoreGetKey))
   end
@@ -41,7 +41,7 @@ end
 
 function Get{T}(sto::Store{T}, filter::Function=get_any_item; priority::Int=0) :: Get
   get_ev = Get(sto.env)
-  sto.Get_queue[get_ev] = StoreGetKey(priority, sto.seid+=one(UInt), filter)
+  sto.get_queue[get_ev] = StoreGetKey(priority, sto.seid+=one(UInt), filter)
   @callback trigger_put(get_ev, sto)
   trigger_get(get_ev, sto)
   return get_ev

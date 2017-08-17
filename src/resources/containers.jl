@@ -9,14 +9,14 @@ mutable struct Container{N<:Number} <: AbstractResource
   capacity :: N
   level :: N
   seid :: UInt
-  Put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N}}
-  Get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N}}
+  put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N}}
+  get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N}}
   function Container{N}(env::Environment, capacity::N, level::N) where {N<:Number}
     new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue(Put, ContainerKey{N}), DataStructures.PriorityQueue(Get, ContainerKey{N}))
   end
 end
 
-function Container{N<:Number}(env::Environment, capacity::N; level::N=zero(N))
+function Container(env::Environment, capacity::N; level::N=zero(N)) where N<:Number
   Container{N}(env, capacity, level)
 end
 
@@ -28,7 +28,7 @@ end
 
 function Put{N<:Number}(con::Container{N}, amount::N; priority::Int=0) :: Put
   put_ev = Put(con.env)
-  con.Put_queue[put_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
+  con.put_queue[put_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   @callback trigger_get(put_ev, con)
   trigger_put(put_ev, con)
   put_ev
@@ -65,7 +65,7 @@ end
 
 function Get{N<:Number}(con::Container{N}, amount::N; priority::Int=0) :: Get
   get_ev = Get(con.env)
-  con.Get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
+  con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   @callback trigger_put(get_ev, con)
   trigger_get(get_ev, con)
   get_ev
@@ -87,4 +87,8 @@ function do_get{N<:Number}(con::Container{N}, get_ev::Get, key::ContainerKey{N})
   schedule(get_ev)
   con.level -= key.amount
   true
+end
+
+function length(res::Resource)
+  length(res.put_queue)
 end
