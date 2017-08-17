@@ -2,6 +2,7 @@ struct StorePutKey{T} <: ResourceKey
   priority :: Int
   id :: UInt
   item :: T
+  StorePutKey{T}(priority, id, item) where T = new(priority, id, item)
 end
 
 struct StoreGetKey <: ResourceKey
@@ -28,7 +29,7 @@ end
 
 function Put{T}(sto::Store{T}, item::T; priority::Int=0) :: Put
   put_ev = Put(sto.env)
-  sto.Put_queue[put_ev] = StorePutKey(priority, sto.seid+=one(UInt), item)
+  sto.Put_queue[put_ev] = StorePutKey{T}(priority, sto.seid+=one(UInt), item)
   @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   return put_ev
