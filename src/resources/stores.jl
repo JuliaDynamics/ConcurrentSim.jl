@@ -19,7 +19,7 @@ mutable struct Store{T} <: AbstractResource
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{T}}
   get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey}
   function Store{T}(env::Environment, capacity::UInt) where {T}
-    new(env, capacity, Set{T}(), zero(UInt), DataStructures.PriorityQueue(Put, StorePutKey{T}), DataStructures.PriorityQueue(Get, StoreGetKey))
+    new(env, capacity, Set{T}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{T}}(), DataStructures.PriorityQueue{Get, StoreGetKey}())
   end
 end
 

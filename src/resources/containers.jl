@@ -12,7 +12,7 @@ mutable struct Container{N<:Number} <: AbstractResource
   put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N}}
   get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N}}
   function Container{N}(env::Environment, capacity::N, level::N) where {N<:Number}
-    new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue(Put, ContainerKey{N}), DataStructures.PriorityQueue(Get, ContainerKey{N}))
+    new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N}}(), DataStructures.PriorityQueue{Get, ContainerKey{N}}())
   end
 end
 

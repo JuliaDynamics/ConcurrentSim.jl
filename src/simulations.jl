@@ -25,7 +25,7 @@ mutable struct Simulation <: Environment
   sid :: UInt
   active_proc :: Nullable{AbstractProcess}
   function Simulation(initial_time::Number=zero(Float64))
-    new(initial_time, DataStructures.PriorityQueue(BaseEvent, EventKey), zero(UInt), zero(UInt), Nullable{AbstractProcess}())
+    new(initial_time, DataStructures.PriorityQueue{BaseEvent, EventKey}(), zero(UInt), zero(UInt), Nullable{AbstractProcess}())
   end
 end
 
