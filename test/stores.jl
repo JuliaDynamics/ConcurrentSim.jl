@@ -1,30 +1,25 @@
 using SimJulia
+using ResumableFunctions
 
 struct StoreObject
   i :: Int
 end
 
 @resumable function my_consumer(sim::Simulation, sto::Store)
-  i = 1
-  while true
-    @yield return Timeout(sim, rand())
+  for j in 1:10
+    @yield Timeout(sim, rand())
     println("$(now(sim)), consumer is demanding object")
-    obj = @yield return Get(sto)
-    println("$(now(sim)), consumer is being served with object $(obj.i)")
-    i == 10 && break
-    i += 1
+    obj = @yield Get(sto)
+    println("$(now(sim)), consumer is being served with object ", obj.i)
   end
 end
 
 @resumable function my_producer(sim::Simulation, sto::Store)
-  i = 1
-  while true
-    println("$(now(sim)), producer is offering object $i")
-    @yield return Put(sto, StoreObject(i))
+  for j in 1:10
+    println("$(now(sim)), producer is offering object $j")
+    @yield Put(sto, StoreObject(j))
     println("$(now(sim)), producer is being served")
-    @yield return Timeout(sim, 2*rand())
-    i == 10 && break
-    i += 1
+    @yield Timeout(sim, 2*rand())
   end
 end
 

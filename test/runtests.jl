@@ -8,8 +8,6 @@ for test_file in [
   "utils/time.jl",
   "tasks/base.jl",
   "processes.jl",
-  "finitestatemachines/utils.jl",
-  "finitestatemachines/transforms.jl",
   "coroutines.jl",
   "containers.jl",
   "stores.jl",

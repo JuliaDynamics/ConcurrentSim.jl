@@ -1,10 +1,10 @@
-using SimJulia, BenchmarkTools
+using ResumableFunctions, SimJulia, BenchmarkTools
 
 @resumable function fibonnaci(sim::Simulation)
   a = 0.0
   b = 1.0
   while true
-    @yield return Timeout(sim, 1)
+    @yield Timeout(sim, 1)
     a, b = b, a+b
   end
 end

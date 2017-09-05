@@ -1,6 +1,6 @@
 mutable struct Coroutine <: DiscreteProcess
   bev :: BaseEvent
-  fsm :: FiniteStateMachine
+  fsm :: ResumableFunctions.FiniteStateMachineIterator
   target :: AbstractEvent
   resume :: Function
   function Coroutine(func::Function, env::Environment, args::Any...)
@@ -26,7 +26,7 @@ function execute(ev::AbstractEvent, proc::Coroutine)
     set_active_process(env, proc)
     target = proc.fsm(value(ev))
     reset_active_process(env)
-    if iscoroutinedone(proc.fsm)
+    if done(proc.fsm)
       schedule(proc; value=target)
     else
       proc.target = state(target) == triggered ? Timeout(env; value=value(target)) : target
@@ -38,7 +38,7 @@ function execute(ev::AbstractEvent, proc::Coroutine)
 end
 
 function interrupt(proc::Coroutine, cause::Any=nothing)
-  if !iscoroutinedone(proc.fsm)
+  if !done(proc.fsm)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))
     proc.resume = @callback execute(proc.target, proc)

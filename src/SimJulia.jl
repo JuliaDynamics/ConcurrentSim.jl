@@ -7,6 +7,7 @@ module SimJulia
 
   using DataStructures
   using Base.Dates
+  using ResumableFunctions
   using TaylorSeries
 
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield, Base.length
@@ -24,7 +25,6 @@ module SimJulia
   export nowDatetime
   export Process, @process
   export yield, interrupt
-  export FiniteStateMachine, @resumable, @yield
   export Coroutine, @coroutine
   export Container, Resource, Store
   export Put, Get, Request, Release, cancel, capacity, request, @request
@@ -41,9 +41,6 @@ module SimJulia
   include("utils/time.jl")
   include("tasks/base.jl")
   include("processes.jl")
-  include("finitestatemachines/utils.jl")
-  include("finitestatemachines/transforms.jl")
-  include("finitestatemachines/macros.jl")
   include("coroutines.jl")
   include("resources/base.jl")
   include("resources/containers.jl")

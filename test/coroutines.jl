@@ -1,41 +1,42 @@
 using SimJulia
+using ResumableFunctions
 
 @resumable function fibonnaci(sim::Simulation)
   a = 0
   b = 1
   while true
     println(a)
-    @yield return Timeout(sim, 1)
+    @yield Timeout(sim, 1)
     a, b = b, a+b
   end
 end
 
 @resumable function test_process(sim::Simulation, ev::AbstractEvent)
-  @yield return ev
+  @yield ev
 end
 
 @resumable function test_process_exception(sim::Simulation, ev::AbstractEvent)
   try
-    value = @yield return ev
-  catch
-    println("$value has been thrown")
+    value = @yield ev
+  catch exc
+    println("$exc has been thrown")
   end
 end
 
 @resumable function test_interrupter(sim::Simulation, proc::Coroutine)
-  @yield return Timeout(sim, 2)
+  @yield Timeout(sim, 2)
   interrupt(proc)
 end
 
 @resumable function test_interrupted(sim::Simulation)
   try
-    exc = @yield return Timeout(sim, 10)
-  catch
+    @yield Timeout(sim, 10)
+  catch exc
     if isa(exc, SimJulia.InterruptException)
       println("$(active_process(sim)) interrupted")
     end
   end
-  @yield return Timeout(sim, 10)
+  @yield Timeout(sim, 10)
   throw(TestException())
 end
 

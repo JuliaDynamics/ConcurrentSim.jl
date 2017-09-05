@@ -1,25 +1,25 @@
-using SimJulia, Distributions, BenchmarkTools
+using ResumableFunctions, SimJulia, Distributions, BenchmarkTools
 
 @resumable function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float64)
   while true
     dt = rand(Exponential(1 / lambd))
-    @yield return Timeout(sim, dt)
+    @yield Timeout(sim, dt)
     @coroutine customer2(sim, server, mu)
   end
 end
 
 @resumable function customer(sim::Simulation, server::Resource, mu::Float64)
-  @yield return Request(server)
+  @yield Request(server)
   dt = rand(Exponential(1 / mu))
-  @yield return Timeout(sim, dt)
-  @yield return Release(server)
+  @yield Timeout(sim, dt)
+  @yield Release(server)
 end
 
 @resumable function customer2(sim::Simulation, server::Resource, mu::Float64)
   @request server req begin
-    @yield return req
+    @yield req
     dt = rand(Exponential(1 / mu))
-    @yield return Timeout(sim, dt)
+    @yield Timeout(sim, dt)
   end
 end
 

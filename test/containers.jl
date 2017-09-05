@@ -1,21 +1,21 @@
-using SimJulia
+workspace()
 
-@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
+using SimJulia
+using ResumableFunctions
+
+@resumable function client(sim::Simulation, res::Resource, i::Int, prior::Int)
   println("$(now(sim)), client $i is waiting")
-  @yield return Request(res, priority=priority)
+  @yield Request(res, priority=prior)
   println("$(now(sim)), client $i is being served")
-  @yield return Timeout(sim, rand())
+  @yield Timeout(sim, rand())
   println("$(now(sim)), client $i has been served")
-  @yield return Release(res)
+  @yield Release(res)
 end
 
 @resumable function generate(sim::Simulation, res::Resource)
-  i = 1
-  while true
+  for i in 1:10
     @coroutine client(sim, res, i, 10-i)
-    @yield return Timeout(sim, 0.5*rand())
-    i == 10 && break
-    i += 1
+    @yield Timeout(sim, 0.5*rand())
   end
 end
 
@@ -25,38 +25,30 @@ res = Resource(sim, 2; level=1)
 run(sim)
 
 @resumable function my_consumer(sim::Simulation, con::Container)
-  i = 1
-  while true
+  for i in 1:10
     amount = 3*rand()
     println("$(now(sim)), consumer is demanding $amount")
-    @yield return Timeout(sim, 1.0*rand())
+    @yield Timeout(sim, 1.0*rand())
     get_ev = Get(con, amount)
-    val = @yield return get_ev | Timeout(sim, rand())
+    val = @yield get_ev | Timeout(sim, rand())
     if val[get_ev].state == SimJulia.triggered
-      level = con.level
-      println("$(now(sim)), consumer is being served, level is $level")
-      @yield return Timeout(sim, 5.0*rand())
+      println("$(now(sim)), consumer is being served, level is ", con.level)
+      @yield Timeout(sim, 5.0*rand())
     else
       println("$(now(sim)), consumer has timed out")
       cancel(con, get_ev)
     end
-    i == 10 && break
-    i += 1
   end
 end
 
 @resumable function my_producer(sim::Simulation, con::Container)
-  i = 1
-  while true
+  for i in 1:10
     amount = 2*rand()
     println("$(now(sim)), producer is offering $amount")
-    @yield return Timeout(sim, 1.0*rand())
-    @yield return Put(con, amount)
-    level = con.level
-    println("$(now(sim)), producer is being served, level is $level")
-    @yield return Timeout(sim, 5.0*rand())
-    i == 10 && break
-    i += 1
+    @yield Timeout(sim, 1.0*rand())
+    @yield Put(con, amount)
+    println("$(now(sim)), producer is being served, level is ", con.level)
+    @yield Timeout(sim, 5.0*rand())
   end
 end
 
