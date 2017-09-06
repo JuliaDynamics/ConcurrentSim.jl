@@ -26,7 +26,7 @@ function Resource(env::Environment, capacity::Int=1; level::Int=0) :: Resource
   Resource(env, capacity, level)
 end
 
-function Put{N<:Number}(con::Container{N}, amount::N; priority::Int=0) :: Put
+function Put(con::Container{N}, amount::N; priority::Int=0) where N<:Number
   put_ev = Put(con.env)
   con.put_queue[put_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   @callback trigger_get(put_ev, con)
@@ -63,7 +63,7 @@ function request(func::Function, res::Resource; priority::Int=0)
   end
 end
 
-function Get{N<:Number}(con::Container{N}, amount::N; priority::Int=0) :: Get
+function Get(con::Container{N}, amount::N; priority::Int=0) where N<:Number
   get_ev = Get(con.env)
   con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   @callback trigger_put(get_ev, con)
@@ -75,14 +75,14 @@ const Release = Get
 
 Release(res::Resource; priority::Int=0) = Get(res, 1; priority=priority)
 
-function do_put{N<:Number}(con::Container{N}, put_ev::Put, key::ContainerKey{N}) :: Bool
+function do_put(con::Container{N}, put_ev::Put, key::ContainerKey{N}) where N<:Number
   con.level + key.amount > con.capacity && return false
   schedule(put_ev)
   con.level += key.amount
   true
 end
 
-function do_get{N<:Number}(con::Container{N}, get_ev::Get, key::ContainerKey{N}) :: Bool
+function do_get(con::Container{N}, get_ev::Get, key::ContainerKey{N}) where N<:Number
   con.level - key.amount < zero(N) && return false
   schedule(get_ev)
   con.level -= key.amount
