@@ -9,7 +9,7 @@ for test_file in [
   "tasks/base.jl",
   "processes.jl",
   "coroutines.jl",
-  "containers.jl",
+  #"containers.jl",
   "stores.jl",
   "continuous.jl",]
   include(testpath(test_file))

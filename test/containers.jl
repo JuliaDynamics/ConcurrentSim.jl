@@ -1,9 +1,9 @@
 using SimJulia
 using ResumableFunctions
 
-@resumable function client(sim::Simulation, res::Resource, i::Int, prior::Int)
+@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
   println("$(now(sim)), client $i is waiting")
-  @yield Request(res, priority=prior)
+  @yield Request(res, priority=priority)
   println("$(now(sim)), client $i is being served")
   @yield Timeout(sim, rand())
   println("$(now(sim)), client $i has been served")
@@ -45,7 +45,8 @@ end
     println("$(now(sim)), producer is offering $amount")
     @yield Timeout(sim, 1.0*rand())
     @yield Put(con, amount)
-    println("$(now(sim)), producer is being served, level is ", con.level)
+    level = con.level
+    println("$(now(sim)), producer is being served, level is ", level)
     @yield Timeout(sim, 5.0*rand())
   end
 end
