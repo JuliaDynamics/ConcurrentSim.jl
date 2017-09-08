@@ -104,7 +104,7 @@ sim = Simulation()
 cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0, 0.0]; stiff=false, order=4)
 run(sim, 100)
 ```
-* Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl).
+* Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
 
 
 #### Todo
