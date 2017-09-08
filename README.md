@@ -75,12 +75,14 @@ run(sim, datetime+Month(3))
   ```
   - using a novel finite-statemachine approach:
   ```julia
+  using ResumableFunctions
+
   @resumable function fibonnaci(sim::Simulation)
     a = 0.0
     b = 1.0
     while true
       println(now(sim), ": ", a)
-      @yield return Timeout(sim, 1)
+      @yield Timeout(sim, 1)
       a, b = b, a+b
     end
   end
@@ -89,6 +91,7 @@ run(sim, datetime+Month(3))
   @coroutine fibonnaci(sim)
   run(sim, 10)
   ```
+* Starting from SimJulia v0.4.1, `ResumableFunctions` is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`.
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
 ```julia
 @model function diffeq(t, x, p, dx)
