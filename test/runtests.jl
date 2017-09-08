@@ -11,6 +11,7 @@ for test_file in [
   "coroutines.jl",
   "containers.jl",
   "stores.jl",
-  "continuous.jl",]
+  "continuous.jl",
+  ]
   include(testpath(test_file))
 end

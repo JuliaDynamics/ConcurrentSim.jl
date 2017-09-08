@@ -21,17 +21,17 @@ catch exc
   println("$exc has been thrown!")
 end
 sim = Simulation(3)
-start = now(sim)
+start_time = now(sim)
 @callback test_callback(Timeout(sim, 1))
-run(sim, start+2)
-println(now(sim)-start)
+run(sim, start_time+2)
+println(now(sim)-start_time)
 sim = Simulation()
-start = now(sim)
+start_time = now(sim)
 ev = Event(sim)
 @callback test_callback_exception(ev)
 succeed(ev)
 try
   run(sim)
 catch exc
-  println("$exc has been thrown after $(now(sim)-start)!")
+  println("$exc has been thrown after $(now(sim)-start_time)!")
 end
