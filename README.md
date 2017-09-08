@@ -91,7 +91,8 @@ run(sim, datetime+Month(3))
   @coroutine fibonnaci(sim)
   run(sim, 10)
   ```
-* Starting from SimJulia v0.4.1, `ResumableFunctions` is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`.
+* Starting from SimJulia v0.4.1, `ResumableFunctions` is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
+  * `@yield return arg` is replaced by `@yield arg`
 * The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
 ```julia
 @model function diffeq(t, x, p, dx)
