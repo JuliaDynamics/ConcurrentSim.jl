@@ -39,11 +39,11 @@ julia> Pkg.add("SimJulia")
 
 #### Release Notes
 
-* Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git).
-* Starting from version 0.4.1, [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git) is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
+* 2017: Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git):
+  * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
+* 2017: Version 0.4.1, [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git) is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
   * `@yield return arg` is replaced by `@yield arg`
-* Version 0.4 only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic.
-* The discrete event features are on par with version 0.3 and following features are added:
+* 2017: Version 0.4 only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic. The discrete event features are on par with version 0.3 and following features are added:
   * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`:
     ```julia
     using SimJulia
@@ -95,8 +95,10 @@ julia> Pkg.add("SimJulia")
       @coroutine fibonnaci(sim)
       run(sim, 10)
       ```
-  * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
-
+* 2015: Version 0.3 synchronizes the API with SimPy v3 and is Julia v0.3, v0.4 and v0.5 compatible:
+  * Documentation is available at [readthedocs](http://simjuliajl.readthedocs.org/en/latest/)
+* 2014: Version 0.2 introduces a continuous time solver and is Julia v0.2 and v0.3 comptabile.
+* 2013: Version 0.1 is a Julia clone of SimPy v2 and is Julia v0.2 compatible.
 
 #### Todo
 
