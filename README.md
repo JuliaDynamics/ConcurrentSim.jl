@@ -43,56 +43,56 @@ julia> Pkg.add("SimJulia")
 * Version 0.4 only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic.
 * The discrete event features are on par with version 0.3 and following features are added:
   * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`:
-  ```julia
-  using SimJulia
-  using Base.Dates
+    ```julia
+    using SimJulia
+    using Base.Dates
 
-  function datetimetest(sim::Simulation)
-    println(nowDatetime(sim))
-    yield(Timeout(sim, Day(2)))
-    println(nowDatetime(sim))
-  end
+    function datetimetest(sim::Simulation)
+      println(nowDatetime(sim))
+      yield(Timeout(sim, Day(2)))
+      println(nowDatetime(sim))
+    end
 
-  datetime = now()
-  sim = Simulation(datetime)
-  @process datetimetest(sim)
-  run(sim, datetime+Month(3))
-  ```
+    datetime = now()
+    sim = Simulation(datetime)
+    @process datetimetest(sim)
+    run(sim, datetime+Month(3))
+    ```
   * Two ways of making `Processes` are provided:
     - using the existing concept of `Tasks`:
-    ```julia
-    function fibonnaci(sim::Simulation)
-      a = 0.0
-      b = 1.0
-      while true
-        println(now(sim), ": ", a)
-        yield(Timeout(sim, 1))
-        a, b = b, a+b
+      ```julia
+      function fibonnaci(sim::Simulation)
+        a = 0.0
+        b = 1.0
+        while true
+          println(now(sim), ": ", a)
+          yield(Timeout(sim, 1))
+          a, b = b, a+b
+        end
       end
-    end
 
-    sim = Simulation()
-    @process fibonnaci(sim)
-    run(sim, 10)
-    ```
+      sim = Simulation()
+      @process fibonnaci(sim)
+      run(sim, 10)
+      ```
     - using a novel finite-statemachine approach:
-    ```julia
-    using ResumableFunctions
+      ```julia
+      using ResumableFunctions
 
-    @resumable function fibonnaci(sim::Simulation)
-      a = 0.0
-      b = 1.0
-      while true
-        println(now(sim), ": ", a)
-        @yield Timeout(sim, 1)
-        a, b = b, a+b
+      @resumable function fibonnaci(sim::Simulation)
+        a = 0.0
+        b = 1.0
+        while true
+          println(now(sim), ": ", a)
+          @yield Timeout(sim, 1)
+          a, b = b, a+b
+        end
       end
-    end
 
-    sim = Simulation()
-    @coroutine fibonnaci(sim)
-    run(sim, 10)
-    ```
+      sim = Simulation()
+      @coroutine fibonnaci(sim)
+      run(sim, 10)
+      ```
   * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
 
 
