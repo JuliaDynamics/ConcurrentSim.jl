@@ -37,7 +37,7 @@ julia> Pkg.add("SimJulia")
 
 #### Release Notes
 
-* Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git)
+* Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git).
 * Starting from version 0.4.1, [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git) is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
   * `@yield return arg` is replaced by `@yield arg`
 * Version 0.4 only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic.
@@ -93,7 +93,7 @@ julia> Pkg.add("SimJulia")
     @coroutine fibonnaci(sim)
     run(sim, 10)
     ```
-* Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
+  * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
 
 
 #### Todo
