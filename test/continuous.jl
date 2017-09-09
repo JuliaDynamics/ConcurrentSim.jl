@@ -1,5 +1,4 @@
 using SimJulia
-using Distributions
 
 @model function simple(t, x, p, dx)
   dx[1] = x[1]
