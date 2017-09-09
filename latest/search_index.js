@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "SimJulia",
     "category": "section",
-    "text": "a combined continuous time / discrete event process oriented simulation framework written in Julia inspired by the Simula library DISCO, the Python library SimPy and the standalone QSS solver."
+    "text": "a discrete event process oriented simulation framework written in Julia inspired by the Python library SimPy."
 },
 
 ]}
