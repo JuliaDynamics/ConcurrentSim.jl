@@ -1,7 +1,7 @@
 SimJulia
 ========
 
-**SimJulia** is a combined continuous time / discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Simula library [DISCO](http://www.akira.ruc.dk/~keld/research/DISCO/), the Python library [SimPy](https://simpy.readthedocs.io/) and the standalone [QSS](https://sourceforge.net/projects/qssengine/) solver.
+**SimJulia** is a discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/).
 
 #### Build Status
 
@@ -37,6 +37,9 @@ julia> Pkg.add("SimJulia")
 
 #### Release Notes
 
+* Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git)
+* Starting from SimJulia v0.4.1, [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git) is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
+  * `@yield return arg` is replaced by `@yield arg`
 * Version 0.4 is a complete rewrite: more julian and less pythonic.
 * Only supports Julia v0.6 and above.
 * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`:
@@ -90,19 +93,6 @@ run(sim, datetime+Month(3))
   sim = Simulation()
   @coroutine fibonnaci(sim)
   run(sim, 10)
-  ```
-* Starting from SimJulia v0.4.1, `ResumableFunctions` is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
-  * `@yield return arg` is replaced by `@yield arg`
-* The continuous time simulation is based on a quantized state system solver. (EXPERIMENTAL)
-```julia
-@model function diffeq(t, x, p, dx)
-  dx[1] = p[2]+0.01*x[2]
-  dx[2] = p[1]-100.0*x[1]-100.0*x[2]
-end
-
-sim = Simulation()
-cont = @continuous diffeq(sim, [0.0, 20.0], [2020.0, 0.0]; stiff=false, order=4)
-run(sim, 100)
 ```
 * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
 
