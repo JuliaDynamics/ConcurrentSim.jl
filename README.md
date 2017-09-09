@@ -37,63 +37,62 @@ julia> Pkg.add("SimJulia")
 
 #### Release Notes
 
-* Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git)
-* Starting from SimJulia v0.4.1, [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git) is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
+* Version 0.5 does no longer integrate a continuous time solver. A continuous time solver using SimJulia as its discrete event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git)
+* Starting from version 0.4.1, [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git) is a separate package exporting the `resumable` and `yield` macro and it is a dependency for `SimJulia`. Users have to take into account the following syntax change:
   * `@yield return arg` is replaced by `@yield arg`
-* Version 0.4 is a complete rewrite: more julian and less pythonic.
-* Only supports Julia v0.6 and above.
-* Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`:
-```julia
-using SimJulia
-using Base.Dates
-
-function datetimetest(sim::Simulation)
-  println(nowDatetime(sim))
-  yield(Timeout(sim, Day(2)))
-  println(nowDatetime(sim))
-end
-
-datetime = now()
-sim = Simulation(datetime)
-@process datetimetest(sim)
-run(sim, datetime+Month(3))
-```
-* The discrete event features are on par with version 0.3. (STABLE)
-* Two ways of making `Processes` are provided:
-  - using the existing concept of `Tasks`:
+* Version 0.4 only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic.
+* The discrete event features are on par with version 0.3 and following features are added:
+  * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`:
   ```julia
-  function fibonnaci(sim::Simulation)
-    a = 0.0
-    b = 1.0
-    while true
-      println(now(sim), ": ", a)
-      yield(Timeout(sim, 1))
-      a, b = b, a+b
-    end
+  using SimJulia
+  using Base.Dates
+
+  function datetimetest(sim::Simulation)
+    println(nowDatetime(sim))
+    yield(Timeout(sim, Day(2)))
+    println(nowDatetime(sim))
   end
 
-  sim = Simulation()
-  @process fibonnaci(sim)
-  run(sim, 10)
+  datetime = now()
+  sim = Simulation(datetime)
+  @process datetimetest(sim)
+  run(sim, datetime+Month(3))
   ```
-  - using a novel finite-statemachine approach:
-  ```julia
-  using ResumableFunctions
-
-  @resumable function fibonnaci(sim::Simulation)
-    a = 0.0
-    b = 1.0
-    while true
-      println(now(sim), ": ", a)
-      @yield Timeout(sim, 1)
-      a, b = b, a+b
+  * Two ways of making `Processes` are provided:
+    - using the existing concept of `Tasks`:
+    ```julia
+    function fibonnaci(sim::Simulation)
+      a = 0.0
+      b = 1.0
+      while true
+        println(now(sim), ": ", a)
+        yield(Timeout(sim, 1))
+        a, b = b, a+b
+      end
     end
-  end
 
-  sim = Simulation()
-  @coroutine fibonnaci(sim)
-  run(sim, 10)
-```
+    sim = Simulation()
+    @process fibonnaci(sim)
+    run(sim, 10)
+    ```
+    - using a novel finite-statemachine approach:
+    ```julia
+    using ResumableFunctions
+
+    @resumable function fibonnaci(sim::Simulation)
+      a = 0.0
+      b = 1.0
+      while true
+        println(now(sim), ": ", a)
+        @yield Timeout(sim, 1)
+        a, b = b, a+b
+      end
+    end
+
+    sim = Simulation()
+    @coroutine fibonnaci(sim)
+    run(sim, 10)
+    ```
 * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl). (WIP)
 
 
