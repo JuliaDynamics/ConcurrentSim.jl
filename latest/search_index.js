@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Overview",
     "category": "section",
-    "text": "SimJulia is discrete event process oriented simulation framework written in Julia inspired by the Python library SimPy."
+    "text": "SimJulia is a discrete event process oriented simulation framework written in Julia inspired by the Python library SimPy."
 },
 
 ]}
