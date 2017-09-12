@@ -38,18 +38,6 @@ const Request = Put
 
 Request(res::Resource; priority::Int=0) = Put(res, 1; priority=priority)
 
-macro request(res, req, expr)
-  esc(quote
-    $req = Request($res)
-    $expr
-    if state($req) == SimJulia.triggered
-      @yield Release($res)
-    else
-      cancel($res, $req)
-    end
-  end)
-end
-
 function request(func::Function, res::Resource; priority::Int=0)
   req = Request(res; priority=priority)
   try
