@@ -9,7 +9,7 @@ module SimJulia
   using Base.Dates
   using ResumableFunctions
 
-  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield, Base.length
+  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
 
   export AbstractEvent
@@ -25,7 +25,7 @@ module SimJulia
   export yield, interrupt
   export Coroutine, @coroutine
   export Container, Resource, Store
-  export Put, Get, Request, Release, cancel, capacity, request, @request
+  export Put, Get, Request, Release, cancel, request, @request
 
   include("base.jl")
   include("events.jl")

@@ -65,10 +65,6 @@ function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8
   bev.state = scheduled
 end
 
-function reset(ev::AbstractEvent)
-  ev.bev.state = idle
-end
-
 struct StopSimulation <: Exception
   value :: Any
   function StopSimulation(value::Any=nothing)

@@ -49,7 +49,3 @@ end
 function cancel(res::AbstractResource, get_ev::Get)
   DataStructures.dequeue!(res.get_queue, get_ev)
 end
-
-function capacity(res::AbstractResource)
-  res.capacity
-end
