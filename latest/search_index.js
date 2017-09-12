@@ -9,11 +9,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#SimJulia-1",
+    "location": "index.html#Overview-1",
     "page": "Home",
-    "title": "SimJulia",
+    "title": "Overview",
     "category": "section",
-    "text": "a discrete event process oriented simulation framework written in Julia inspired by the Python library SimPy."
+    "text": "SimJulia is discrete event process oriented simulation framework written in Julia inspired by the Python library SimPy."
 },
 
 ]}
