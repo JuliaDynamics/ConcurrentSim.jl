@@ -6,8 +6,8 @@ A discrete event process oriented simulation framework written in [Julia](http:/
 
 [![Build Status](https://travis-ci.org/BenLauwens/SimJulia.jl.svg?branch=master)](https://travis-ci.org/BenLauwens/SimJulia.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/djuiegytv44pr54c/branch/master?svg=true)](https://ci.appveyor.com/project/BenLauwens/simjulia-jl)
-[![Coverage Status](https://coveralls.io/repos/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/r/BenLauwens/SimJulia.jl?branch=master)
-[![codecov.io](http://codecov.io/github/BenLauwens/SimJulia.jl/coverage.svg?branch=master)](http://codecov.io/github/BenLauwens/SimJulia.jl?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/BenLauwens/SimJulia.jl/badge.svg?branch=master)](https://coveralls.io/github/BenLauwens/SimJulia.jl?branch=master)
+[![codecov](https://codecov.io/gh/BenLauwens/SimJulia.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BenLauwens/SimJulia.jl)
 
 ## Installation
 
