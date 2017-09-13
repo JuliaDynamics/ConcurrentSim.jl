@@ -29,7 +29,7 @@ module SimJulia
 
   include("base.jl")
   include("events.jl")
-  include("utils/operators.jl")
+  include("operators.jl")
   include("simulations.jl")
   include("utils/time.jl")
   include("tasks/base.jl")

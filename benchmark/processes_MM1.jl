@@ -4,7 +4,7 @@ function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float
   while true
     dt = rand(Exponential(1/lambd))
     yield(Timeout(sim, dt))
-    @process customer2(sim, server, mu)
+    @process customer(sim, server, mu)
   end
 end
 
@@ -31,5 +31,4 @@ function test_mm1(n::Float64)
 end
 
 test_mm1(100.0)
-BenchmarkTools.DEFAULT_PARAMETERS.samples = 100
-println(mean(@benchmark test_mm1(100.0)))
+@btime test_mm1(100.0)

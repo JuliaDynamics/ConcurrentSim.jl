@@ -4,7 +4,7 @@ using ResumableFunctions, SimJulia, Distributions, BenchmarkTools
   while true
     dt = rand(Exponential(1 / lambd))
     @yield Timeout(sim, dt)
-    @coroutine customer2(sim, server, mu)
+    @coroutine customer(sim, server, mu)
   end
 end
 
@@ -15,14 +15,6 @@ end
   @yield Release(server)
 end
 
-@resumable function customer2(sim::Simulation, server::Resource, mu::Float64)
-  @request server req begin
-    @yield req
-    dt = rand(Exponential(1 / mu))
-    @yield Timeout(sim, dt)
-  end
-end
-
 function test_mm1(n::Float64)
   sim = Simulation()
   server = Resource(sim, 1)
@@ -31,5 +23,4 @@ function test_mm1(n::Float64)
 end
 
 test_mm1(100.0)
-BenchmarkTools.DEFAULT_PARAMETERS.samples = 100
-println(mean(@benchmark test_mm1(100.0)))
+@btime test_mm1(100.0)
