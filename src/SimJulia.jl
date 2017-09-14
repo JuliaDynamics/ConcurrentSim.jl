@@ -16,19 +16,19 @@ module SimJulia
   export Event, Timeout, succeed, fail, @callback, remove_callback
   export Operator, (&), (|)
   export Simulation, run, now, active_process
-  export nowDatetime
-  export OldProcess, @oldprocess, yield
   export Process, @process, interrupt
   export Container, Resource, Store, Put, Get, Request, Release, cancel, request, @request
+  export nowDatetime
+  export OldProcess, @oldprocess, yield
 
   include("base.jl")
   include("events.jl")
   include("operators.jl")
   include("simulations.jl")
-  include("utils/time.jl")
-  include("old/processes.jl")
   include("processes.jl")
   include("resources/base.jl")
   include("resources/containers.jl")
   include("resources/stores.jl")
+  include("utils/time.jl")
+  include("old/processes.jl")
 end

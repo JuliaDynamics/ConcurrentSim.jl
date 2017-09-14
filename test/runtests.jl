@@ -5,11 +5,11 @@ for test_file in [
   "events.jl",
   "operators.jl",
   "simulations.jl",
-  "utils/time.jl",
-  "old/processes.jl",
   "processes.jl",
   "resources/containers.jl",
   "resources/stores.jl",
+  "utils/time.jl",
+  "old/processes.jl",
   ]
   include(testpath(test_file))
 end
