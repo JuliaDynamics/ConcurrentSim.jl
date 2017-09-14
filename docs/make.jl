@@ -9,7 +9,7 @@ makedocs(
   pages    = [
     "Home" => "index.md",
     "Tutorial" => "tutorial.md",
-    "Topical Guides" => "guides/index.md",
+    "Topical Guides" => ["Basics" => "guides/basics.md",],
     "Examples" => ["Ross" => "examples/ross.md",],
     "API" => "api.md"
   ]
