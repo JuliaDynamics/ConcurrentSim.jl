@@ -16,7 +16,4 @@ function run_test()
 end
 
 run_test()
-BenchmarkTools.DEFAULT_PARAMETERS.samples = 100
-println(mean(@benchmark run_test()))
-#@profile for i in 1:100; run_test(); end
-#Profile.print(format=:flat)
+@btime run_test()

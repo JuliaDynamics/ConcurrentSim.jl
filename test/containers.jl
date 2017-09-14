@@ -79,6 +79,6 @@ function customer(sim::Simulation, server::Resource, i::Int)
 end
 
 sim = Simulation()
-server = Resource(sim, 1)
+server = Resource(sim)
 @process source(sim, server)
 run(sim, 10.0)
