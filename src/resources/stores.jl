@@ -18,13 +18,9 @@ mutable struct Store{T} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{T}}
   get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey}
-  function Store{T}(env::Environment, capacity::UInt) where {T}
+  function Store{T}(env::Environment; capacity::UInt=typemax(UInt)) where {T}
     new(env, capacity, Set{T}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{T}}(), DataStructures.PriorityQueue{Get, StoreGetKey}())
   end
-end
-
-function Store(t::Type, env::Environment, capacity::UInt=typemax(UInt))
-  Store{t}(env, capacity)
 end
 
 function Put(sto::Store{T}, item::T; priority::Int=0) where T

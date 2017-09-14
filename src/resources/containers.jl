@@ -11,20 +11,16 @@ mutable struct Container{N<:Number} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N}}
   get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N}}
-  function Container{N}(env::Environment, capacity::N, level::N) where {N<:Number}
+  function Container{N}(env::Environment, capacity::N=one(N); level::N=zero(N)) where {N<:Number}
     new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N}}(), DataStructures.PriorityQueue{Get, ContainerKey{N}}())
   end
 end
 
-function Container(env::Environment, capacity::N; level::N=zero(N)) where N<:Number
-  Container{N}(env, capacity, level)
+function Container(env::Environment, capacity::N=one(N); level::N=zero(N)) where N<:Number
+  Container{N}(env, capacity, level=level)
 end
 
 const Resource = Container{Int}
-
-function Resource(env::Environment, capacity::Int=1; level::Int=0) :: Resource
-  Resource(env, capacity, level)
-end
 
 function Put(con::Container{N}, amount::N; priority::Int=0) where N<:Number
   put_ev = Put(con.env)

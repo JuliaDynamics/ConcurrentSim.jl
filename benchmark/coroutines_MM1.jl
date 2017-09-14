@@ -17,7 +17,7 @@ end
 
 function test_mm1(n::Float64)
   sim = Simulation()
-  server = Resource(sim, 1)
+  server = Resource(sim)
   @coroutine exp_source(sim, 1.0, server, 1.1)
   run(sim, n)
 end
