@@ -23,7 +23,7 @@ end
   end
 end
 
-@resumable function test_interrupter(sim::Simulation, proc::Coroutine)
+@resumable function test_interrupter(sim::Simulation, proc::Process)
   @yield Timeout(sim, 2)
   interrupt(proc)
 end
@@ -41,15 +41,15 @@ end
 end
 
 sim = Simulation()
-@coroutine fibonnaci(sim)
+@process fibonnaci(sim)
 run(sim, 10)
 
 sim = Simulation()
-@coroutine test_process(sim, succeed(Event(sim)))
+@process test_process(sim, succeed(Event(sim)))
 run(sim)
 
 sim = Simulation()
-@coroutine test_process_exception(sim, Timeout(sim, 1, value=TestException()))
+@process test_process_exception(sim, Timeout(sim, 1, value=TestException()))
 try
   run(sim)
 catch exc
@@ -57,12 +57,12 @@ catch exc
 end
 
 sim = Simulation()
-@coroutine test_process_exception(sim, Timeout(sim, value=TestException()))
+@process test_process_exception(sim, Timeout(sim, value=TestException()))
 run(sim)
 
 sim = Simulation()
-proc = @coroutine test_interrupted(sim)
-@coroutine test_interrupter(sim, proc)
+proc = @process test_interrupted(sim)
+@process test_interrupter(sim, proc)
 try
   run(sim)
 catch exc

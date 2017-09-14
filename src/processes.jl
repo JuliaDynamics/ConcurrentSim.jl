@@ -1,9 +1,9 @@
-mutable struct Coroutine <: DiscreteProcess
+mutable struct Process <: DiscreteProcess
   bev :: BaseEvent
   fsm :: ResumableFunctions.FiniteStateMachineIterator
   target :: AbstractEvent
   resume :: Function
-  function Coroutine(func::Function, env::Environment, args::Any...)
+  function Process(func::Function, env::Environment, args::Any...)
     cor = new()
     cor.bev = BaseEvent(env)
     cor.fsm = func(env, args...)
@@ -13,14 +13,14 @@ mutable struct Coroutine <: DiscreteProcess
   end
 end
 
-macro coroutine(expr)
+macro process(expr)
   expr.head != :call && error("Expression is not a function call!")
   func = esc(expr.args[1])
   args = [esc(expr.args[n]) for n in 2:length(expr.args)]
-  :(Coroutine($(func), $(args...)))
+  :(Process($(func), $(args...)))
 end
 
-function execute(ev::AbstractEvent, proc::Coroutine)
+function execute(ev::AbstractEvent, proc::Process)
   try
     env = environment(ev)
     set_active_process(env, proc)
@@ -37,7 +37,7 @@ function execute(ev::AbstractEvent, proc::Coroutine)
   end
 end
 
-function interrupt(proc::Coroutine, cause::Any=nothing)
+function interrupt(proc::Process, cause::Any=nothing)
   if !done(proc.fsm)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))

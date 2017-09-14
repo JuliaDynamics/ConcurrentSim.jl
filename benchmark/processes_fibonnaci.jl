@@ -11,7 +11,7 @@ end
 
 function run_test()
   sim = Simulation()
-  @coroutine fibonnaci(sim)
+  @process fibonnaci(sim)
   run(sim, 10)
 end
 

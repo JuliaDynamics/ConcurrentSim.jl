@@ -12,20 +12,14 @@ module SimJulia
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
 
-  export AbstractEvent
-  export value, state, environment
-  export Event, Timeout
-  export succeed, fail, @callback, remove_callback
-  export Operator
-  export (&), (|)
-  export Simulation
-  export run, now, active_process
+  export AbstractEvent, value, state, environment
+  export Event, Timeout, succeed, fail, @callback, remove_callback
+  export Operator, (&), (|)
+  export Simulation, run, now, active_process
   export nowDatetime
-  export OldProcess, @oldprocess
-  export yield, interrupt
-  export Coroutine, @coroutine
-  export Container, Resource, Store
-  export Put, Get, Request, Release, cancel, request, @request
+  export OldProcess, @oldprocess, yield
+  export Process, @process, interrupt
+  export Container, Resource, Store, Put, Get, Request, Release, cancel, request, @request
 
   include("base.jl")
   include("events.jl")
@@ -33,7 +27,7 @@ module SimJulia
   include("simulations.jl")
   include("utils/time.jl")
   include("old/processes.jl")
-  include("coroutines.jl")
+  include("processes.jl")
   include("resources/base.jl")
   include("resources/containers.jl")
   include("resources/stores.jl")

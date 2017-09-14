@@ -12,14 +12,14 @@ end
 
 @resumable function generate(sim::Simulation, res::Resource)
   for i in 1:10
-    @coroutine client(sim, res, i, 10-i)
+    @process client(sim, res, i, 10-i)
     @yield Timeout(sim, 0.5*rand())
   end
 end
 
 sim = Simulation()
 res = Resource(sim, 2; level=1)
-@coroutine generate(sim, res)
+@process generate(sim, res)
 run(sim)
 
 @resumable function my_consumer(sim::Simulation, con::Container)
@@ -53,8 +53,8 @@ end
 
 sim = Simulation()
 con = Container(sim, 10.0; level=5.0)
-@coroutine my_consumer(sim, con)
-@coroutine my_producer(sim, con)
+@process my_consumer(sim, con)
+@process my_producer(sim, con)
 run(sim)
 
 function source(sim::Simulation, server::Resource)

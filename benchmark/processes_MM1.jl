@@ -4,7 +4,7 @@ using ResumableFunctions, SimJulia, Distributions, BenchmarkTools
   while true
     dt = rand(Exponential(1 / lambd))
     @yield Timeout(sim, dt)
-    @coroutine customer(sim, server, mu)
+    @process customer(sim, server, mu)
   end
 end
 
@@ -18,7 +18,7 @@ end
 function test_mm1(n::Float64)
   sim = Simulation()
   server = Resource(sim)
-  @coroutine exp_source(sim, 1.0, server, 1.1)
+  @process exp_source(sim, 1.0, server, 1.1)
   run(sim, n)
 end
 

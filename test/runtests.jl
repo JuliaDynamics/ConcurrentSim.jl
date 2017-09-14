@@ -7,9 +7,9 @@ for test_file in [
   "simulations.jl",
   "utils/time.jl",
   "old/processes.jl",
-  "coroutines.jl",
-  "containers.jl",
-  "stores.jl",
+  "processes.jl",
+  "resources/containers.jl",
+  "resources/stores.jl",
   ]
   include(testpath(test_file))
 end

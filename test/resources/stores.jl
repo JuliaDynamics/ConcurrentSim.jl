@@ -25,6 +25,6 @@ end
 
 sim = Simulation()
 sto = Store{StoreObject}(sim)
-@coroutine my_consumer(sim, sto)
-@coroutine my_producer(sim, sto)
+@process my_consumer(sim, sto)
+@process my_producer(sim, sto)
 run(sim)
