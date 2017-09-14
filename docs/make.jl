@@ -1,14 +1,17 @@
 using Documenter
+using ResumableFunctions
 using SimJulia
 
 makedocs(
-  modules = [SimJulia],
-  clean   = true,
   format   = :html,
-  sitename = "SimJulia.jl",
+  sitename = "SimJulia",
+  authors = "Ben Lauwens",
   pages    = [
-    "Overview" => "index.md",
-    "Manual" => "manual.md",
+    "Home" => "index.md",
+    "Tutorial" => "tutorial.md",
+    "Topical Guides" => "guides/index.md",
+    "Examples" => ["Ross" => "examples/ross.md",],
+    "API" => "api.md"
   ]
 )
 

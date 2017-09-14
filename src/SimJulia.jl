@@ -12,7 +12,7 @@ module SimJulia
   import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
   import Base.(&), Base.(|)
 
-  export AbstractEvent, value, state, environment
+  export AbstractEvent, Environment, value, state, environment
   export Event, Timeout, succeed, fail, @callback, remove_callback
   export Operator, (&), (|)
   export Simulation, run, now, active_process
