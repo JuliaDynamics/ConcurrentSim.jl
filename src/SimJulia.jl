@@ -21,7 +21,7 @@ module SimJulia
   export Simulation
   export run, now, active_process
   export nowDatetime
-  export Process, @process
+  export OldProcess, @oldprocess
   export yield, interrupt
   export Coroutine, @coroutine
   export Container, Resource, Store
@@ -32,8 +32,7 @@ module SimJulia
   include("operators.jl")
   include("simulations.jl")
   include("utils/time.jl")
-  include("tasks/base.jl")
-  include("processes.jl")
+  include("old/processes.jl")
   include("coroutines.jl")
   include("resources/base.jl")
   include("resources/containers.jl")

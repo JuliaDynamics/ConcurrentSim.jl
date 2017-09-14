@@ -4,7 +4,7 @@ function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float
   while true
     dt = rand(Exponential(1/lambd))
     yield(Timeout(sim, dt))
-    @process customer(sim, server, mu)
+    @oldprocess customer(sim, server, mu)
   end
 end
 
@@ -26,7 +26,7 @@ end
 function test_mm1(n::Float64)
   sim = Simulation()
   server = Resource(sim)
-  @process exp_source(sim, 1.0, server, 1.1)
+  @oldprocess exp_source(sim, 1.0, server, 1.1)
   run(sim, n)
 end
 

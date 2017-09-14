@@ -62,7 +62,7 @@ function source(sim::Simulation, server::Resource)
   while true
     i += 1
     yield(Timeout(sim, rand()))
-    @process customer(sim, server, i)
+    @oldprocess customer(sim, server, i)
   end
 end
 
@@ -80,5 +80,5 @@ end
 
 sim = Simulation()
 server = Resource(sim)
-@process source(sim, server)
+@oldprocess source(sim, server)
 run(sim, 10.0)

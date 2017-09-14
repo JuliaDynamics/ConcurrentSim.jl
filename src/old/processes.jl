@@ -1,9 +1,25 @@
-mutable struct Process <: DiscreteProcess
+function produce(v)
+  ct = current_task()
+  consumer = ct.consumers
+  ct.consumers = nothing
+  Base.schedule_and_wait(consumer, v)
+  return consumer.result
+end
+
+function consume(producer::Task, values...)
+  istaskdone(producer) && return producer.value
+  ct = current_task()
+  ct.result = length(values)==1 ? values[1] : values
+  producer.consumers = ct
+  Base.schedule_and_wait(producer)
+end
+
+mutable struct OldProcess <: DiscreteProcess
   bev :: BaseEvent
   task :: Task
   target :: AbstractEvent
   resume :: Function
-  function Process(func::Function, env::Environment, args::Any...)
+  function OldProcess(func::Function, env::Environment, args::Any...)
     proc = new()
     proc.bev = BaseEvent(env)
     proc.task = @task func(env, args...)
@@ -13,11 +29,11 @@ mutable struct Process <: DiscreteProcess
   end
 end
 
-macro process(expr)
+macro oldprocess(expr)
   expr.head != :call && error("Expression is not a function call!")
   func = esc(expr.args[1])
   args = [esc(expr.args[n]) for n in 2:length(expr.args)]
-  :(Process($(func), $(args...)))
+  :(OldProcess($(func), $(args...)))
 end
 
 function yield(target::AbstractEvent)
@@ -30,7 +46,7 @@ function yield(target::AbstractEvent)
   return ret
 end
 
-function execute(ev::AbstractEvent, proc::Process)
+function execute(ev::AbstractEvent, proc::OldProcess)
   try
     env = environment(ev)
     set_active_process(env, proc)
@@ -42,7 +58,7 @@ function execute(ev::AbstractEvent, proc::Process)
   end
 end
 
-function interrupt(proc::Process, cause::Any=nothing)
+function interrupt(proc::OldProcess, cause::Any=nothing)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
     proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))

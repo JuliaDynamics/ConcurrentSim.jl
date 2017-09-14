@@ -7,7 +7,8 @@ makedocs(
   format   = :html,
   sitename = "SimJulia.jl",
   pages    = [
-    "Home" => "index.md",
+    "Overview" => "index.md",
+    "Manual" => "manual.md",
   ]
 )
 

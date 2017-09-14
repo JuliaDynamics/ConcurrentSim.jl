@@ -1,3 +1,3 @@
 # Overview
 
-SimJulia is a discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/).
+SimJulia is a discrete-event process-oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/). Its preferred process dispatcher is based on semi-coroutines scheduling as implemented in [ResumableFunctions](git@github.com:BenLauwens/ResumableFunctions.jl.git). A `Process` in SimJulia is defined by a `@resumable function` yielding `Events`. SimJulia also provides three types of shared resources to model limited capacity congestion points: `Resources`, `Containers` and `Stores`. The API is modeled after the SimPy API but using some specific Julia semantics.

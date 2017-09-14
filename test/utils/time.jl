@@ -9,6 +9,6 @@ end
 
 datetime = now()
 sim = Simulation(datetime)
-@process datetimetest(sim)
+@oldprocess datetimetest(sim)
 run(sim, datetime+Month(3))
 println(nowDatetime(sim))
