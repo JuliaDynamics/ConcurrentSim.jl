@@ -41,7 +41,7 @@ The process function then yields the event and thus gets suspended. It is resume
 
 Finally, the process function prints the current simulation time (that is accessible via the `now` function) and the `Timeout`’s value.
 
-If all required process functions are defined, you can instantiate all objects for your simulation. In most cases, you start by creating an instance of `Environement`, e.g. a `Simulation`, because you’ll need to pass it around a lot when creating everything else.
+If all required process functions are defined, you can instantiate all objects for your simulation. In most cases, you start by creating an instance of `Environment`, e.g. a `Simulation`, because you’ll need to pass it around a lot when creating everything else.
 
 Starting a process function involves two things:
 

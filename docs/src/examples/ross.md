@@ -30,35 +30,26 @@ srand(SEED)
 const F = Exponential(LAMBDA)
 const G = Exponential(MU)
 
-@resumable function machine(sim::Simulation, repair_facility::Resource, spares::Store{Process})
+@resumable function machine(env::Environment, repair_facility::Resource, spares::Store{Process})
     while true
-        try
-            @yield Timeout(sim, Inf)
-        catch exc
-        end
-        @yield Timeout(sim, rand(F))
+        try @yield Timeout(env, Inf) end
+        @yield Timeout(env, rand(F))
         get_spare = Get(spares)
-        @yield get_spare | Timeout(sim, 0.0)
+        @yield get_spare | Timeout(env)
         state(get_spare) != SimJulia.idle ? interrupt(value(get_spare)) : throw(SimJulia.StopSimulation("No more spares!"))
         @yield Request(repair_facility)
-        @yield Timeout(sim, rand(G))
+        @yield Timeout(env, rand(G))
         @yield Release(repair_facility)
-        @yield Put(spares, active_process(sim))
+        @yield Put(spares, active_process(env))
     end
 end
 
-@resumable function start_sim(sim::Simulation, repair_facility::Resource, spares::Store{Process})
+@resumable function start_sim(env::Environment, repair_facility::Resource, spares::Store{Process})
     procs = Process[]
-    for i=1:N
-        push!(procs, @process machine(sim, repair_facility, spares))
-    end
-    @yield Timeout(sim, 0.0)
-    for proc in procs
-        interrupt(proc)
-    end
-    for i=1:S
-        @yield Put(spares, @process machine(sim, repair_facility, spares))
-    end
+    for i in 1:N push!(procs, @process machine(env, repair_facility, spares)) end
+    @yield Timeout(env)
+    for proc in procs interrupt(proc) end
+    for i in 1:S @yield Put(spares, @process machine(env, repair_facility, spares)) end
 end
 
 function sim_repair()
@@ -73,9 +64,7 @@ function sim_repair()
 end
 
 results = Float64[]
-for i=1:RUNS
-    push!(results, sim_repair())
-end
+for i in 1:RUNS push!(results, sim_repair()) end
 println("Average crash time: ", sum(results)/RUNS)
 
 # output

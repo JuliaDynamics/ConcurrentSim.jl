@@ -15,11 +15,11 @@ module SimJulia
   export AbstractEvent, Environment, value, state, environment
   export Event, Timeout, succeed, fail, @callback, remove_callback
   export Operator, (&), (|)
-  export Simulation, run, now, active_process
+  export AbstractProcess, Simulation, run, now, active_process
   export Process, @process, interrupt
-  export Container, Resource, Store, Put, Get, Request, Release, cancel, request, @request
+  export Container, Resource, Store, Put, Get, Request, Release, cancel
   export nowDatetime
-  export OldProcess, @oldprocess, yield
+  export OldProcess, @oldprocess, yield, request
 
   include("base.jl")
   include("events.jl")

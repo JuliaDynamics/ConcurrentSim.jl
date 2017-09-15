@@ -47,9 +47,7 @@ end
 
 macro callback(expr::Expr)
   expr.head != :call && error("Expression is not a function call!")
-  func = esc(expr.args[1])
-  args = [esc(expr.args[n]) for n in 2:length(expr.args)]
-  :(append_callback($(func), $(args...)))
+  esc(:(SimJulia.append_callback($(expr.args...))))
 end
 
 function remove_callback(cb::Function, ev::AbstractEvent)
