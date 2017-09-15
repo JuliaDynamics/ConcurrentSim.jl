@@ -42,6 +42,7 @@ end
 
 sim = Simulation()
 @process fibonnaci(sim)
+println(sim)
 run(sim, 10)
 
 sim = Simulation()

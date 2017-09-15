@@ -19,6 +19,7 @@ end
 
 sim = Simulation()
 res = Resource(sim, 2; level=1)
+println(res)
 @process generate(sim, res)
 run(sim)
 

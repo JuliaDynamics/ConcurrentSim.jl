@@ -10,7 +10,8 @@ makedocs(
     "Home" => "index.md",
     "Tutorial" => "tutorial.md",
     "Topical Guides" => ["Basics" => "guides/basics.md",
-                         "Environments" => "guides/environments.md",],
+                         "Environments" => "guides/environments.md",
+                         "Events" => "guides/events.md",],
     "Examples" => ["Ross" => "examples/ross.md",],
     "API" => "api.md"
   ]

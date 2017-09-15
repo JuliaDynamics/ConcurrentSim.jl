@@ -22,7 +22,7 @@ julia> @resumable function clock(sim::Simulation, name::String, tick::Float64)
 clock (generic function with 1 method)
 
 julia> sim = Simulation()
-SimJulia.Simulation(0.0, DataStructures.PriorityQueue{SimJulia.BaseEvent,SimJulia.EventKey,Base.Order.ForwardOrdering}(), 0x0000000000000000, 0x0000000000000000, Nullable{SimJulia.AbstractProcess}())
+SimJulia.Simulation time: 0.0 active_process: nothing
 
 julia> @process clock(sim, "fast", 0.5)
 SimJulia.Process 1

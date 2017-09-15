@@ -75,3 +75,63 @@ Note
 The function `active_process` is comparable to `Base.Libc.getpid` and returns the current active `Process`. If no process is active, a `NullException` is thrown. A process is active when its process function is being executed. It becomes inactive (or suspended) when it yields an event.
 
 Thus, it only makes sense to call this function from within a process function or a function that is called by your process function:
+
+```jldoctest
+julia> using ResumableFunctions
+
+julia> using SimJulia
+
+julia> function subfunc(env::Environment)
+         println(active_process(env))
+       end
+subfunc (generic function with 1 method)
+
+julia> @resumable function my_proc(env::Environment)
+         while true
+           println(active_process(env))
+           subfunc(env)
+           @yield Timeout(env, 1)
+         end
+       end
+my_proc (generic function with 1 method)
+
+julia> sim = Simulation()
+SimJulia.Simulation time: 0.0 active_process: nothing
+
+julia> @process my_proc(sim)
+SimJulia.Process 1
+
+julia> active_process(sim)
+ERROR: NullException()
+[...]
+
+julia> SimJulia.step(sim)
+SimJulia.Process 1
+SimJulia.Process 1
+
+julia> active_process(sim)
+ERROR: NullException()
+[...]
+```
+
+An exemplary use case for this is the resource system: If a process function calls `request` to request a `Resource`, the resource determines the requesting process via `active_process`.
+
+## Miscellaneous
+
+A generator function can have a return value:
+
+```julia
+@resumable function my_proc(env::Environment)
+  @yield Timeout(sim, 1)
+  150
+end
+```
+
+In SimJulia, this can be used to provide return values for processes that can be used by other processes:
+
+```julia
+@resumable function other_proc(env::Environment)
+  ret_val = @yield @process my_proc(env)
+  @assert ret_val == 150
+end
+```

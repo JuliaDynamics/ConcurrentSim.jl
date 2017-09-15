@@ -2,6 +2,10 @@ abstract type ResourceKey end
 
 abstract type AbstractResource end
 
+function show(io::IO, res::AbstractResource)
+  print(io, "$(typeof(res))")
+end
+
 abstract type ResourceEvent <: AbstractEvent end
 
 struct Put <: ResourceEvent

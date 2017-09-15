@@ -26,6 +26,11 @@ function show(io::IO, ev::AbstractEvent)
   print(io, "$(typeof(ev)) $(ev.bev.id)")
 end
 
+function show(io::IO, env::Environment)
+  active_proc = try get(sim.active_proc) catch; nothing end
+  print(io, "$(typeof(env)) time: $(now(env)) active_process: $(active_proc)")
+end
+
 function environment(ev::AbstractEvent) :: Environment
   ev.bev.env
 end

@@ -59,7 +59,7 @@ end
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation(0.0, DataStructures.PriorityQueue{SimJulia.BaseEvent,SimJulia.EventKey,Base.Order.ForwardOrdering}(), 0x0000000000000000, 0x0000000000000000, Nullable{SimJulia.AbstractProcess}())
+SimJulia.Simulation time: 0.0 active_process: nothing
 
 julia> @process car(sim)
 SimJulia.Process 1
@@ -150,7 +150,7 @@ Starting the simulation is straightforward again: We create a `Simulation`, one 
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation(0.0, DataStructures.PriorityQueue{SimJulia.BaseEvent,SimJulia.EventKey,Base.Order.ForwardOrdering}(), 0x0000000000000000, 0x0000000000000000, Nullable{SimJulia.AbstractProcess}())
+SimJulia.Simulation time: 0.0 active_process: nothing
 
 julia> @process car(sim)
 SimJulia.Process 1
@@ -256,7 +256,7 @@ end
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation(0.0, DataStructures.PriorityQueue{SimJulia.BaseEvent,SimJulia.EventKey,Base.Order.ForwardOrdering}(), 0x0000000000000000, 0x0000000000000000, Nullable{SimJulia.AbstractProcess}())
+SimJulia.Simulation time: 0.0 active_process: nothing
 
 julia> car_process = @process car(sim)
 SimJulia.Process 1
@@ -331,10 +331,10 @@ end
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation(0.0, DataStructures.PriorityQueue{SimJulia.BaseEvent,SimJulia.EventKey,Base.Order.ForwardOrdering}(), 0x0000000000000000, 0x0000000000000000, Nullable{SimJulia.AbstractProcess}())
+SimJulia.Simulation time: 0.0 active_process: nothing
 
 julia> bcs = Resource(sim, 2)
-SimJulia.Container{Int64}(SimJulia.Simulation(0.0, DataStructures.PriorityQueue{SimJulia.BaseEvent,SimJulia.EventKey,Base.Order.ForwardOrdering}(), 0x0000000000000000, 0x0000000000000000, Nullable{SimJulia.AbstractProcess}()), 2, 0, 0x0000000000000000, DataStructures.PriorityQueue{SimJulia.Put,SimJulia.ContainerKey{Int64},Base.Order.ForwardOrdering}(), DataStructures.PriorityQueue{SimJulia.Get,SimJulia.ContainerKey{Int64},Base.Order.ForwardOrdering}())
+SimJulia.Container{Int64}
 ```
 
 We can now create the car processes and pass a reference to our resource as well as some additional parameters to them
