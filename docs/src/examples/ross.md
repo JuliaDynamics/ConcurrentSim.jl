@@ -46,10 +46,16 @@ end
 
 @resumable function start_sim(env::Environment, repair_facility::Resource, spares::Store{Process})
     procs = Process[]
-    for i in 1:N push!(procs, @process machine(env, repair_facility, spares)) end
+    for i in 1:N 
+        push!(procs, @process machine(env, repair_facility, spares)) 
+    end
     @yield Timeout(env)
-    for proc in procs interrupt(proc) end
-    for i in 1:S @yield Put(spares, @process machine(env, repair_facility, spares)) end
+    for proc in procs 
+        interrupt(proc)
+    end
+    for i in 1:S 
+        @yield Put(spares, @process machine(env, repair_facility, spares)) 
+    end
 end
 
 function sim_repair()

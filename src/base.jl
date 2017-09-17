@@ -1,7 +1,7 @@
 abstract type AbstractEvent end
 abstract type Environment end
 
-@enum EVENT_STATE idle=0 scheduled=1 processed=2
+@enum EVENT_STATE idle=0 scheduled=1 triggered=2 processed=3
 
 struct EventProcessed <: Exception
   ev :: AbstractEvent
@@ -66,6 +66,7 @@ function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8
   bev.value = value
   env.heap[bev] = EventKey(now(env) + delay, priority, env.sid+=one(UInt))
   bev.state = scheduled
+  ev
 end
 
 struct StopSimulation <: Exception

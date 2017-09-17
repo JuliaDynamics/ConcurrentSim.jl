@@ -34,10 +34,12 @@ function step(sim::Simulation)
   (bev, key) = DataStructures.peek(sim.heap)
   DataStructures.dequeue!(sim.heap)
   sim.time = key.time
-  bev.state = processed
+  bev.state = triggered
   for callback in bev.callbacks
     callback()
   end
+  bev.state = processed
+  nothing
 end
 
 function now(sim::Simulation)

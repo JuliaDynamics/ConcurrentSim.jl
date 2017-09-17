@@ -40,11 +40,11 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{Abstrac
 end
 
 function eval_and(state_values::Vector{StateValue})
-  all(map((sv)->sv.state == processed, state_values))
+  all(map((sv)->sv.state >= triggered, state_values))
 end
 
 function eval_or(state_values::Vector{StateValue})
-  any(map((sv)->sv.state == processed, state_values))
+  any(map((sv)->sv.state >= triggered, state_values))
 end
 
 function (&)(ev1::AbstractEvent, ev2::AbstractEvent)
