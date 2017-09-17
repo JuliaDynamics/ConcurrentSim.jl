@@ -1,7 +1,7 @@
 abstract type AbstractEvent end
 abstract type Environment end
 
-@enum EVENT_STATE idle=0 scheduled=1 triggered=2 processed=3
+@enum EVENT_STATE idle=0 scheduled=1 processed=2
 
 struct EventProcessed <: Exception
   ev :: AbstractEvent
@@ -61,6 +61,7 @@ function remove_callback(cb::Function, ev::AbstractEvent)
 end
 
 function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8=zero(Int8), value::Any=nothing)
+  state(ev) == processed && throw(EventProcessed(ev))
   env = environment(ev)
   bev = ev.bev
   bev.value = value
