@@ -39,7 +39,7 @@ function request(func::Function, res::Resource; priority::Int=0)
   try
     func(req)
   finally
-    if state(req) == triggered
+    if state(req) == processed
       yield(Release(res; priority=priority))
     else
       cancel(res, req)

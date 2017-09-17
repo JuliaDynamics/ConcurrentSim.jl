@@ -1,9 +1,9 @@
 abstract type AbstractEvent end
 abstract type Environment end
 
-@enum EVENT_STATE idle=0 scheduled=1 triggered=2
+@enum EVENT_STATE idle=0 scheduled=1 processed=2
 
-struct EventTriggered <: Exception
+struct EventProcessed <: Exception
   ev :: AbstractEvent
 end
 
@@ -44,7 +44,7 @@ function state(ev::AbstractEvent) :: EVENT_STATE
 end
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
-  ev.bev.state == triggered && throw(EventTriggered(ev))
+  ev.bev.state == processed && throw(EventProcessed(ev))
   cb = ()->func(ev, args...)
   push!(ev.bev.callbacks, cb)
   cb

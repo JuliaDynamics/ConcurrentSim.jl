@@ -30,7 +30,7 @@ run(sim)
     @yield Timeout(sim, 1.0*rand())
     get_ev = Get(con, amount)
     val = @yield get_ev | Timeout(sim, rand())
-    if val[get_ev].state == SimJulia.triggered
+    if val[get_ev].state == SimJulia.processed
       println("$(now(sim)), consumer is being served, level is ", con.level)
       @yield Timeout(sim, 5.0*rand())
     else

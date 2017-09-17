@@ -29,7 +29,7 @@ function execute(ev::AbstractEvent, proc::Process)
     if done(proc.fsm)
       schedule(proc; value=target)
     else
-      proc.target = state(target) == triggered ? Timeout(env; value=value(target)) : target
+      proc.target = state(target) == processed ? Timeout(env; value=value(target)) : target
       proc.resume = @callback execute(proc.target, proc)
     end
   catch exc

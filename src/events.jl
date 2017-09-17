@@ -7,7 +7,7 @@ end
 
 function succeed(ev::Event; priority::Int8=zero(Int8), value::Any=nothing) :: Event
   sta = state(ev)
-  (sta == scheduled || sta == triggered) && throw(EventNotIdle(ev))
+  (sta == scheduled || sta == processed) && throw(EventNotIdle(ev))
   schedule(ev; priority=priority, value=value)
   ev
 end

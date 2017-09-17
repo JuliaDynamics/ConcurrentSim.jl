@@ -14,7 +14,7 @@ The environment stores these events in its event list and keeps track of the cur
 
 If a process function yields an event, SimJulia adds the process to the event’s callbacks and suspends the process until the event is triggered and processed. When a process waiting for an event is resumed, it will also receive the event’s value.
 
-Here is a very simple example that illustrates all this; the code is more verbose than it needs to be to make things extra clear. You find a compact version of it at the end of this section:
+Here is a very simple example that illustrates all this:
 
 ```jldoctest
 using ResumableFunctions
@@ -45,5 +45,5 @@ If all required process functions are defined, you can instantiate all objects f
 
 Starting a process function involves two things:
 
-- You have to call the macro `@process` with as argument a function call to the process function. (This will not execute any code of that function yet.) This will schedule an initialisation event at the current simulation time which starts the execution of the process function. The process instance is also an event that is triggered when the process function returns.
+- You have to call the macro `@process` with as argument a call to the process function. (This will not execute any code of that function yet.) This will schedule an initialisation event at the current simulation time which starts the execution of the process function. The process instance is also an event that is triggered when the process function returns.
 - Finally, you can start SimJulia’s event loop. By default, it will run as long as there are events in the event list, but you can also let it stop earlier by providing an until argument.
