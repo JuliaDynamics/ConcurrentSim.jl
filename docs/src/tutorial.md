@@ -1,13 +1,17 @@
 # Tutorial
 
 ## Basic Concepts
-Simjulia is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with processes. All processes live in an environment, e.g. a `Simulation`. They interact with the environment and with each other via `Events`.
 
-Processes are described by `@resumable functions`. You can call them process function. During their lifetime, they create events and `@yield` them in order to wait for them to be triggered.
+Simjulia is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with processes. All processes live in an environment. They interact with the environment and with each other via events.
+
+Processes are described by `@resumable` functions. You can call them process function. During their lifetime, they create events and `@yield` them in order to wait for them to be triggered.
+
+!!! note
+    Detailed information about the `@resumable` and the `@yield` macros can be found in the documentation of [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git).
 
 When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.
 
-An important event type is the `Timeout`. Events of this type are triggered after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A `Timeout` and all other events can be created by calling a constructor having the environment as first argument.
+An important event type is the `Timeout`. Events of this type are scheduled after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A `Timeout` and all other events can be created by calling a constructor having the environment as first argument.
 
 ## Our First Process
 
@@ -33,9 +37,9 @@ julia> @resumable function car(env::Environment)
 car (generic function with 1 method)
 ```
 
-Our car process requires a reference to an `Environment` (`env`) in order to create new events. The car‘s behavior is described in an infinite loop. Remember, the `car` function is a `@resumable function`. Though it will never terminate, it will pass the control flow back to the simulation once a `@yield` statement is reached. Once the yielded event is triggered (“it occurs”), the simulation will resume the function at this statement.
+Our car process requires a reference to an `Environment` in order to create new events. The car‘s behavior is described in an infinite loop. Remember, the `car` function is a `@resumable` function. Though it will never terminate, it will pass the control flow back to the simulation once a `@yield` statement is reached. Once the yielded event is triggered (“it occurs”), the simulation will resume the function at this statement.
 
-As said before, our car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function call `now(env)`). It then calls the constructor `Timeout(env)` to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.
+As said before, our car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function call `now`). It then calls the constructor `Timeout` to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.
 
 Now that the behavior of our car has been modeled, lets create an instance of it and see how it behaves:
 
@@ -76,11 +80,11 @@ Start parking at 14.0
 DocTestSetup = nothing
 ```
 
-The first thing we need to do is to create an `Environment`, i.e. an instance of `Simulation`. The macro `@process` with as argument a call to the car process function creates a process generator that is started and added to the environment automatically.
+The first thing we need to do is to create an environment, e.g. an instance of `Simulation`. The macro `@process` having as argument a car process function call creates a process that is initialised and added to the environment automatically.
 
 Note, that at this time, none of the code of our process function is being executed. Its execution is merely scheduled at the current simulation time.
 
-The `Process` returned by the `@process` macro can be used for process interactions (we will cover that in the next section, so we will ignore it for now).
+The `Process` returned by the `@process` macro can be used for process interactions.
 
 Finally, we start the simulation by calling `run` and passing an end time to it.
 
@@ -90,11 +94,11 @@ The `Process` instance that is returned by `@process` macro can be utilized for 
 
 ### Waiting for a Process
 
-As it happens, a SimJulia `Process` can be used like an event. If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish. Or an airport simulation where passengers have to wait until a security check finishes.
+As it happens, a SimJulia `Process` can be used like an event. If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish, or an airport simulation where passengers have to wait until a security check finishes.
 
-Lets assume that the car from our last example magically became an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
+Lets assume that the car from our last example is an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
 
-We can model this with an additional `charge` process for our car. Therefore, we redefine our `car` process function and add a `charge` process function.
+We can model this with an additional charge process for our car. Therefore, we redefine our `car` process function and add a `charge` process function.
 
 A new charge process is started every time the vehicle starts parking. By yielding the `Process` instance that the `@process` macro returns, the `run` process starts waiting for it to finish:
 
@@ -185,7 +189,7 @@ julia> @resumable function driver(env::Environment, car_process::Process)
 driver (generic function with 1 method)
 ```
 
-The `driver` process has a reference to the `car` process. After waiting for 3 time steps, it interrupts that process.
+The driver process has a reference to the car process. After waiting for 3 time steps, it interrupts that process.
 
 Interrupts are thrown into process functions as `Interrupt` exceptions that can (should) be handled by the interrupted process. The process can then decide what to do next (e.g., continuing to wait for the original event or yielding a new event):
 
@@ -379,7 +383,7 @@ julia> run(sim)
 4 leaving the bcs at 14.0
 ```
 
-Finally, we can start the simulation. Since the `car` processes all terminate on their own in this simulation, we don’t need to specify an until time — the simulation will automatically stop when there are no more events left:
+Finally, we can start the simulation. Since the car processes all terminate on their own in this simulation, we don’t need to specify an until time — the simulation will automatically stop when there are no more events left:
 
 ```@meta
 DocTestSetup = quote
