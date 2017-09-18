@@ -21,6 +21,20 @@ struct Timeout <: AbstractEvent
   end
 end
 
+struct Initialize <: AbstractEvent
+  bev :: BaseEvent
+  function Initialize(env::Environment)
+    schedule(new(BaseEvent(env)))
+  end
+end
+
+struct Interrupt <: AbstractEvent
+  bev :: BaseEvent
+  function Interrupt(env::Environment)
+    new(BaseEvent(env))
+  end
+end
+
 function run(env::Environment, until::Number=typemax(Float64))
   run(env, Timeout(env, until-now(env)))
 end

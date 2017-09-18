@@ -36,7 +36,11 @@ const G = Exponential(MU)
         @yield Timeout(env, rand(F))
         get_spare = Get(spares)
         @yield get_spare | Timeout(env)
-        state(get_spare) != SimJulia.idle ? interrupt(value(get_spare)) : throw(SimJulia.StopSimulation("No more spares!"))
+        if state(get_spare) != SimJulia.idle 
+            interrupt(value(get_spare))
+        else
+            throw(SimJulia.StopSimulation("No more spares!"))
+        end
         @yield Request(repair_facility)
         @yield Timeout(env, rand(G))
         @yield Release(repair_facility)

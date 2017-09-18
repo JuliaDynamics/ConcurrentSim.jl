@@ -7,7 +7,7 @@ mutable struct Process <: DiscreteProcess
     cor = new()
     cor.bev = BaseEvent(env)
     cor.fsmi = func(env, args...)
-    cor.target = Timeout(env)
+    cor.target = Initialize(env)
     cor.resume = @callback execute(cor.target, cor)
     cor
   end
@@ -38,7 +38,7 @@ end
 function interrupt(proc::Process, cause::Any=nothing)
   if !done(proc.fsmi)
     remove_callback(proc.resume, proc.target)
-    proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))
+    proc.target = schedule(Interrupt(environment(proc)); priority=typemax(Int8), value=InterruptException(proc, cause))
     proc.resume = @callback execute(proc.target, proc)
   end
 end
