@@ -30,7 +30,7 @@ end
 
 - Instead of passing a number as second argument to `run`, you can also pass any event to it. `run` will then return when the event has been processed.
 
-  Assuming that the current time is 0, `run(env, Timeout(env, 5))` is equivalent to `run(env, 5)`.
+  Assuming that the current time is 0, `run(env, timeout(env, 5))` is equivalent to `run(env, 5)`.
 
   You can also pass other types of events (remember, that a `Process` is an event, too):
 
@@ -39,7 +39,7 @@ using ResumableFunctions
 using SimJulia
 
 @resumable function my_process(env::Environment)
-  @yield Timeout(env, 1)
+  @yield timeout(env, 1)
   "Monty Python's Flying Circus"
 end
 
@@ -63,14 +63,14 @@ end
 
 ## State access
 
-The environment allows you to get the current simulation time via the function `now`. The simulation time is a number without unit and is increased via `Timeout` events.
+The environment allows you to get the current simulation time via the function `now`. The simulation time is a number without unit and is increased via `timeout` events.
 
 By default, the simulation starts at time 0, but you can pass an `initial_time` to the `Simulation` constructor to use something else.
 
 Note
 
 !!! note
-    Although the simulation time is technically unitless, you can pretend that it is, for example, in milliseconds and use it like a timestamp returned by `Base.Dates.datetime2epochm` to calculate a date or the day of the week. The `Simulation` constructor and the `run` function accept as argument a `Base.Dates.DateTime` and the `Timeout` constructor a `Base.Dates.Delay`. Together with the convenience function `nowDateTime` a simulation can transparantly schedule its events in seconds, minutes, hours, days, ...
+    Although the simulation time is technically unitless, you can pretend that it is, for example, in milliseconds and use it like a timestamp returned by `Base.Dates.datetime2epochm` to calculate a date or the day of the week. The `Simulation` constructor and the `run` function accept as argument a `Base.Dates.DateTime` and the `timeout` constructor a `Base.Dates.Delay`. Together with the convenience function `nowDateTime` a simulation can transparantly schedule its events in seconds, minutes, hours, days, ...
 
 The function `active_process` is comparable to `Base.Libc.getpid` and returns the current active `Process`. If no process is active, a `NullException` is thrown. A process is active when its process function is being executed. It becomes inactive (or suspended) when it yields an event.
 
@@ -90,7 +90,7 @@ julia> @resumable function my_proc(env::Environment)
          while true
            println(active_process(env))
            subfunc(env)
-           @yield Timeout(env, 1)
+           @yield timeout(env, 1)
          end
        end
 my_proc (generic function with 1 method)
@@ -122,7 +122,7 @@ A generator function can have a return value:
 
 ```julia
 @resumable function my_proc(env::Environment)
-  @yield Timeout(sim, 1)
+  @yield timeout(sim, 1)
   150
 end
 ```

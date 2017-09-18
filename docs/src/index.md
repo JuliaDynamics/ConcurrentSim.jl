@@ -16,7 +16,7 @@ julia> using SimJulia
 julia> @resumable function clock(sim::Simulation, name::String, tick::Float64)
          while true
            println(name, " ", now(sim))
-           @yield Timeout(sim, tick)
+           @yield timeout(sim, tick)
          end
        end
 clock (generic function with 1 method)

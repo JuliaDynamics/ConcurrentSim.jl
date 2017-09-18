@@ -5,7 +5,7 @@ function fibonnaci(sim::Simulation)
   b = 1
   while true
     println(a)
-    yield(Timeout(sim, 1))
+    yield(timeout(sim, 1))
     a, b = b, a+b
   end
 end
@@ -24,19 +24,19 @@ function test_process_exception(sim::Simulation, ev::AbstractEvent)
 end
 
 function test_interrupter(sim::Simulation, proc::OldProcess)
-  yield(Timeout(sim, 2))
+  yield(timeout(sim, 2))
   interrupt(proc)
 end
 
 function test_interrupted(sim::Simulation)
   try
-    yield(Timeout(sim, 10))
+    yield(timeout(sim, 10))
   catch exc
     if isa(exc, SimJulia.InterruptException)
       println("$(active_process(sim)) interrupted")
     end
   end
-  yield(Timeout(sim, 10))
+  yield(timeout(sim, 10))
   throw(TestException())
 end
 
@@ -49,7 +49,7 @@ sim = Simulation()
 run(sim)
 
 sim = Simulation()
-@oldprocess test_process_exception(sim, Timeout(sim, 1, value=TestException()))
+@oldprocess test_process_exception(sim, timeout(sim, 1, value=TestException()))
 try
   run(sim)
 catch exc
@@ -57,7 +57,7 @@ catch exc
 end
 
 sim = Simulation()
-@oldprocess test_process_exception(sim, Timeout(sim, value=TestException()))
+@oldprocess test_process_exception(sim, timeout(sim, value=TestException()))
 run(sim)
 
 sim = Simulation()
@@ -74,7 +74,7 @@ function fibonnaci(sim::Simulation)
   b = 1.0
   for i = 1:10
     println("Fibonnaci value equals ", a, " at time ", now(sim))
-    yield(Timeout(sim, 1.0))
+    yield(timeout(sim, 1.0))
     a, b = b, a+b
   end
   a

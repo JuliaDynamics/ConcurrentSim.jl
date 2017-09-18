@@ -9,15 +9,16 @@ module SimJulia
   using Base.Dates
   using ResumableFunctions
 
-  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield
+  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield, Base.get
   import Base.(&), Base.(|)
 
   export AbstractEvent, Environment, value, state, environment
-  export Event, Timeout, succeed, fail, @callback, remove_callback
+  export Event, succeed, fail, @callback, remove_callback
+  export timeout
   export Operator, (&), (|)
   export AbstractProcess, Simulation, run, now, active_process
   export Process, @process, interrupt
-  export Container, Resource, Store, Put, Get, Request, Release, cancel
+  export Container, Resource, Store, put, get, request, release, cancel
   export nowDatetime
   export OldProcess, @oldprocess, yield, request
 

@@ -22,5 +22,5 @@ try
 catch exc
   println("$exc has been thrown!")
 end
-@callback test_callback_Timeout(Timeout(sim, 1))
+@callback test_callback_Timeout(timeout(sim, 1))
 run(sim)

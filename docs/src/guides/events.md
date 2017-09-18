@@ -3,7 +3,7 @@
 SimJulia includes an extensive set of event types for various purposes. All of them are descendants of `AbstractEvent`. Here the following events are discussed:
 
 - `Event`
-- `Timeout`
+- `timeout`
 - `Operator`
 
 The guide to resources describes the various resource events.

@@ -11,8 +11,8 @@ function test_callback_exception(ev::Event)
 end
 
 sim = Simulation()
-@callback test_callback(Timeout(sim, 1))
-@callback test_callback(Timeout(sim, 3))
+@callback test_callback(timeout(sim, 1))
+@callback test_callback(timeout(sim, 3))
 run(sim, 2)
 sim = Simulation()
 try
@@ -22,7 +22,7 @@ catch exc
 end
 sim = Simulation(3)
 start_time = now(sim)
-@callback test_callback(Timeout(sim, 1))
+@callback test_callback(timeout(sim, 1))
 run(sim, start_time+2)
 println(now(sim)-start_time)
 sim = Simulation()

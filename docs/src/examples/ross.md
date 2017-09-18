@@ -32,19 +32,19 @@ const G = Exponential(MU)
 
 @resumable function machine(env::Environment, repair_facility::Resource, spares::Store{Process})
     while true
-        try @yield Timeout(env, Inf) end
-        @yield Timeout(env, rand(F))
-        get_spare = Get(spares)
-        @yield get_spare | Timeout(env)
+        try @yield timeout(env, Inf) end
+        @yield timeout(env, rand(F))
+        get_spare = get(spares)
+        @yield get_spare | timeout(env)
         if state(get_spare) != SimJulia.idle 
             @yield interrupt(value(get_spare))
         else
             throw(SimJulia.StopSimulation("No more spares!"))
         end
-        @yield Request(repair_facility)
-        @yield Timeout(env, rand(G))
-        @yield Release(repair_facility)
-        @yield Put(spares, active_process(env))
+        @yield request(repair_facility)
+        @yield timeout(env, rand(G))
+        @yield release(repair_facility)
+        @yield put(spares, active_process(env))
     end
 end
 
@@ -53,12 +53,12 @@ end
     for i in 1:N 
         push!(procs, @process machine(env, repair_facility, spares)) 
     end
-    @yield Timeout(env)
+    @yield timeout(env)
     for proc in procs 
         @yield interrupt(proc)
     end
     for i in 1:S 
-        @yield Put(spares, @process machine(env, repair_facility, spares)) 
+        @yield put(spares, @process machine(env, repair_facility, spares)) 
     end
 end
 

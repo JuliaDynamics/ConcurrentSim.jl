@@ -11,7 +11,7 @@ Processes are described by `@resumable` functions. You can call them process fun
 
 When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.
 
-An important event type is the `Timeout`. Events of this type are scheduled after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A `Timeout` and all other events can be created by calling a constructor having the environment as first argument.
+An important event type is the `timeout`. Events of this type are scheduled after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A `timeout` and all other events can be created by calling a constructor having the environment as first argument.
 
 ## Our First Process
 
@@ -28,10 +28,10 @@ julia> @resumable function car(env::Environment)
            while true
              println("Start parking at ", now(env))
              parking_duration = 5
-             @yield Timeout(env, parking_duration)
+             @yield timeout(env, parking_duration)
              println("Start driving at ", now(env))
              trip_duration = 2
-             @yield Timeout(env, trip_duration)
+             @yield timeout(env, trip_duration)
            end
          end
 car (generic function with 1 method)
@@ -39,7 +39,7 @@ car (generic function with 1 method)
 
 Our car process requires a reference to an `Environment` in order to create new events. The car‘s behavior is described in an infinite loop. Remember, the `car` function is a `@resumable` function. Though it will never terminate, it will pass the control flow back to the simulation once a `@yield` statement is reached. Once the yielded event is triggered (“it occurs”), the simulation will resume the function at this statement.
 
-As said before, our car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function call `now`). It then calls the constructor `Timeout` to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.
+As said before, our car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function call `now`). It then calls the constructor `timeout` to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.
 
 Now that the behavior of our car has been modeled, lets create an instance of it and see how it behaves:
 
@@ -52,10 +52,10 @@ DocTestSetup = quote
     while true
       println("Start parking at ", now(env))
       parking_duration = 5
-      @yield Timeout(env, parking_duration)
+      @yield timeout(env, parking_duration)
       println("Start driving at ", now(env))
       trip_duration = 2
-      @yield Timeout(env, trip_duration)
+      @yield timeout(env, trip_duration)
     end
   end
 end
@@ -108,7 +108,7 @@ julia> using ResumableFunctions
 julia> using SimJulia
 
 julia> @resumable function charge(env::Environment, duration::Number)
-         @yield Timeout(env, duration)
+         @yield timeout(env, duration)
        end
 charge (generic function with 1 method)
 
@@ -120,7 +120,7 @@ julia> @resumable function car(env::Environment)
            @yield charge_process
            println("Start driving at ", now(env))
            trip_duration = 2
-           @yield Timeout(sim, trip_duration)
+           @yield timeout(sim, trip_duration)
          end
        end
 car (generic function with 1 method)
@@ -133,7 +133,7 @@ DocTestSetup = quote
   using SimJulia
 
   @resumable function charge(env::Environment, duration::Number)
-    @yield Timeout(env, duration)
+    @yield timeout(env, duration)
   end
 
   @resumable function car(env::Environment)
@@ -144,7 +144,7 @@ DocTestSetup = quote
       @yield charge_process
       println("Start driving at ", now(env))
       trip_duration = 2
-      @yield Timeout(sim, trip_duration)
+      @yield timeout(sim, trip_duration)
     end
   end
 end
@@ -183,7 +183,7 @@ julia> using ResumableFunctions
 julia> using SimJulia
 
 julia> @resumable function driver(env::Environment, car_process::Process)
-         @yield Timeout(env, 3)
+         @yield timeout(env, 3)
          @yield interrupt(car_process)
        end
 driver (generic function with 1 method)
@@ -202,7 +202,7 @@ end
 
 ```jldoctest
 julia> @resumable function charge(env::Environment, duration::Number)
-         @yield Timeout(env, duration)
+         @yield timeout(env, duration)
        end
 charge (generic function with 1 method)
 
@@ -218,7 +218,7 @@ julia> @resumable function car(env::Environment)
            end
            println("Start driving at ", now(env))
            trip_duration = 2
-           @yield Timeout(sim, trip_duration)
+           @yield timeout(sim, trip_duration)
          end
        end
 car (generic function with 1 method)
@@ -232,12 +232,12 @@ DocTestSetup = quote
   using SimJulia
 
   @resumable function driver(env::Environment, car_process::Process)
-    @yield Timeout(env, 3)
+    @yield timeout(env, 3)
     @yield interrupt(car_process)
   end
 
   @resumable function charge(env::Environment, duration::Number)
-    @yield Timeout(env, duration)
+    @yield timeout(env, duration)
   end
 
   @resumable function car(env::Environment)
@@ -252,7 +252,7 @@ DocTestSetup = quote
       end
       println("Start driving at ", now(env))
       trip_duration = 2
-      @yield Timeout(sim, trip_duration)
+      @yield timeout(sim, trip_duration)
     end
   end
 end
@@ -299,13 +299,13 @@ julia> using ResumableFunctions
 julia> using SimJulia
 
 julia> @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
-         @yield Timeout(sim, driving_time)
+         @yield timeout(sim, driving_time)
          println(name, " arriving at ", now(env))
-         @yield Request(bcs)
+         @yield request(bcs)
          println(name, " starting to charge at ", now(env))
-         @yield Timeout(sim, charge_duration)
+         @yield timeout(sim, charge_duration)
          println(name, " leaving the bcs at ", now(env))
-         @yield Release(bcs)
+         @yield release(bcs)
        end
 car (generic function with 1 method)
 ```
@@ -322,13 +322,13 @@ DocTestSetup = quote
   using SimJulia
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
-    @yield Timeout(sim, driving_time)
+    @yield timeout(sim, driving_time)
     println(name, " arriving at ", now(env))
-    @yield Request(bcs)
+    @yield request(bcs)
     println(name, " starting to charge at ", now(env))
-    @yield Timeout(sim, charge_duration)
+    @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
-    @yield Release(bcs)
+    @yield release(bcs)
   end
 end
 ```
@@ -349,13 +349,13 @@ DocTestSetup = quote
   using SimJulia
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
-    @yield Timeout(sim, driving_time)
+    @yield timeout(sim, driving_time)
     println(name, " arriving at ", now(env))
-    @yield Request(bcs)
+    @yield request(bcs)
     println(name, " starting to charge at ", now(env))
-    @yield Timeout(sim, charge_duration)
+    @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
-    @yield Release(bcs)
+    @yield release(bcs)
   end
 
   sim = Simulation()
@@ -391,13 +391,13 @@ DocTestSetup = quote
   using SimJulia
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
-    @yield Timeout(sim, driving_time)
+    @yield timeout(sim, driving_time)
     println(name, " arriving at ", now(env))
-    @yield Request(bcs)
+    @yield request(bcs)
     println(name, " starting to charge at ", now(env))
-    @yield Timeout(sim, charge_duration)
+    @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
-    @yield Release(bcs)
+    @yield release(bcs)
   end
 
   sim = Simulation()

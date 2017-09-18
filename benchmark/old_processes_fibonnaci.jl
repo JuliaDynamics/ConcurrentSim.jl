@@ -4,7 +4,7 @@ function fibonnaci(sim::Simulation)
   a = 0.0
   b = 1.0
   while true
-    yield(Timeout(sim, 1))
+    yield(timeout(sim, 1))
     a, b = b, a+b
   end
 end

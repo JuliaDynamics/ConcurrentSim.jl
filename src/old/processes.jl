@@ -23,7 +23,7 @@ mutable struct OldProcess <: DiscreteProcess
     proc = new()
     proc.bev = BaseEvent(env)
     proc.task = @task func(env, args...)
-    proc.target = Timeout(env)
+    proc.target = timeout(env)
     proc.resume = @callback execute(proc.target, proc)
     return proc
   end
@@ -39,7 +39,7 @@ end
 function yield(target::AbstractEvent)
   env = environment(target)
   proc = active_process(env)
-  proc.target = state(target) == processed ? Timeout(env; value=value(target)) : target
+  proc.target = state(target) == processed ? timeout(env; value=value(target)) : target
   proc.resume = @callback execute(proc.target, proc)
   ret = SimJulia.produce(nothing)
   isa(ret, Exception) && throw(ret)

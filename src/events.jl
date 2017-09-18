@@ -16,9 +16,13 @@ end
 
 struct Timeout <: AbstractEvent
   bev :: BaseEvent
-  function Timeout(env::Environment, delay::Number=0; priority::Int8=zero(Int8), value::Any=nothing)
-    schedule(new(BaseEvent(env)), delay; priority=priority, value=value)
+  function Timeout(env::Environment)
+    new(BaseEvent(env))
   end
+end
+
+function timeout(env::Environment, delay::Number=0; priority::Int8=zero(Int8), value::Any=nothing)
+  schedule(Timeout(env), delay; priority=priority, value=value)
 end
 
 struct Initialize <: AbstractEvent
@@ -36,5 +40,5 @@ struct Interrupt <: AbstractEvent
 end
 
 function run(env::Environment, until::Number=typemax(Float64))
-  run(env, Timeout(env, until-now(env)))
+  run(env, timeout(env, until-now(env)))
 end

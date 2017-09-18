@@ -27,7 +27,7 @@ function execute(ev::AbstractEvent, proc::Process)
     if done(proc.fsmi)
       schedule(proc; value=target)
     else
-      proc.target = state(target) == processed ? Timeout(env; value=value(target)) : target
+      proc.target = state(target) == processed ? timeout(env; value=value(target)) : target
       proc.resume = @callback execute(proc.target, proc)
     end
   catch exc
@@ -42,5 +42,5 @@ function interrupt(proc::Process, cause::Any=nothing)
     proc.target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(proc, cause))
     proc.resume = @callback execute(proc.target, proc)
   end
-  Timeout(env; priority=typemax(Int8))
+  timeout(env; priority=typemax(Int8))
 end

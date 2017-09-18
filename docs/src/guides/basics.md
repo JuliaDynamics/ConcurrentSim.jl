@@ -21,7 +21,7 @@ using ResumableFunctions
 using SimJulia
 
 @resumable function example(env::Environment)
-  event = Timeout(env, 1, value=42)
+  event = timeout(env, 1, value=42)
   value = @yield event
   println("now=", now(env), ", value=", value)
 end
@@ -35,11 +35,11 @@ run(sim)
 now=1.0, value=42
 ```
 
-The `example` process function above first creates a `Timeout` event. It passes the environment, a delay, and a value to it. The `Timeout` schedules itself at `now + delay` (that’s why the environment is required); other event types usually schedule themselves at the current simulation time.
+The `example` process function above first creates a `timeout` event. It passes the environment, a delay, and a value to it. The `timeout` schedules itself at `now + delay` (that’s why the environment is required); other event types usually schedule themselves at the current simulation time.
 
-The process function then yields the event and thus gets suspended. It is resumed, when SimJulia processes the `Timeout` event. The process function also receives the event’s value (42) – this is, however, optional, so `@yield event` would have been okay if the you were not interested in the value or if the event had no value at all.
+The process function then yields the event and thus gets suspended. It is resumed, when SimJulia processes the `timeout` event. The process function also receives the event’s value (42) – this is, however, optional, so `@yield event` would have been okay if the you were not interested in the value or if the event had no value at all.
 
-Finally, the process function prints the current simulation time (that is accessible via the `now` function) and the `Timeout`’s value.
+Finally, the process function prints the current simulation time (that is accessible via the `now` function) and the `timeout`’s value.
 
 If all required process functions are defined, you can instantiate all objects for your simulation. In most cases, you start by creating an instance of `Environment`, e.g. a `Simulation`, because you’ll need to pass it around a lot when creating everything else.
 

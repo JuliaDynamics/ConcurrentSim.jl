@@ -56,7 +56,7 @@ julia> Pkg.add("SimJulia")
 
     function datetimetest(sim::Simulation)
       println(nowDatetime(sim))
-      yield(Timeout(sim, Day(2)))
+      yield(timeout(sim, Day(2)))
       println(nowDatetime(sim))
     end
 
@@ -73,7 +73,7 @@ julia> Pkg.add("SimJulia")
         b = 1.0
         while true
           println(now(sim), ": ", a)
-          yield(Timeout(sim, 1))
+          yield(timeout(sim, 1))
           a, b = b, a+b
         end
       end
@@ -91,7 +91,7 @@ julia> Pkg.add("SimJulia")
         b = 1.0
         while true
           println(now(sim), ": ", a)
-          @yield Timeout(sim, 1)
+          @yield timeout(sim, 1)
           a, b = b, a+b
         end
       end
