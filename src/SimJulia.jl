@@ -16,7 +16,7 @@ module SimJulia
   export Event, succeed, fail, @callback, remove_callback
   export timeout
   export Operator, (&), (|)
-  export AbstractProcess, Simulation, run, now, active_process
+  export AbstractProcess, Simulation, run, now, active_process, StopSimulation
   export Process, @process, interrupt
   export Container, Resource, Store, put, get, request, release, cancel
   export nowDatetime
