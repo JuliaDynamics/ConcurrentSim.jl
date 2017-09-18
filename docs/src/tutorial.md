@@ -184,7 +184,7 @@ julia> using SimJulia
 
 julia> @resumable function driver(env::Environment, car_process::Process)
          @yield Timeout(env, 3)
-         interrupt(car_process)
+         @yield interrupt(car_process)
        end
 driver (generic function with 1 method)
 ```
@@ -233,7 +233,7 @@ DocTestSetup = quote
 
   @resumable function driver(env::Environment, car_process::Process)
     @yield Timeout(env, 3)
-    interrupt(car_process)
+    @yield interrupt(car_process)
   end
 
   @resumable function charge(env::Environment, duration::Number)

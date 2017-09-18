@@ -37,7 +37,7 @@ const G = Exponential(MU)
         get_spare = Get(spares)
         @yield get_spare | Timeout(env)
         if state(get_spare) != SimJulia.idle 
-            interrupt(value(get_spare))
+            @yield interrupt(value(get_spare))
         else
             throw(SimJulia.StopSimulation("No more spares!"))
         end
@@ -55,7 +55,7 @@ end
     end
     @yield Timeout(env)
     for proc in procs 
-        interrupt(proc)
+        @yield interrupt(proc)
     end
     for i in 1:S 
         @yield Put(spares, @process machine(env, repair_facility, spares)) 

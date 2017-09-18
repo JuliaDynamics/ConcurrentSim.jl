@@ -61,7 +61,7 @@ end
 function interrupt(proc::OldProcess, cause::Any=nothing)
   if !istaskdone(proc.task)
     remove_callback(proc.resume, proc.target)
-    proc.target = Timeout(environment(proc); priority=typemax(Int8), value=InterruptException(proc, cause))
+    proc.target = schedule(Interrupt(environment(proc)); priority=typemax(Int8), value=InterruptException(proc, cause))
     proc.resume = @callback execute(proc.target, proc)
   end
 end

@@ -36,9 +36,11 @@ function execute(ev::AbstractEvent, proc::Process)
 end
 
 function interrupt(proc::Process, cause::Any=nothing)
+  env = environment(proc)
   if !done(proc.fsmi)
     remove_callback(proc.resume, proc.target)
-    proc.target = schedule(Interrupt(environment(proc)); priority=typemax(Int8), value=InterruptException(proc, cause))
+    proc.target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(proc, cause))
     proc.resume = @callback execute(proc.target, proc)
   end
+  Timeout(env; priority=typemax(Int8))
 end

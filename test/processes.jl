@@ -25,7 +25,7 @@ end
 
 @resumable function test_interrupter(sim::Simulation, proc::Process)
   @yield Timeout(sim, 2)
-  interrupt(proc)
+  @yield interrupt(proc)
 end
 
 @resumable function test_interrupted(sim::Simulation)
