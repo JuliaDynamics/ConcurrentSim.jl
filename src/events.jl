@@ -28,7 +28,7 @@ end
 struct Initialize <: AbstractEvent
   bev :: BaseEvent
   function Initialize(env::Environment)
-    schedule(new(BaseEvent(env)))
+    new(BaseEvent(env))
   end
 end
 

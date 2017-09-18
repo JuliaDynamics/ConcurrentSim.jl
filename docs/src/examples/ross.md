@@ -49,16 +49,13 @@ const G = Exponential(MU)
 end
 
 @resumable function start_sim(env::Environment, repair_facility::Resource, spares::Store{Process})
-    procs = Process[]
-    for i in 1:N 
-        push!(procs, @process machine(env, repair_facility, spares)) 
-    end
-    @yield timeout(env)
-    for proc in procs 
+    for i in 1:N
+        proc = @process machine(env, repair_facility, spares)
         @yield interrupt(proc)
     end
-    for i in 1:S 
-        @yield put(spares, @process machine(env, repair_facility, spares)) 
+    for i in 1:S
+        proc =  @process machine(env, repair_facility, spares)
+        @yield put(spares, proc) 
     end
 end
 

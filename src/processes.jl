@@ -4,12 +4,12 @@ mutable struct Process <: DiscreteProcess
   target :: AbstractEvent
   resume :: Function
   function Process(func::Function, env::Environment, args::Any...)
-    cor = new()
-    cor.bev = BaseEvent(env)
-    cor.fsmi = func(env, args...)
-    cor.target = Initialize(env)
-    cor.resume = @callback execute(cor.target, cor)
-    cor
+    proc = new()
+    proc.bev = BaseEvent(env)
+    proc.fsmi = func(env, args...)
+    proc.target = schedule(Initialize(env))
+    proc.resume = @callback execute(proc.target, proc)
+    proc
   end
 end
 
@@ -35,12 +35,17 @@ function execute(ev::AbstractEvent, proc::Process)
   end
 end
 
+function execute_interrupt(ev::Interrupt, proc::Process)
+  remove_callback(proc.resume, proc.target)
+  execute(ev, proc)
+end
+
 function interrupt(proc::Process, cause::Any=nothing)
   env = environment(proc)
   if !done(proc.fsmi)
-    remove_callback(proc.resume, proc.target)
-    proc.target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(proc, cause))
-    proc.resume = @callback execute(proc.target, proc)
+    proc.target isa Initialize && schedule(proc.target; priority=typemax(Int8))
+    target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(active_process(env), cause))
+    @callback execute_interrupt(target, proc)
   end
   timeout(env; priority=typemax(Int8))
 end

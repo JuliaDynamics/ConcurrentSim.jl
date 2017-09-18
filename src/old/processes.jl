@@ -23,7 +23,7 @@ mutable struct OldProcess <: DiscreteProcess
     proc = new()
     proc.bev = BaseEvent(env)
     proc.task = @task func(env, args...)
-    proc.target = timeout(env)
+    proc.target = schedule(Initialize(env))
     proc.resume = @callback execute(proc.target, proc)
     return proc
   end
@@ -58,10 +58,17 @@ function execute(ev::AbstractEvent, proc::OldProcess)
   end
 end
 
+function execute_interrupt(ev::Interrupt, proc::OldProcess)
+  remove_callback(proc.resume, proc.target)
+  execute(ev, proc)
+end
+
 function interrupt(proc::OldProcess, cause::Any=nothing)
+  env = environment(proc)
   if !istaskdone(proc.task)
-    remove_callback(proc.resume, proc.target)
-    proc.target = schedule(Interrupt(environment(proc)); priority=typemax(Int8), value=InterruptException(proc, cause))
-    proc.resume = @callback execute(proc.target, proc)
+    proc.target isa Initialize && schedule(proc.target; priority=typemax(Int8))
+    target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(active_process(env), cause))
+    @callback execute_interrupt(target, proc)
   end
+  timeout(env; priority=typemax(Int8))
 end
