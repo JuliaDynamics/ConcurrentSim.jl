@@ -25,20 +25,6 @@ function timeout(env::Environment, delay::Number=0; priority::Int8=zero(Int8), v
   schedule(Timeout(env), delay; priority=priority, value=value)
 end
 
-struct Initialize <: AbstractEvent
-  bev :: BaseEvent
-  function Initialize(env::Environment)
-    new(BaseEvent(env))
-  end
-end
-
-struct Interrupt <: AbstractEvent
-  bev :: BaseEvent
-  function Interrupt(env::Environment)
-    new(BaseEvent(env))
-  end
-end
-
 function run(env::Environment, until::Number=typemax(Float64))
   run(env, timeout(env, until-now(env)))
 end

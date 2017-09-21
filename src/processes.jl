@@ -1,3 +1,10 @@
+struct Initialize <: AbstractEvent
+  bev :: BaseEvent
+  function Initialize(env::Environment)
+    new(BaseEvent(env))
+  end
+end
+
 mutable struct Process <: DiscreteProcess
   bev :: BaseEvent
   fsmi :: ResumableFunctions.FiniteStateMachineIterator
@@ -32,6 +39,13 @@ function execute(ev::AbstractEvent, proc::Process)
     end
   catch exc
     rethrow(exc)
+  end
+end
+
+struct Interrupt <: AbstractEvent
+  bev :: BaseEvent
+  function Interrupt(env::Environment)
+    new(BaseEvent(env))
   end
 end
 
