@@ -44,6 +44,10 @@ function now(sim::Simulation)
   sim.time
 end
 
+function now(ev::AbstractEvent)
+  return now(environment(ev))
+end
+
 function active_process(sim::Simulation) :: AbstractProcess
   get(sim.active_proc)
 end
