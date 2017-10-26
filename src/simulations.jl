@@ -44,7 +44,7 @@ function now(sim::Simulation)
   sim.time
 end
 
-function now(ev::Event)
+function now(ev::AbstractEvent)
   return now(environment(ev))
 end
 
