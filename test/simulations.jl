@@ -3,7 +3,7 @@ using SimJulia
 struct TestException <: Exception end
 
 function test_callback(ev::AbstractEvent)
-  println("Hi I timed out at $(now(environment(ev)))")
+  println("Hi I timed out at $(now(ev))")
 end
 
 function test_callback_exception(ev::Event)
