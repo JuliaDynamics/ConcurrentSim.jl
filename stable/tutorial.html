@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · SimJulia</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>SimJulia</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li class="current"><a class="toctext" href="tutorial.html">Tutorial</a><ul class="internal"><li><a class="toctext" href="#Basic-Concepts-1">Basic Concepts</a></li><li><a class="toctext" href="#Our-First-Process-1">Our First Process</a></li><li><a class="toctext" href="#Process-Interaction-1">Process Interaction</a></li><li><a class="toctext" href="#Shared-Resources-1">Shared Resources</a></li></ul></li><li><span class="toctext">Topical Guides</span><ul><li><a class="toctext" href="guides/basics.html">Basics</a></li><li><a class="toctext" href="guides/environments.html">Environments</a></li><li><a class="toctext" href="guides/events.html">Events</a></li></ul></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="examples/ross.html">Ross</a></li></ul></li><li><a class="toctext" href="api.html">API</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="tutorial.html">Tutorial</a></li></ul><a class="edit-page" href="https://github.com/BenLauwens/SimJulia.jl/blob/master/docs/src/tutorial.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Tutorial</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Tutorial-1" href="#Tutorial-1">Tutorial</a></h1><h2><a class="nav-anchor" id="Basic-Concepts-1" href="#Basic-Concepts-1">Basic Concepts</a></h2><p>Simjulia is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with processes. All processes live in an environment. They interact with the environment and with each other via events.</p><p>Processes are described by <code>@resumable</code> functions. You can call them process function. During their lifetime, they create events and <code>@yield</code> them in order to wait for them to be triggered.</p><div class="admonition note"><div class="admonition-title">Note</div><div class="admonition-text"><p>Detailed information about the <code>@resumable</code> and the <code>@yield</code> macros can be found in the documentation of <a href="https://github.com/BenLauwens/ResumableFunctions.jl.git">ResumableFunctions</a>.</p></div></div><p>When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.</p><p>An important event type is the <code>timeout</code>. Events of this type are scheduled after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A <code>timeout</code> and all other events can be created by calling a constructor having the environment as first argument.</p><h2><a class="nav-anchor" id="Our-First-Process-1" href="#Our-First-Process-1">Our First Process</a></h2><p>Our first example will be a car process. The car will alternately drive and park for a while. When it starts driving (or parking), it will print the current simulation time.</p><p>So let’s start:</p><pre><code class="language-julia-repl">julia&gt; using ResumableFunctions
+
+julia&gt; using SimJulia
+
+julia&gt; @resumable function car(env::Environment)
+           while true
+             println(&quot;Start parking at &quot;, now(env))
+             parking_duration = 5
+             @yield timeout(env, parking_duration)
+             println(&quot;Start driving at &quot;, now(env))
+             trip_duration = 2
+             @yield timeout(env, trip_duration)
+           end
+         end
+car (generic function with 1 method)</code></pre><p>Our car process requires a reference to an <code>Environment</code> in order to create new events. The car‘s behavior is described in an infinite loop. Remember, the <code>car</code> function is a <code>@resumable</code> function. Though it will never terminate, it will pass the control flow back to the simulation once a <code>@yield</code> statement is reached. Once the yielded event is triggered (“it occurs”), the simulation will resume the function at this statement.</p><p>As said before, our car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function call <code>now</code>). It then calls the constructor <code>timeout</code> to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.</p><p>Now that the behavior of our car has been modeled, lets create an instance of it and see how it behaves:</p><pre><code class="language-julia-repl">julia&gt; sim = Simulation()
+SimJulia.Simulation time: 0.0 active_process: nothing
+
+julia&gt; @process car(sim)
+SimJulia.Process 1
+
+julia&gt; run(sim, 15)
+Start parking at 0.0
+Start driving at 5.0
+Start parking at 7.0
+Start driving at 12.0
+Start parking at 14.0</code></pre><p>The first thing we need to do is to create an environment, e.g. an instance of <code>Simulation</code>. The macro <code>@process</code> having as argument a car process function call creates a process that is initialised and added to the environment automatically.</p><p>Note, that at this time, none of the code of our process function is being executed. Its execution is merely scheduled at the current simulation time.</p><p>The <code>Process</code> returned by the <code>@process</code> macro can be used for process interactions.</p><p>Finally, we start the simulation by calling <code>run</code> and passing an end time to it.</p><h2><a class="nav-anchor" id="Process-Interaction-1" href="#Process-Interaction-1">Process Interaction</a></h2><p>The <code>Process</code> instance that is returned by <code>@process</code> macro can be utilized for process interactions. The two most common examples for this are to wait for another process to finish and to interrupt another process while it is waiting for an event.</p><h3><a class="nav-anchor" id="Waiting-for-a-Process-1" href="#Waiting-for-a-Process-1">Waiting for a Process</a></h3><p>As it happens, a SimJulia <code>Process</code> can be used like an event. If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish, or an airport simulation where passengers have to wait until a security check finishes.</p><p>Lets assume that the car from our last example is an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.</p><p>We can model this with an additional charge process for our car. Therefore, we redefine our <code>car</code> process function and add a <code>charge</code> process function.</p><p>A new charge process is started every time the vehicle starts parking. By yielding the <code>Process</code> instance that the <code>@process</code> macro returns, the <code>run</code> process starts waiting for it to finish:</p><pre><code class="language-julia-repl">julia&gt; using ResumableFunctions
+
+julia&gt; using SimJulia
+
+julia&gt; @resumable function charge(env::Environment, duration::Number)
+         @yield timeout(env, duration)
+       end
+charge (generic function with 1 method)
+
+julia&gt; @resumable function car(env::Environment)
+         while true
+           println(&quot;Start parking and charging at &quot;, now(env))
+           charge_duration = 5
+           charge_process = @process charge(sim, charge_duration)
+           @yield charge_process
+           println(&quot;Start driving at &quot;, now(env))
+           trip_duration = 2
+           @yield timeout(sim, trip_duration)
+         end
+       end
+car (generic function with 1 method)</code></pre><p>Starting the simulation is straightforward again: We create a <code>Simulation</code>, one (or more) cars and finally call <code>run</code>.</p><pre><code class="language-julia-repl">julia&gt; sim = Simulation()
+SimJulia.Simulation time: 0.0 active_process: nothing
+
+julia&gt; @process car(sim)
+SimJulia.Process 1
+
+julia&gt; run(sim, 15)
+Start parking and charging at 0.0
+Start driving at 5.0
+Start parking and charging at 7.0
+Start driving at 12.0
+Start parking and charging at 14.0</code></pre><h3><a class="nav-anchor" id="Interrupting-Another-Process-1" href="#Interrupting-Another-Process-1">Interrupting Another Process</a></h3><p>Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.</p><p>SimJulia allows you to interrupt a running process by calling the <code>interrupt</code> function:</p><pre><code class="language-julia-repl">julia&gt; using ResumableFunctions
+
+julia&gt; using SimJulia
+
+julia&gt; @resumable function driver(env::Environment, car_process::Process)
+         @yield timeout(env, 3)
+         @yield interrupt(car_process)
+       end
+driver (generic function with 1 method)</code></pre><p>The driver process has a reference to the car process. After waiting for 3 time steps, it interrupts that process.</p><p>Interrupts are thrown into process functions as <code>Interrupt</code> exceptions that can (should) be handled by the interrupted process. The process can then decide what to do next (e.g., continuing to wait for the original event or yielding a new event):</p><pre><code class="language-julia-repl">julia&gt; @resumable function charge(env::Environment, duration::Number)
+         @yield timeout(env, duration)
+       end
+charge (generic function with 1 method)
+
+julia&gt; @resumable function car(env::Environment)
+         while true
+           println(&quot;Start parking and charging at &quot;, now(env))
+           charge_duration = 5
+           charge_process = @process charge(sim, charge_duration)
+           try
+             @yield charge_process
+           catch
+             println(&quot;Was interrupted. Hopefully, the battery is full enough ...&quot;)
+           end
+           println(&quot;Start driving at &quot;, now(env))
+           trip_duration = 2
+           @yield timeout(sim, trip_duration)
+         end
+       end
+car (generic function with 1 method)</code></pre><p>When you compare the output of this simulation with the previous example, you’ll notice that the car now starts driving at time 3 instead of 5:</p><pre><code class="language-julia-repl">julia&gt; sim = Simulation()
+SimJulia.Simulation time: 0.0 active_process: nothing
+
+julia&gt; car_process = @process car(sim)
+SimJulia.Process 1
+
+julia&gt; @process driver(sim, car_process)
+SimJulia.Process 3
+
+julia&gt; run(sim, 15)
+Start parking and charging at 0.0
+Was interrupted. Hopefully, the battery is full enough ...
+Start driving at 3.0
+Start parking and charging at 5.0
+Start driving at 10.0
+Start parking and charging at 12.0</code></pre><h2><a class="nav-anchor" id="Shared-Resources-1" href="#Shared-Resources-1">Shared Resources</a></h2><p>SimJulia offers three types of resources that help you modeling problems, where multiple processes want to use a resource of limited capacity (e.g., cars at a fuel station with a limited number of fuel pumps) or classical producer-consumer problems.</p><p>In this section, we’ll briefly introduce SimJulia’s <code>Resource</code> class.</p><h3><a class="nav-anchor" id="Basic-Resource-Usage-1" href="#Basic-Resource-Usage-1">Basic Resource Usage</a></h3><p>We’ll slightly modify our electric vehicle process <code>car</code> that we introduced in the last sections.</p><p>The car will now drive to a battery charging station (BCS) and request one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards:</p><pre><code class="language-julia-repl">julia&gt; using ResumableFunctions
+
+julia&gt; using SimJulia
+
+julia&gt; @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
+         @yield timeout(sim, driving_time)
+         println(name, &quot; arriving at &quot;, now(env))
+         @yield request(bcs)
+         println(name, &quot; starting to charge at &quot;, now(env))
+         @yield timeout(sim, charge_duration)
+         println(name, &quot; leaving the bcs at &quot;, now(env))
+         @yield release(bcs)
+       end
+car (generic function with 1 method)</code></pre><p>The resource’s <code>request</code> function generates an event that lets you wait until the resource becomes available again. If you are resumed, you “own” the resource until you release it.</p><p>You are responsible to call <code>release</code> once you are done using the resource. When you release a resource, the next waiting process is resumed and now “owns” one of the resource’s slots. The basic <code>Resource</code> sorts waiting processes in a FIFO (first in—first out) way.</p><p>A resource needs a reference to an <code>Environment</code> and a capacity when it is created:</p><pre><code class="language-julia-repl">julia&gt; sim = Simulation()
+SimJulia.Simulation time: 0.0 active_process: nothing
+
+julia&gt; bcs = Resource(sim, 2)
+SimJulia.Container{Int64}</code></pre><p>We can now create the car processes and pass a reference to our resource as well as some additional parameters to them</p><pre><code class="language-julia-repl">julia&gt; for i in 1:4
+         @process car(sim, i, bcs, 2i, 5)
+       end
+
+julia&gt; run(sim)
+1 arriving at 2.0
+1 starting to charge at 2.0
+2 arriving at 4.0
+2 starting to charge at 4.0
+3 arriving at 6.0
+1 leaving the bcs at 7.0
+3 starting to charge at 7.0
+4 arriving at 8.0
+2 leaving the bcs at 9.0
+4 starting to charge at 9.0
+3 leaving the bcs at 12.0
+4 leaving the bcs at 14.0</code></pre><p>Finally, we can start the simulation. Since the car processes all terminate on their own in this simulation, we don’t need to specify an until time — the simulation will automatically stop when there are no more events left:</p><pre><code class="language-julia-repl">julia&gt; run(sim)
+1 arriving at 2.0
+1 starting to charge at 2.0
+2 arriving at 4.0
+2 starting to charge at 4.0
+3 arriving at 6.0
+1 leaving the bcs at 7.0
+3 starting to charge at 7.0
+4 arriving at 8.0
+2 leaving the bcs at 9.0
+4 starting to charge at 9.0
+3 leaving the bcs at 12.0
+4 leaving the bcs at 14.0</code></pre><p>Note that the first two cars can start charging immediately after they arrive at the BCS, while cars 3 and 4 have to wait.</p><footer><hr/><a class="previous" href="index.html"><span class="direction">Previous</span><span class="title">Home</span></a><a class="next" href="guides/basics.html"><span class="direction">Next</span><span class="title">Basics</span></a></footer></article></body></html>
