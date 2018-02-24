@@ -31,7 +31,7 @@ function execute(ev::AbstractEvent, proc::Process)
     set_active_process(env, proc)
     target = proc.fsmi(value(ev))
     reset_active_process(env)
-    if done(proc.fsmi)
+    if proc.fsmi._state == 0xff
       schedule(proc; value=target)
     else
       proc.target = state(target) == processed ? timeout(env; value=value(target)) : target
@@ -56,7 +56,7 @@ end
 
 function interrupt(proc::Process, cause::Any=nothing)
   env = environment(proc)
-  if !done(proc.fsmi)
+  if proc.fsmi != 0xff
     proc.target isa Initialize && schedule(proc.target; priority=typemax(Int8))
     target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(active_process(env), cause))
     @callback execute_interrupt(target, proc)
