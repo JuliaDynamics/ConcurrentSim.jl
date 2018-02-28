@@ -56,7 +56,7 @@ end
 
 function interrupt(proc::Process, cause::Any=nothing)
   env = environment(proc)
-  if proc.fsmi != 0xff
+  if proc.fsmi._state != 0xff
     proc.target isa Initialize && schedule(proc.target; priority=typemax(Int8))
     target = schedule(Interrupt(env); priority=typemax(Int8), value=InterruptException(active_process(env), cause))
     @callback execute_interrupt(target, proc)
