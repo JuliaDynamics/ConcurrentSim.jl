@@ -57,29 +57,3 @@ con = Container(sim, 10.0; level=5.0)
 @process my_consumer(sim, con)
 @process my_producer(sim, con)
 run(sim)
-
-function source(sim::Simulation, server::Resource)
-  i = 0
-  while true
-    i += 1
-    yield(timeout(sim, rand()))
-    @oldprocess customer(sim, server, i)
-  end
-end
-
-function customer(sim::Simulation, server::Resource, i::Int)
-  request(server) do req
-    println(now(sim), ", customer $i arrives")
-    yield(req | timeout(sim, rand()))
-    if state(req) != SimJulia.idle
-      println(now(sim), ", customer $i starts being served")
-      yield(timeout(sim, rand()))
-    end
-    println(now(sim), ", customer $i leaves")
-  end
-end
-
-sim = Simulation()
-server = Resource(sim)
-@oldprocess source(sim, server)
-run(sim, 10.0)

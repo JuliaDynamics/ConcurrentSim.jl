@@ -1,17 +1,17 @@
 function Simulation(initial_time::DateTime)
-  Simulation(Base.Dates.datetime2epochms(initial_time))
+  Simulation(Dates.datetime2epochms(initial_time))
 end
 
 function run(env::Environment, until::DateTime)
-  run(env, Base.Dates.datetime2epochms(until))
+  run(env, Dates.datetime2epochms(until))
 end
 
 function timeout(env::Environment, delay::Period; priority::Int8=zero(Int8), value::Any=nothing)
   time = now(env)
-  del = Base.Dates.datetime2epochms(Base.Dates.epochms2datetime(time)+delay)-time
+  del = Dates.datetime2epochms(Dates.epochms2datetime(time)+delay)-time
   timeout(env, del; priority=priority, value=value)
 end
 
 function nowDatetime(env::Environment)
-  Base.Dates.epochms2datetime(now(env))
+  Dates.epochms2datetime(now(env))
 end

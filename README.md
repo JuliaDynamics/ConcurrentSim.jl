@@ -15,6 +15,7 @@ A discrete event process oriented simulation framework written in [Julia](http:/
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.4.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.4)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.5.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.5)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.6.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.6)
+[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.7.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.7)
 
 SimJulia.jl is a [registered package](http://pkg.julialang.org), and is installed by running
 
@@ -42,6 +43,9 @@ julia> Pkg.add("SimJulia")
 
 ## Release Notes
 
+* v0.6 (2018)
+  * adds support for Julia v0.7.
+  * the `@oldprocess` macro and the `produce` / `consume` functions are removed because they are no longer supported.
 * v0.5 (2018)
   * The old way of making processes is deprecated in favor of the semi-coroutine approach as implemented in [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git). The `@process` macro replaces the `@coroutine` macro. The old `@process` macro is temporarily renamed `@oldprocess` and will be removed when the infrastructure supporting the `produce` and the `consume` functions is no longer available in Julia. (DONE)
   * This version no longer integrates a continuous time solver. A continuous simulation framework based on [DISCO](http://www.akira.ruc.dk/~keld/research/DISCO/) and inspired by the standalone [QSS](https://sourceforge.net/projects/qssengine/) solver using SimJulia as its discrete-event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git) (WIP):
@@ -64,3 +68,4 @@ julia> Pkg.add("SimJulia")
 ## Todo
 
 * Transparent statistics gathering for resources.
+* Update of documentation.

@@ -9,7 +9,6 @@ for test_file in [
   "resources/containers.jl",
   "resources/stores.jl",
   "utils/time.jl",
-  "old/processes.jl",
   ]
   include(testpath(test_file))
 end

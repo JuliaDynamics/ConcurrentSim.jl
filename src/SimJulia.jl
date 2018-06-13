@@ -6,11 +6,12 @@ Main module for SimJulia.jl – a discrete event process oriented simulation fra
 module SimJulia
 
   using DataStructures
-  using Base.Dates
+  using Dates
   using ResumableFunctions
 
-  import Base.run, Base.now, Base.isless, Base.show, Base.interrupt, Base.yield, Base.get
+  import Base.run, Base.isless, Base.show, Base.yield, Base.get
   import Base.(&), Base.(|)
+  import Dates.now
 
   export AbstractEvent, Environment, value, state, environment
   export Event, succeed, fail, @callback, remove_callback
@@ -20,7 +21,6 @@ module SimJulia
   export Process, @process, interrupt
   export Container, Resource, Store, put, get, request, release, cancel
   export nowDatetime
-  export OldProcess, @oldprocess, yield, request
 
   include("base.jl")
   include("events.jl")
@@ -31,5 +31,4 @@ module SimJulia
   include("resources/containers.jl")
   include("resources/stores.jl")
   include("utils/time.jl")
-  include("old/processes.jl")
 end

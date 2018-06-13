@@ -1,6 +1,6 @@
 using SimJulia
 using ResumableFunctions
-using Base.Dates
+using Dates
 
 @resumable function datetimetest(sim::Simulation)
   println(nowDatetime(sim))
