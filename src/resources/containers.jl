@@ -32,19 +32,6 @@ end
 
 request(res::Resource; priority::Int=0) = put(res, 1; priority=priority)
 
-function request(func::Function, res::Resource; priority::Int=0)
-  req = request(res; priority=priority)
-  try
-    func(req)
-  finally
-    if state(req) == processed
-      yield(release(res; priority=priority))
-    else
-      cancel(res, req)
-    end
-  end
-end
-
 function get(con::Container{N}, amount::N; priority::Int=0) where N<:Number
   get_ev = Get(con.env)
   con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
