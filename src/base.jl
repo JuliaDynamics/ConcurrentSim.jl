@@ -27,8 +27,11 @@ function show(io::IO, ev::AbstractEvent)
 end
 
 function show(io::IO, env::Environment)
-  active_proc = try get(sim.active_proc) catch; nothing end
-  print(io, "$(typeof(env)) time: $(now(env)) active_process: $(active_proc)")
+  if env.active_proc == nothing
+    print(io, "$(typeof(env)) time: $(now(env)) active_process: nothing")
+  else
+    print(io, "$(typeof(env)) time: $(now(env)) active_process: $(active_proc)")
+  end
 end
 
 function environment(ev::AbstractEvent) :: Environment
