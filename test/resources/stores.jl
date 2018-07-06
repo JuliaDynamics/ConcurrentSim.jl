@@ -1,5 +1,4 @@
 using SimJulia
-using ResumableFunctions
 
 struct StoreObject
   i :: Int
