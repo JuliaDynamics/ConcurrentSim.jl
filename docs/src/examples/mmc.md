@@ -8,7 +8,7 @@ An [M/M/c queue](https://en.wikipedia.org/wiki/M/M/c_queue) is a basic queue wit
 
 ```julia
 #set simulation parameters
-srand(8710) # set random number seed for reproducibility
+Random.seed!(8710) # set random number seed for reproducibility
 num_customers = 10 # total number of customers generated
 
 # set queue parameters
