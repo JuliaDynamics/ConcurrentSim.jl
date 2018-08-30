@@ -16,6 +16,7 @@ A discrete event process oriented simulation framework written in [Julia](http:/
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.5.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.5)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.6.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.6)
 [![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.7.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.7)
+[![SimJulia](http://pkg.julialang.org/badges/SimJulia_1.0.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=1.0)
 
 SimJulia.jl is a [registered package](http://pkg.julialang.org), and is installed by running
 
