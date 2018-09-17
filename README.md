@@ -44,6 +44,8 @@ julia> Pkg.add("SimJulia")
 
 ## Release Notes
 
+* v0.7 (2018)
+  * adds support for Julia v1.0
 * v0.6 (2018)
   * adds support for Julia v0.7.
   * the `@oldprocess` macro and the `produce` / `consume` functions are removed because they are no longer supported.
