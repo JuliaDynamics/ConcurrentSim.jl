@@ -6,7 +6,7 @@ function run(env::Environment, until::DateTime)
   run(env, Base.Dates.datetime2epochms(until))
 end
 
-function timeout(env::Environment, delay::Period; priority::Int8=zero(Int8), value::Any=nothing)
+function timeout(env::Environment, delay::Period; priority::Int=0, value::Any=nothing)
   time = now(env)
   del = Base.Dates.datetime2epochms(Base.Dates.epochms2datetime(time)+delay)-time
   timeout(env, del; priority=priority, value=value)

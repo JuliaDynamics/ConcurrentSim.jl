@@ -60,7 +60,7 @@ function remove_callback(cb::Function, ev::AbstractEvent)
   i != 0 && deleteat!(ev.bev.callbacks, i)
 end
 
-function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int8=zero(Int8), value::Any=nothing)
+function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int=0, value::Any=nothing)
   state(ev) == processed && throw(EventProcessed(ev))
   env = environment(ev)
   bev = ev.bev
