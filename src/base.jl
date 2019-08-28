@@ -30,7 +30,7 @@ function show(io::IO, env::Environment)
   if env.active_proc == nothing
     print(io, "$(typeof(env)) time: $(now(env)) active_process: nothing")
   else
-    print(io, "$(typeof(env)) time: $(now(env)) active_process: $(active_proc)")
+    print(io, "$(typeof(env)) time: $(now(env)) active_process: $(env.active_proc)")
   end
 end
 
