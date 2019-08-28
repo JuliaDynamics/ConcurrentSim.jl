@@ -31,7 +31,8 @@ run(sim)
     val = @yield get_ev | timeout(sim, rand())
     if val[get_ev].state == SimJulia.processed
       println("$(now(sim)), consumer is being served, level is ", con.level)
-      @yield timeout(sim, 5.0*rand())
+      delay = 5.0*rand()
+      @yield timeout(sim, delay)
     else
       println("$(now(sim)), consumer has timed out")
       cancel(con, get_ev)
@@ -47,7 +48,8 @@ end
     @yield put(con, amount)
     level = con.level
     println("$(now(sim)), producer is being served, level is ", level)
-    @yield timeout(sim, 5.0*rand())
+    delay = 5.0*rand()
+    @yield timeout(sim, delay)
   end
 end
 
