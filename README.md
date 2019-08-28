@@ -11,13 +11,6 @@ A discrete event process oriented simulation framework written in [Julia](http:/
 
 ## Installation
 
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.3.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.3)
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.4.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.4)
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.5.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.5)
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.6.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.6)
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_0.7.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=0.7)
-[![SimJulia](http://pkg.julialang.org/badges/SimJulia_1.0.svg)](http://pkg.julialang.org/?pkg=SimJulia&ver=1.0)
-
 SimJulia.jl is a [registered package](http://pkg.julialang.org), and is installed by running
 
 ```julia
@@ -44,6 +37,8 @@ julia> Pkg.add("SimJulia")
 
 ## Release Notes
 
+* v0.8 (2019)
+  * adds support for Julia v1.2.
 * v0.7 (2018)
   * adds support for Julia v1.0
 * v0.6 (2018)
@@ -54,7 +49,7 @@ julia> Pkg.add("SimJulia")
   * This version no longer integrates a continuous time solver. A continuous simulation framework based on [DISCO](http://www.akira.ruc.dk/~keld/research/DISCO/) and inspired by the standalone [QSS](https://sourceforge.net/projects/qssengine/) solver using SimJulia as its discrete-event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git) (WIP):
   * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) (WIP: Overview and Tutorial OK).
 * v0.4.1 (2017)
-  * the `@resumable` and `@yield` macros are put in a seperate package [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git): 
+  * the `@resumable` and `@yield` macros are put in a seperate package [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git):
   * Users have to take into account the following syntax change: `@yield return arg` is replaced by `@yield arg`.
 * v0.4 (2017) only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic. The discrete event features are on par with v0.3 (SimPy v3) and following features are added:
   * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`
