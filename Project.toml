@@ -1,8 +1,10 @@
 name = "SimJulia"
 uuid = "428bdadb-6287-5aa5-874b-9969638295fd"
+repo = "https://github.com/BenLauwens/SimJulia.jl.git"
 keywords = ["discrete-even simulation"]
 license = "MIT"
 desc = "A discrete event process oriented simulation framework."
+authors = ["Ben Lauwens <ben.lauwens@gmail.com>"]
 version = "0.8"
 
 [deps]
