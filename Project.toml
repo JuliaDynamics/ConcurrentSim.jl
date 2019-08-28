@@ -5,7 +5,7 @@ keywords = ["discrete-even simulation"]
 license = "MIT"
 desc = "A discrete event process oriented simulation framework."
 authors = ["Ben Lauwens <ben.lauwens@gmail.com>"]
-version = "0.8"
+version = "0.8.1"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
