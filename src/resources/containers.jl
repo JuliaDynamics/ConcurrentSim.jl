@@ -32,6 +32,21 @@ end
 
 request(res::Resource; priority::Int=0) = put(res, 1; priority=priority)
 
+"""
+  request_any(res_options::Vector{Resource}; priority::Int=0)
+
+Request from a list of alternative resources.
+
+The resource with the shortest queue is selected.
+"""
+function request_any(res_alts::Vector{Resource}; priority::Int=0)
+  #find resource with the shortest put_queue
+  _, res_id = findmin(length.([res.put_queue for res in res_alts]))
+  #select the resource with the shortest put_queue
+  res = res_alts[res_id]
+  request(res; priority = priority)
+end
+
 function get(con::Container{N}, amount::N; priority::Int=0) where N<:Number
   get_ev = Get(con.env)
   con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)

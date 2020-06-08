@@ -54,3 +54,11 @@ end
 function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
   Operator(eval_or, ev1, ev2)
 end
+
+function AllOf(events::Vector{AbstractEvent})
+  Operator(eval_and, events...)
+end
+
+function AnyOf(events::Vector{AbstractEvent})
+  Operator(eval_or, events...)
+end
