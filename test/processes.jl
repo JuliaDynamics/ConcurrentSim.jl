@@ -1,4 +1,5 @@
 using SimJulia
+using ResumableFunctions
 
 @resumable function fibonnaci(sim::Simulation)
   a = 0
