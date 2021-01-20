@@ -3,7 +3,6 @@ using ResumableFunctions
 using SimJulia
 
 makedocs(
-  format   = :html,
   sitename = "SimJulia",
   authors = "Ben Lauwens",
   pages    = [
@@ -18,10 +17,5 @@ makedocs(
 )
 
 deploydocs(
-  repo = "github.com/BenLauwens/SimJulia.jl.git",
-  julia  = "1.0",
-  osname = "linux",
-  target = "build",
-  deps = nothing,
-  make = nothing,
+  repo = "github.com/BenLauwens/SimJulia.jl.git"
 )
