@@ -13,7 +13,7 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 ResumableFunctions = "c5292f4c-5179-55e1-98c5-05642aab7184"
 
 [compat]
-ResumableFunctions = "^0.5"
+ResumableFunctions = "^0.6"
 julia = "^1.2"
 
 [extras]
