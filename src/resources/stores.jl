@@ -23,12 +23,52 @@ mutable struct Store{T} <: AbstractResource
   end
 end
 
-function put(sto::Store{T}, item::T; priority::Int=0) where T
+function put(sto::Store{T}, item::T, priority::Int=0) where T
   put_ev = Put(sto.env)
   sto.put_queue[put_ev] = StorePutKey{T}(priority, sto.seid+=one(UInt), item)
   @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   put_ev
+end
+
+"""
+  put(sto::Store{T}, item::T, preempt::Bool=false,
+        filter::Function=get_any_item) where T
+
+Put an `item` in a `Store` and allow for preemption using `filter` to select
+  which item to remove from the `Store` when preempting.
+
+This method requires that T be a mutable struct with the fields:
+- `:priority::Int`: Integer specifying the priority of that `item` (the more
+  negative, the higher the priority).
+- `:time_in_service::Number`: Positive number indicating the amount of time an
+  `item` has been in service. This allows storing how long an `item` was in
+  service when it was interrupted by a higher priority `item`.
+- `:process::Dict{Store{T}, Process}`: Dictionary mapping the storage process
+  of the `item` to the `Store` object. This is used to know which `Process` to
+  interrupt when an `item` is being stored in more than one `Store`.
+"""
+function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_any_item) where T
+    @assert :priority in fieldnames(T) "Preemption requires that the item being stored have :priority as one of its fields."
+    @assert :process in fieldnames(T) && item.process isa Dict{Store{T},Process} "Preemption requires that the item being stored have :process (Dict) as one of its fields."
+    @assert :time_in_service in fieldnames(T) "Preemption requires that the item being stored have :time_in_service as one of its fields."
+    if preempt && !isempty(sto.items) && item.priority < maximum([itm.priority for itm in sto.items]) #if the new item priority is higher than the priority of at least one of the items in the store, preempt
+        #remove item from store
+        stoitems = [itm for itm in sto.items] #original items in sto
+        get(sto, filter) #get item from store
+        pitem = setdiff(stoitems, [itm for itm in sto.items])[1] #find removed item
+        pitem.time_in_service = now(pitem.process[sto].bev.env) - pitem.start_service #update time in service
+        interrupt(pitem.process[sto],Preempted(item)) #interrupt process on removed item
+        #put new item into the queue
+        put_ev = put(sto, item, item.priority)
+    else
+        put_ev = put(sto, item, item.priority) #regular put if no preemption or not at full capactiy
+    end
+    put_ev
+end
+
+mutable struct Preempted
+    by::T where T #identify which item caused the preemption
 end
 
 get_any_item(::T) where T = true
