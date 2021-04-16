@@ -54,3 +54,19 @@ end
 function (|)(ev1::AbstractEvent, ev2::AbstractEvent)
   Operator(eval_or, ev1, ev2)
 end
+
+"""
+    AllOf(events::Vector{AbstractEvent})
+
+Check if all required predecessor events have been executed. Used in conjunction
+    with the `@yield` macro.
+"""
+AllOf(events) = Operator(SimJulia.eval_and,events...)
+
+"""
+    AnyOf(events::Vector{AbstractEvent})
+
+Check if at least one of the required predecessor events has been executed.
+    Used in conjunction with the `@yield` macro.
+"""
+AnyOf(events) = Operator(SimJulia.eval_or,events...)
