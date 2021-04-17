@@ -54,19 +54,13 @@ function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_a
         get(sto, filter) #get item from store
         pitem = setdiff(stoitems, [itm for itm in sto.items])[1] #find removed item
         proc = pitem.process[sto] #process to interrupt
-        env = proc.bev.env #get environment
-        interrupt(proc,Preempted(item,now(env))) #interrupt process on removed item and create Preembed object
+        interrupt(proc, item) #interrupt process on removed item identify item causing the preemption
         #put new item into the queue
         put_ev = put(sto, item, priority = item.priority)
     else
         put_ev = put(sto, item, priority = item.priority) #regular put if no preemption or not at full capactiy
     end
     put_ev
-end
-
-mutable struct Preempted
-    by::T where T #identify which item caused the preemption
-    at::Float64 #time preemption occured
 end
 
 get_any_item(::T) where T = true
