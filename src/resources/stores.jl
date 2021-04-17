@@ -41,9 +41,6 @@ Put an `item` in a `Store` and allow for preemption using `filter` to select
 This method requires that T be a mutable struct with the fields:
 - `:priority::Int`: Integer specifying the priority of that `item` (the more
   negative, the higher the priority).
-- `:time_in_service::Number`: Positive number indicating the amount of time an
-  `item` has been in service. This allows storing how long an `item` was in
-  service when it was interrupted by a higher priority `item`.
 - `:process::Dict{Store{T}, Process}`: Dictionary mapping the storage process
   of the `item` to the `Store` object. This is used to know which `Process` to
   interrupt when an `item` is being stored in more than one `Store`.
@@ -51,14 +48,14 @@ This method requires that T be a mutable struct with the fields:
 function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_any_item) where T
     @assert :priority in fieldnames(T) "Preemption requires that the item being stored have :priority as one of its fields."
     @assert :process in fieldnames(T) && item.process isa Dict{Store{T},Process} "Preemption requires that the item being stored have :process (Dict) as one of its fields."
-    @assert :time_in_service in fieldnames(T) "Preemption requires that the item being stored have :time_in_service as one of its fields."
     if preempt && !isempty(sto.items) && item.priority < maximum([itm.priority for itm in sto.items]) #if the new item priority is higher than the priority of at least one of the items in the store, preempt
         #remove item from store
         stoitems = [itm for itm in sto.items] #original items in sto
         get(sto, filter) #get item from store
         pitem = setdiff(stoitems, [itm for itm in sto.items])[1] #find removed item
-        pitem.time_in_service = now(pitem.process[sto].bev.env) - pitem.start_service #update time in service
-        interrupt(pitem.process[sto],Preempted(item)) #interrupt process on removed item
+        proc = pitem.process[sto] #process to interrupt
+        env = proc.bev.env #get environment
+        interrupt(proc,Preempted(item,now(env))) #interrupt process on removed item and create Preembed object
         #put new item into the queue
         put_ev = put(sto, item, priority = item.priority)
     else
@@ -69,6 +66,7 @@ end
 
 mutable struct Preempted
     by::T where T #identify which item caused the preemption
+    at::Float64 #time preemption occured
 end
 
 get_any_item(::T) where T = true
