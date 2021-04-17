@@ -23,7 +23,7 @@ mutable struct Store{T} <: AbstractResource
   end
 end
 
-function put(sto::Store{T}, item::T, priority::Int=0) where T
+function put(sto::Store{T}, item::T; priority::Int=0) where T
   put_ev = Put(sto.env)
   sto.put_queue[put_ev] = StorePutKey{T}(priority, sto.seid+=one(UInt), item)
   @callback trigger_get(put_ev, sto)
@@ -60,9 +60,9 @@ function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_a
         pitem.time_in_service = now(pitem.process[sto].bev.env) - pitem.start_service #update time in service
         interrupt(pitem.process[sto],Preempted(item)) #interrupt process on removed item
         #put new item into the queue
-        put_ev = put(sto, item, item.priority)
+        put_ev = put(sto, item, priority = item.priority)
     else
-        put_ev = put(sto, item, item.priority) #regular put if no preemption or not at full capactiy
+        put_ev = put(sto, item, priority = item.priority) #regular put if no preemption or not at full capactiy
     end
     put_ev
 end
