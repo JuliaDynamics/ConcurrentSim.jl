@@ -54,12 +54,9 @@ function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_a
         pitem = setdiff(stoitems, [itm for itm in sto.items])[1] #find removed item
         proc = pitem.process #process to interrupt
         interrupt(proc, item) #interrupt process on removed item identify item causing the preemption
-        #put new item into the queue
-        put_ev = put(sto, item, priority = item.priority)
-    else
-        put_ev = put(sto, item, priority = item.priority) #regular put if no preemption or not at full capactiy
     end
-    put_ev
+    #put new item into the queue
+    put(sto, item, priority = item.priority)
 end
 
 get_any_item(::T) where T = true
