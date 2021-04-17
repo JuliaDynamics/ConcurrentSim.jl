@@ -46,7 +46,7 @@ This method requires that T be a mutable struct with the fields:
 """
 function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_any_item) where T
     @assert :priority in fieldnames(T) "Preemption requires that the item being stored have :priority as one of its fields."
-    @assert :process in fieldnames(T) && item.process isa Process "Preemption requires that the item being stored have :process (Dict) as one of its fields."
+    @assert :process in fieldnames(T) && item.process isa Process "Preemption requires that the item being stored have `:process` as one of its fields."
     if preempt && !isempty(sto.items) && item.priority < maximum([itm.priority for itm in sto.items]) #if the new item priority is higher than the priority of at least one of the items in the store, preempt
         #remove item from store
         stoitems = [itm for itm in sto.items] #original items in sto
