@@ -41,19 +41,18 @@ Put an `item` in a `Store` and allow for preemption using `filter` to select
 This method requires that T be a mutable struct with the fields:
 - `:priority::Int`: Integer specifying the priority of that `item` (the more
   negative, the higher the priority).
-- `:process::Dict{Store{T}, Process}`: Dictionary mapping the storage process
-  of the `item` to the `Store` object. This is used to know which `Process` to
-  interrupt when an `item` is being stored in more than one `Store`.
+- `:process::Process`: Storage `Process` for the `item`. Used to know which
+  `Process` to interrupt when preempting.
 """
 function put(sto::Store{T}, item::T, preempt::Bool=false, filter::Function=get_any_item) where T
     @assert :priority in fieldnames(T) "Preemption requires that the item being stored have :priority as one of its fields."
-    @assert :process in fieldnames(T) && item.process isa Dict{Store{T},Process} "Preemption requires that the item being stored have :process (Dict) as one of its fields."
+    @assert :process in fieldnames(T) && item.process isa Process "Preemption requires that the item being stored have :process (Dict) as one of its fields."
     if preempt && !isempty(sto.items) && item.priority < maximum([itm.priority for itm in sto.items]) #if the new item priority is higher than the priority of at least one of the items in the store, preempt
         #remove item from store
         stoitems = [itm for itm in sto.items] #original items in sto
         get(sto, filter) #get item from store
         pitem = setdiff(stoitems, [itm for itm in sto.items])[1] #find removed item
-        proc = pitem.process[sto] #process to interrupt
+        proc = pitem.process #process to interrupt
         interrupt(proc, item) #interrupt process on removed item identify item causing the preemption
         #put new item into the queue
         put_ev = put(sto, item, priority = item.priority)
