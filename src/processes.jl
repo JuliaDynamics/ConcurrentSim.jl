@@ -10,10 +10,10 @@ mutable struct Process <: DiscreteProcess
   fsmi :: ResumableFunctions.FiniteStateMachineIterator
   target :: AbstractEvent
   resume :: Function
-  function Process(func::Function, env::Environment, args::Any...)
+  function Process(func::Function, env::Environment, args::Any...; kwargs::Any...)
     proc = new()
     proc.bev = BaseEvent(env)
-    proc.fsmi = func(env, args...)
+    proc.fsmi = func(env, args...; kwargs...)
     proc.target = schedule(Initialize(env))
     proc.resume = @callback execute(proc.target, proc)
     proc
