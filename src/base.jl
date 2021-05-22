@@ -59,7 +59,7 @@ macro callback(expr::Expr)
 end
 
 function remove_callback(cb::Function, ev::AbstractEvent)
-  i = indexin(ev.bev.callbacks, [cb])[1]
+  i = findfirst(x -> x == cb, ev.bev.callbacks)
   i != 0 && deleteat!(ev.bev.callbacks, i)
 end
 
