@@ -14,7 +14,7 @@ module SimJulia
   export AbstractEvent, Environment, value, state, environment
   export Event, succeed, fail, @callback, remove_callback
   export timeout
-  export Operator, (&), (|)
+  export Operator, (&), (|), AllOf, AnyOf
   export @resumable, @yield
   export AbstractProcess, Simulation, run, now, active_process, StopSimulation
   export Process, @process, interrupt
