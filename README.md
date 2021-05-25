@@ -36,8 +36,8 @@ julia> Pkg.add("SimJulia")
 ## Release Notes
 
 * v0.8.1 (2021)
- * some minor bug fixes
- * uses ResumableFunctions v0.6 or higher 
+  * some minor bug fixes
+  * uses ResumableFunctions v0.6 or higher 
 * v0.8 (2019)
   * adds support for Julia v1.2.
 * v0.7 (2018)
