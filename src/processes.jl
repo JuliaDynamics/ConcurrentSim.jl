@@ -10,7 +10,7 @@ mutable struct Process <: DiscreteProcess
   fsmi :: ResumableFunctions.FiniteStateMachineIterator
   target :: AbstractEvent
   resume :: Function
-  function Process(func::Function, env::Environment, args::Any...; kwargs::Any...)
+  function Process(func::Function, env::Environment, args...; kwargs...)
     proc = new()
     proc.bev = BaseEvent(env)
     proc.fsmi = func(env, args...; kwargs...)
