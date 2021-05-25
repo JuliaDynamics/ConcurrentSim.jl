@@ -23,14 +23,14 @@ end
 
 function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{AbstractEvent, StateValue})
   val = value(ev)
-  if state(op) == idle
+  if state(op) === idle
     if isa(val, Exception)
       schedule(op; value=val)
     else
       event_state_values[ev] = StateValue(state(ev), val)
       op.eval(collect(values(event_state_values))) && schedule(op; value=event_state_values)
     end
-  elseif state(op) == scheduled
+  elseif state(op) === scheduled
     if isa(val, Exception)
       schedule(op; priority=typemax(Int), value=val)
     else
@@ -40,11 +40,11 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{Abstrac
 end
 
 function eval_and(state_values::Vector{StateValue})
-  all(map((sv)->sv.state == processed, state_values))
+  all(map((sv)->sv.state === processed, state_values))
 end
 
 function eval_or(state_values::Vector{StateValue})
-  any(map((sv)->sv.state == processed, state_values))
+  any(map((sv)->sv.state === processed, state_values))
 end
 
 function (&)(ev1::AbstractEvent, ev2::AbstractEvent)

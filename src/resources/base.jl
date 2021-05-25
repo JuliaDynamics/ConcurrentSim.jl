@@ -23,7 +23,7 @@ struct Get <: ResourceEvent
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
-  (a.priority < b.priority) || (a.priority == b.priority && a.id < b.id)
+  (a.priority < b.priority) || (a.priority === b.priority && a.id < b.id)
 end
 
 function trigger_put(put_ev::ResourceEvent, res::AbstractResource)
@@ -31,7 +31,7 @@ function trigger_put(put_ev::ResourceEvent, res::AbstractResource)
   while length(queue) > 0
     (put_ev, key) = DataStructures.peek(queue)
     proceed = do_put(res, put_ev, key)
-    state(put_ev) == scheduled && DataStructures.dequeue!(res.put_queue, put_ev)
+    state(put_ev) === scheduled && DataStructures.dequeue!(res.put_queue, put_ev)
     proceed ? DataStructures.dequeue!(queue) : break
   end
 end
@@ -41,7 +41,7 @@ function trigger_get(get_ev::ResourceEvent, res::AbstractResource)
   while length(queue) > 0
     (get_ev, key) = DataStructures.peek(queue)
     proceed = do_get(res, get_ev, key)
-    state(get_ev) == scheduled && DataStructures.dequeue!(res.get_queue, get_ev)
+    state(get_ev) === scheduled && DataStructures.dequeue!(res.get_queue, get_ev)
     proceed ? DataStructures.dequeue!(queue) : break
   end
 end

@@ -15,7 +15,7 @@ struct EventKey
 end
 
 function isless(a::EventKey, b::EventKey) :: Bool
-  (a.time < b.time) || (a.time == b.time && a.priority > b.priority) || (a.time == b.time && a.priority == b.priority && a.id < b.id)
+  (a.time < b.time) || (a.time === b.time && a.priority > b.priority) || (a.time === b.time && a.priority === b.priority && a.id < b.id)
 end
 
 mutable struct Simulation <: Environment

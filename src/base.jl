@@ -27,7 +27,7 @@ function show(io::IO, ev::AbstractEvent)
 end
 
 function show(io::IO, env::Environment)
-  if env.active_proc == nothing
+  if env.active_proc === nothing
     print(io, "$(typeof(env)) time: $(now(env)) active_process: nothing")
   else
     print(io, "$(typeof(env)) time: $(now(env)) active_process: $(env.active_proc)")
@@ -47,14 +47,14 @@ function state(ev::AbstractEvent) :: EVENT_STATE
 end
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
-  ev.bev.state == processed && throw(EventProcessed(ev))
+  ev.bev.state === processed && throw(EventProcessed(ev))
   cb = ()->func(ev, args...)
   push!(ev.bev.callbacks, cb)
   cb
 end
 
 macro callback(expr::Expr)
-  expr.head != :call && error("Expression is not a function call!")
+  expr.head !== :call && error("Expression is not a function call!")
   esc(:(SimJulia.append_callback($(expr.args...))))
 end
 
@@ -64,7 +64,7 @@ function remove_callback(cb::Function, ev::AbstractEvent)
 end
 
 function schedule(ev::AbstractEvent, delay::Number=zero(Float64); priority::Int=0, value::Any=nothing)
-  state(ev) == processed && throw(EventProcessed(ev))
+  state(ev) === processed && throw(EventProcessed(ev))
   env = environment(ev)
   bev = ev.bev
   bev.value = value

@@ -6,7 +6,7 @@ struct Event <: AbstractEvent
 end
 
 function succeed(ev::Event; priority::Int=0, value::Any=nothing) :: Event
-  state(ev) != idle && throw(EventNotIdle(ev))
+  state(ev) !== idle && throw(EventNotIdle(ev))
   schedule(ev; priority=priority, value=value)
 end
 

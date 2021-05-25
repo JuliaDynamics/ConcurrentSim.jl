@@ -21,7 +21,7 @@ mutable struct Process <: DiscreteProcess
 end
 
 macro process(expr)
-  expr.head != :call && error("Expression is not a function call!")
+  expr.head !== :call && error("Expression is not a function call!")
   esc(:(Process($(expr.args...))))
 end
 
@@ -31,7 +31,7 @@ function execute(ev::AbstractEvent, proc::Process)
     set_active_process(env, proc)
     target = proc.fsmi(value(ev))
     reset_active_process(env)
-    if proc.fsmi._state == 0xff
+    if proc.fsmi._state === 0xff
       schedule(proc; value=target)
     else
       proc.target = state(target) == processed ? timeout(env; value=value(target)) : target
@@ -56,7 +56,7 @@ end
 
 function interrupt(proc::Process, cause::Any=nothing)
   env = environment(proc)
-  if proc.fsmi._state != 0xff
+  if proc.fsmi._state !== 0xff
     proc.target isa Initialize && schedule(proc.target; priority=typemax(Int))
     target = schedule(Interrupt(env); priority=typemax(Int), value=InterruptException(active_process(env), cause))
     @callback execute_interrupt(target, proc)
