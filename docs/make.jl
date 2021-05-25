@@ -11,7 +11,8 @@ makedocs(
     "Topical Guides" => ["Basics" => "guides/basics.md",
                          "Environments" => "guides/environments.md",
                          "Events" => "guides/events.md",],
-    "Examples" => ["Ross" => "examples/ross.md",],
+    "Examples" => ["Ross" => "examples/ross.md", "Latency" =>
+                   "examples/Latency.md"],
     "API" => "api.md"
   ]
 )
