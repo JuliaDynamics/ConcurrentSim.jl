@@ -45,7 +45,7 @@ end
 function do_put(sto::Store{T}, put_ev::Put, key::StorePutKey{T}) where {T}
   if sto.load < sto.capacity
     sto.load += one(UInt)
-    sto.items[key.item] = get!(sto.items, key.item, zero(UInt)) + one(UInt)
+    sto.items[key.item] = get(sto.items, key.item, zero(UInt)) + one(UInt)
     schedule(put_ev)
   end
   false
