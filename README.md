@@ -35,6 +35,8 @@ julia> Pkg.add("SimJulia")
 
 ## Release Notes
 
+* v0.8.2 (2021)
+  * implementation of Store based on a Dict
 * v0.8.1 (2021)
   * some minor bug fixes
   * uses ResumableFunctions v0.6 or higher 
