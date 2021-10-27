@@ -1,5 +1,5 @@
 struct ContainerKey{N<:Real} <: ResourceKey
-  priority :: Int
+  priority :: Real
   id :: UInt
   amount :: N
 end
@@ -22,7 +22,7 @@ end
 
 const Resource = Container{Int}
 
-function put(con::Container{N}, amount::N; priority::Int=0) where N<:Real
+function put(con::Container{N}, amount::N; priority::Real=0) where N<:Real
   put_ev = Put(con.env)
   con.put_queue[put_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   @callback trigger_get(put_ev, con)
@@ -30,9 +30,9 @@ function put(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   put_ev
 end
 
-request(res::Resource; priority::Int=0) = put(res, 1; priority=priority)
+request(res::Resource; priority::Real=0) = put(res, 1; priority=priority)
 
-function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
+function get(con::Container{N}, amount::N; priority::Real=0) where N<:Real
   get_ev = Get(con.env)
   con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)
   @callback trigger_put(get_ev, con)
@@ -40,7 +40,7 @@ function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   get_ev
 end
 
-release(res::Resource; priority::Int=0) = get(res, 1; priority=priority)
+release(res::Resource; priority::Real=0) = get(res, 1; priority=priority)
 
 function do_put(con::Container{N}, put_ev::Put, key::ContainerKey{N}) where N<:Real
   con.level + key.amount > con.capacity && return false
