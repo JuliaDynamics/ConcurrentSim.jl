@@ -41,10 +41,12 @@ end
 function value(ev::AbstractEvent)::Any
     ev.bev.value
 end
+value(ev::Nothing) = nothing
 
 function state(ev::AbstractEvent)::EVENT_STATE
     ev.bev.state
 end
+state(ev::Nothing) = processed
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...)::Function
     ev.bev.state === processed && throw(EventProcessed(ev))

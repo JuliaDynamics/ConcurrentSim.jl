@@ -58,7 +58,9 @@ end
 function AllOf(events...)
     Operator(eval_and, events...)
 end
+AllOf() = nothing
 
 function AnyOf(events...)
     Operator(eval_or, events...)
 end
+AnyOf() = nothing
