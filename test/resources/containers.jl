@@ -1,6 +1,6 @@
 using SimJulia
 
-@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
+@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Real)
   println("$(now(sim)), client $i is waiting")
   @yield request(res, priority=priority)
   println("$(now(sim)), client $i is being served")

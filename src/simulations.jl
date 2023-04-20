@@ -10,7 +10,7 @@ struct EmptySchedule <: Exception end
 
 struct EventKey
     time::Float64
-    priority::Int
+    priority::Real
     id::UInt
 end
 
