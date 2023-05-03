@@ -1,4 +1,4 @@
-using SimJulia
+using Simulvent
 using Dates
 
 @resumable function datetimetest(sim::Simulation)

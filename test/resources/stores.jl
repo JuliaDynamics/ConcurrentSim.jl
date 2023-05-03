@@ -1,4 +1,4 @@
-using SimJulia
+using Simulvent
 
 struct StoreObject
   i :: Int

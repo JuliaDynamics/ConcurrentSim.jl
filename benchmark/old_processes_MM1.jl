@@ -1,4 +1,4 @@
-using SimJulia, Distributions, BenchmarkTools
+using Simulvent, Distributions, BenchmarkTools
 
 function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float64)
   while true

@@ -1,11 +1,11 @@
 """
-Main module for SimJulia.jl – a discrete event process oriented simulation framework for Julia.
+Main module for Simulvent.jl – a discrete event process oriented simulation framework for Julia.
 """
-module SimJulia
+module Simulvent
 
   using DataStructures
   using Dates
-  using ResumableFunctions
+  using Semicoroutines
 
   import Base.run, Base.isless, Base.show, Base.yield, Base.get
   import Base.(&), Base.(|)

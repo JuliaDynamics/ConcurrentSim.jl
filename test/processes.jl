@@ -1,5 +1,5 @@
-using SimJulia
-using ResumableFunctions
+using Simulvent
+using Semicoroutines
 
 @resumable function fibonnaci(sim::Simulation)
   a = 0
@@ -32,7 +32,7 @@ end
   try
     @yield timeout(sim, 10)
   catch exc
-    if isa(exc, SimJulia.InterruptException)
+    if isa(exc, Simulvent.InterruptException)
       println("$(active_process(sim)) interrupted")
     end
   end
