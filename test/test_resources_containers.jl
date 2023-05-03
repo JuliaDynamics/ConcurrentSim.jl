@@ -1,4 +1,5 @@
 using ConcurrentSim
+using Semicoroutines
 
 @resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
   println("$(now(sim)), client $i is waiting")

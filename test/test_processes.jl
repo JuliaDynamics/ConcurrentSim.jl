@@ -1,6 +1,8 @@
 using ConcurrentSim
 using Semicoroutines
 
+struct TestException <: Exception end
+
 @resumable function fibonnaci(sim::Simulation)
   a = 0
   b = 1

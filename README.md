@@ -23,7 +23,7 @@
     <tr>
         <td>Static analysis with</td>
         <td>
-            TODO <a href="https://github.com/aviatesk/JET.jl"><img src="https://img.shields.io/badge/JET.jl-%E2%9C%88%EF%B8%8F-9cf" alt="JET static analysis"></a>
+            <a href="https://github.com/aviatesk/JET.jl"><img src="https://img.shields.io/badge/JET.jl-%E2%9C%88%EF%B8%8F-9cf" alt="JET static analysis"></a>
             <a href="https://github.com/JuliaTesting/Aqua.jl"><img src="https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg" alt="Aqua QA"></a>
         </td>
     </tr>
@@ -33,8 +33,3 @@
 A discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/).
 
 `ConcurrentSim.jl` is a fork Ben Lauwens' of `SimJulia.jl`.
-
-## Todo
-
-* Transparent statistics gathering for resources.
-* Update of documentation.

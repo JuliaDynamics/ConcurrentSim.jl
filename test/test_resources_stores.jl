@@ -1,4 +1,5 @@
 using ConcurrentSim
+using Semicoroutines
 
 struct StoreObject
   i :: Int
