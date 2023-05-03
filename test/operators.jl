@@ -1,4 +1,4 @@
-using SimJulia
+using ConcurrentSim
 
 function and_callback(ev::AbstractEvent)
   println("Both events are triggered: $(value(ev))")

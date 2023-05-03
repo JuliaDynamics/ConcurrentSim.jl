@@ -1,4 +1,4 @@
-using SimJulia
+using ConcurrentSim
 
 struct StoreObject
   i :: Int

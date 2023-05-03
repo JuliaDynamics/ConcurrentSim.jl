@@ -1,4 +1,4 @@
-using SimJulia
+using ConcurrentSim
 
 function test_callback(ev::Event)
   println("I am a callback function running in $(typeof(environment(ev)))")

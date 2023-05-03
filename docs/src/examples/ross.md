@@ -16,8 +16,8 @@ The system is said to “crash” when a machine fails and no spares are availab
 
 ```jldoctest
 using Distributions
-using ResumableFunctions
-using SimJulia
+using Semicoroutines
+using ConcurrentSim
 
 const RUNS = 5
 const N = 10
@@ -36,7 +36,7 @@ const G = Exponential(MU)
         @yield timeout(env, rand(F))
         get_spare = get(spares)
         @yield get_spare | timeout(env)
-        if state(get_spare) != SimJulia.idle 
+        if state(get_spare) != ConcurrentSim.idle 
             @yield interrupt(value(get_spare))
         else
             throw(StopSimulation("No more spares!"))

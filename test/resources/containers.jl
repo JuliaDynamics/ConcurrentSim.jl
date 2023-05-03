@@ -1,4 +1,4 @@
-using SimJulia
+using ConcurrentSim
 
 @resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
   println("$(now(sim)), client $i is waiting")
@@ -29,7 +29,7 @@ run(sim)
     @yield timeout(sim, 1.0*rand())
     get_ev = get(con, amount)
     val = @yield get_ev | timeout(sim, rand())
-    if val[get_ev].state == SimJulia.processed
+    if val[get_ev].state == ConcurrentSim.processed
       println("$(now(sim)), consumer is being served, level is ", con.level)
       delay = 5.0*rand()
       @yield timeout(sim, delay)

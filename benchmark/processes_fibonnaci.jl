@@ -1,4 +1,4 @@
-using ResumableFunctions, SimJulia, BenchmarkTools
+using Semicoroutines, ConcurrentSim, BenchmarkTools
 
 @resumable function fibonnaci(sim::Simulation)
   a = 0.0

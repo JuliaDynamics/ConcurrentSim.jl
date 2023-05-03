@@ -1,10 +1,10 @@
 using Documenter
-using ResumableFunctions
-using SimJulia
+using Semicoroutines
+using ConcurrentSim
 
 makedocs(
-  sitename = "SimJulia",
-  authors = "Ben Lauwens",
+  sitename = "ConcurrentSim",
+  authors = "ConcurrentSim contributors",
   pages    = [
     "Home" => "index.md",
     "Tutorial" => "tutorial.md",
@@ -18,5 +18,5 @@ makedocs(
 )
 
 deploydocs(
-  repo = "github.com/BenLauwens/SimJulia.jl.git"
+  repo = "github.com/QuantumSavory/ConcurrentSim.jl.git"
 )

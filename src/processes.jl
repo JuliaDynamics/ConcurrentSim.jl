@@ -7,7 +7,7 @@ end
 
 mutable struct Process <: DiscreteProcess
   bev :: BaseEvent
-  fsmi :: ResumableFunctions.FiniteStateMachineIterator
+  fsmi :: Semicoroutines.FiniteStateMachineIterator
   target :: AbstractEvent
   resume :: Function
   function Process(func::Function, env::Environment, args...; kwargs...)
