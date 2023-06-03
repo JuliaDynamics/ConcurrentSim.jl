@@ -4,6 +4,8 @@ ConcurrentSim is a discrete-event process-oriented simulation framework written 
 
 The documentation contains a tutorial, topical guides explaining key concepts, a number of examples and the API reference. The tutorial, the topical guides and some examples are borrowed from SimPy to allow a direct comparison and an easy migration path for users. The differences between ConcurrentSim and SimPy are clearly documented.
 
+`ConcurrentSim.jl` used to be known as `SimJulia.jl` until 2023. It is one of the longest-lived Julia packages.
+
 ## Example
 
 A short example simulating two clocks ticking in different time intervals looks like this:
@@ -38,6 +40,3 @@ slow 1.0
 fast 1.0
 fast 1.5
 ```
-
-
-`ConcurrentSim.jl` is a fork of Ben Lauwens' `SimJulia.jl`.
