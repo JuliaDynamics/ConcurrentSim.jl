@@ -34,5 +34,6 @@ println("Starting tests with $(Threads.nthreads()) threads out of `Sys.CPU_THREA
 @doset "resources_containers"
 @doset "resources_stores"
 @doset "utils_time"
-VERSION >= v"1.8" && @doset "aqua"
+VERSION >= v"1.9" && @doset "doctests"
+VERSION >= v"1.9" && @doset "aqua"
 get(ENV,"JET_TEST","")=="true" && @doset "jet"

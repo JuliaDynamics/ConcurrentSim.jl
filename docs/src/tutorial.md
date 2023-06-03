@@ -338,7 +338,7 @@ julia> sim = Simulation()
 ConcurrentSim.Simulation time: 0.0 active_process: nothing
 
 julia> bcs = Resource(sim, 2)
-ConcurrentSim.Container{Int64}
+ConcurrentSim.Resource
 ```
 
 We can now create the car processes and pass a reference to our resource as well as some additional parameters to them

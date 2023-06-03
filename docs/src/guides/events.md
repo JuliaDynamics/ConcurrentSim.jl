@@ -51,7 +51,7 @@ julia> ev = Event(sim)
 ConcurrentSim.Event 1
 
 julia> @callback my_callback(ev)
-(::#3) (generic function with 1 method)
+#1 (generic function with 1 method)
 
 julia> succeed(ev)
 ConcurrentSim.Event 1

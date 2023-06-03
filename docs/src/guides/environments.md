@@ -101,17 +101,15 @@ ConcurrentSim.Simulation time: 0.0 active_process: nothing
 julia> @process my_proc(sim)
 ConcurrentSim.Process 1
 
-julia> active_process(sim)
-ERROR: NullException()
-[...]
+julia> isnothing(active_process(sim))
+true
 
 julia> ConcurrentSim.step(sim)
 ConcurrentSim.Process 1
 ConcurrentSim.Process 1
 
-julia> active_process(sim)
-ERROR: NullException()
-[...]
+julia> isnothing(active_process(sim))
+true
 ```
 
 An exemplary use case for this is the resource system: If a process function calls `request` to request a `Resource`, the resource determines the requesting process via `active_process`.
