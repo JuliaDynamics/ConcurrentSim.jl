@@ -1,24 +1,43 @@
-# SimJulia
+# ConcurrentSim (formerly SimJulia)
 
-A discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/).
+<table>
+    <tr>
+        <td>Documentation</td>
+        <td>
+            <a href="https://juliadynamics.github.io/ConcurrentSim.jl/stable"><img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Documentation of latest stable version"></a>
+            <a href="https://juliadynamics.github.io/ConcurrentSim.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Documentation of dev version"></a>
+        </td>
+    </tr><tr></tr>
+    <tr>
+        <td>Continuous integration</td>
+        <td>
+            <a href="https://github.com/JuliaDynamics/ConcurrentSim.jl/actions?query=workflow%3ACI+branch%3Amaster"><img src="https://img.shields.io/github/actions/workflow/status/JuliaDynamics/ConcurrentSim.jl/ci.yml?branch=master" alt="GitHub Workflow Status"></a>
+        </td>
+    </tr><tr></tr>
+    <tr>
+        <td>Code coverage</td>
+        <td>
+            <a href="https://codecov.io/gh/JuliaDynamics/ConcurrentSim.jl"><img src="https://img.shields.io/codecov/c/gh/JuliaDynamics/ConcurrentSim.jl?label=codecov" alt="Test coverage from codecov"></a>
+        </td>
+    </tr><tr></tr>
+    <tr>
+        <td>Static analysis with</td>
+        <td>
+            <a href="https://github.com/aviatesk/JET.jl"><img src="https://img.shields.io/badge/JET.jl-%E2%9C%88%EF%B8%8F-9cf" alt="JET static analysis"></a>
+            <a href="https://github.com/JuliaTesting/Aqua.jl"><img src="https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg" alt="Aqua QA"></a>
+        </td>
+    </tr>
+</table>
 
-## Build Status & Coverage
-
-[![Build Status](https://github.com/benlauwens/SimJulia.jl/workflows/CI/badge.svg)](https://github.com/benlauwens/SimJulia.jl/actions?query=workflow%3ACI+branch%3Amaster)
-[![codecov](https://codecov.io/gh/BenLauwens/SimJulia.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/BenLauwens/SimJulia.jl)
+A discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/). One of the longest-lived Julia packages (originally under the name SimJulia).
 
 ## Installation
 
-SimJulia.jl is a [registered package](http://pkg.julialang.org), and is installed by running
+ConcurrentSim.jl is a [registered package](http://pkg.julialang.org), and is installed by running
 
 ```julia
-julia> Pkg.add("SimJulia")
+julia> Pkg.add("ConcurrentSim")
 ```
-
-## Documentation
-
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://BenLauwens.github.io/SimJulia.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://BenLauwens.github.io/SimJulia.jl/latest)
 
 ## License
 
@@ -27,6 +46,7 @@ julia> Pkg.add("SimJulia")
 ## Authors
 
 * Ben Lauwens, Royal Military Academy, Brussels, Belgium.
+* Maintainer volunteers from the JuliaDynamics and QuantumSavory organizations.
 
 ## Contributing
 
@@ -35,38 +55,4 @@ julia> Pkg.add("SimJulia")
 
 ## Release Notes
 
-* v0.8.2 (2021)
-  * implementation of Store based on a Dict
-* v0.8.1 (2021)
-  * some minor bug fixes
-  * uses ResumableFunctions v0.6 or higher 
-* v0.8 (2019)
-  * adds support for Julia v1.2.
-* v0.7 (2018)
-  * adds support for Julia v1.0
-* v0.6 (2018)
-  * adds support for Julia v0.7.
-  * the `@oldprocess` macro and the `produce` / `consume` functions are removed because they are no longer supported.
-* v0.5 (2018)
-  * The old way of making processes is deprecated in favor of the semi-coroutine approach as implemented in [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git). The `@process` macro replaces the `@coroutine` macro. The old `@process` macro is temporarily renamed `@oldprocess` and will be removed when the infrastructure supporting the `produce` and the `consume` functions is no longer available in Julia. (DONE)
-  * This version no longer integrates a continuous time solver. A continuous simulation framework based on [DISCO](http://www.akira.ruc.dk/~keld/research/DISCO/) and inspired by the standalone [QSS](https://sourceforge.net/projects/qssengine/) solver using SimJulia as its discrete-event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git) (WIP):
-  * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) (WIP: Overview and Tutorial OK).
-* v0.4.1 (2017)
-  * the `@resumable` and `@yield` macros are put in a seperate package [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git):
-  * Users have to take into account the following syntax change: `@yield return arg` is replaced by `@yield arg`.
-* v0.4 (2017) only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic. The discrete event features are on par with v0.3 (SimPy v3) and following features are added:
-  * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`
-  * Two ways of making `Processes` are provided:
-    - using the existing concept of `Tasks`
-    - using a novel finite-statemachine approach
-  * A continuous time solver based on the standalone [QSS](https://sourceforge.net/projects/qssengine/) solver is implemented. Only non-stiff systems can be solved efficiently.
-* v0.3 (2015) synchronizes the API with SimPy v3 and is Julia v0.3, v0.4 and v0.5 compatible:
-  * Documentation is available at [readthedocs](http://simjuliajl.readthedocs.org/en/latest/).
-  * The continuous time solver is not implemented.
-* v0.2 (2014) introduces a continuous time solver inspired by the Simula library [DISCO](http://www.akira.ruc.dk/~keld/research/DISCO/) and is Julia v0.2 and v0.3 compatible.
-* v0.1 (2013) is a Julia clone of SimPy v2 and is Julia v0.2 compatible.
-
-## Todo
-
-* Transparent statistics gathering for resources.
-* Update of documentation.
+A [detailed change log is kept](https://github.com/JuliaDynamics/ConcurrentSim.jl/blob/master/CHANGELOG.md).

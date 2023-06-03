@@ -7,9 +7,9 @@ Simjulia is a discrete-event simulation library. The behavior of active componen
 Processes are described by `@resumable` functions. You can call them process function. During their lifetime, they create events and `@yield` them in order to wait for them to be triggered.
 
 !!! note
-    Detailed information about the `@resumable` and the `@yield` macros can be found in the documentation of [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git).
+    Detailed information about the `@resumable` and the `@yield` macros can be found in the documentation of [ResumableFunctions](https://github.com/JuliaDynamics/ResumableFunctions.jl.git).
 
-When a process yields an event, the process gets suspended. SimJulia resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. SimJulia resumes them in the same order in which they yielded that event.
+When a process yields an event, the process gets suspended. ConcurrentSim resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. ConcurrentSim resumes them in the same order in which they yielded that event.
 
 An important event type is the `timeout`. Events of this type are scheduled after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A `timeout` and all other events can be created by calling a constructor having the environment as first argument.
 
@@ -22,7 +22,7 @@ So let’s start:
 ```jldoctest
 julia> using ResumableFunctions
 
-julia> using SimJulia
+julia> using ConcurrentSim
 
 julia> @resumable function car(env::Environment)
            while true
@@ -46,7 +46,7 @@ Now that the behavior of our car has been modeled, lets create an instance of it
 ```@meta
 DocTestSetup = quote
   using ResumableFunctions
-  using SimJulia
+  using ConcurrentSim
 
   @resumable function car(env::Environment)
     while true
@@ -63,10 +63,10 @@ end
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation time: 0.0 active_process: nothing
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
 
 julia> @process car(sim)
-SimJulia.Process 1
+ConcurrentSim.Process 1
 
 julia> run(sim, 15)
 Start parking at 0.0
@@ -94,7 +94,7 @@ The `Process` instance that is returned by `@process` macro can be utilized for 
 
 ### Waiting for a Process
 
-As it happens, a SimJulia `Process` can be used like an event. If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish, or an airport simulation where passengers have to wait until a security check finishes.
+As it happens, a ConcurrentSim `Process` can be used like an event. If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish, or an airport simulation where passengers have to wait until a security check finishes.
 
 Lets assume that the car from our last example is an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.
 
@@ -105,7 +105,7 @@ A new charge process is started every time the vehicle starts parking. By yieldi
 ```jldoctest
 julia> using ResumableFunctions
 
-julia> using SimJulia
+julia> using ConcurrentSim
 
 julia> @resumable function charge(env::Environment, duration::Number)
          @yield timeout(env, duration)
@@ -130,7 +130,7 @@ car (generic function with 1 method)
 DocTestSetup = quote
   using ResumableFunctions
 
-  using SimJulia
+  using ConcurrentSim
 
   @resumable function charge(env::Environment, duration::Number)
     @yield timeout(env, duration)
@@ -154,10 +154,10 @@ Starting the simulation is straightforward again: We create a `Simulation`, one 
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation time: 0.0 active_process: nothing
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
 
 julia> @process car(sim)
-SimJulia.Process 1
+ConcurrentSim.Process 1
 
 julia> run(sim, 15)
 Start parking and charging at 0.0
@@ -175,12 +175,12 @@ DocTestSetup = nothing
 
 Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
 
-SimJulia allows you to interrupt a running process by calling the `interrupt` function:
+ConcurrentSim allows you to interrupt a running process by calling the `interrupt` function:
 
 ```jldoctest
 julia> using ResumableFunctions
 
-julia> using SimJulia
+julia> using ConcurrentSim
 
 julia> @resumable function driver(env::Environment, car_process::Process)
          @yield timeout(env, 3)
@@ -196,7 +196,7 @@ Interrupts are thrown into process functions as `Interrupt` exceptions that can 
 ```@meta
 DocTestSetup = quote
   using ResumableFunctions
-  using SimJulia
+  using ConcurrentSim
 end
 ```
 
@@ -229,7 +229,7 @@ When you compare the output of this simulation with the previous example, you’
 ```@meta
 DocTestSetup = quote
   using ResumableFunctions
-  using SimJulia
+  using ConcurrentSim
 
   @resumable function driver(env::Environment, car_process::Process)
     @yield timeout(env, 3)
@@ -260,13 +260,13 @@ end
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation time: 0.0 active_process: nothing
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
 
 julia> car_process = @process car(sim)
-SimJulia.Process 1
+ConcurrentSim.Process 1
 
 julia> @process driver(sim, car_process)
-SimJulia.Process 3
+ConcurrentSim.Process 3
 
 julia> run(sim, 15)
 Start parking and charging at 0.0
@@ -283,9 +283,9 @@ DocTestSetup = nothing
 
 ## Shared Resources
 
-SimJulia offers three types of resources that help you modeling problems, where multiple processes want to use a resource of limited capacity (e.g., cars at a fuel station with a limited number of fuel pumps) or classical producer-consumer problems.
+ConcurrentSim offers three types of resources that help you modeling problems, where multiple processes want to use a resource of limited capacity (e.g., cars at a fuel station with a limited number of fuel pumps) or classical producer-consumer problems.
 
-In this section, we’ll briefly introduce SimJulia’s `Resource` class.
+In this section, we’ll briefly introduce ConcurrentSim’s `Resource` class.
 
 ### Basic Resource Usage
 
@@ -296,7 +296,7 @@ The car will now drive to a battery charging station (BCS) and request one of it
 ```jldoctest
 julia> using ResumableFunctions
 
-julia> using SimJulia
+julia> using ConcurrentSim
 
 julia> @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
          @yield timeout(sim, driving_time)
@@ -319,7 +319,7 @@ A resource needs a reference to an `Environment` and a capacity when it is creat
 ```@meta
 DocTestSetup = quote
   using ResumableFunctions
-  using SimJulia
+  using ConcurrentSim
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
     @yield timeout(sim, driving_time)
@@ -335,10 +335,10 @@ end
 
 ```jldoctest
 julia> sim = Simulation()
-SimJulia.Simulation time: 0.0 active_process: nothing
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
 
 julia> bcs = Resource(sim, 2)
-SimJulia.Container{Int64}
+ConcurrentSim.Resource
 ```
 
 We can now create the car processes and pass a reference to our resource as well as some additional parameters to them
@@ -346,7 +346,7 @@ We can now create the car processes and pass a reference to our resource as well
 ```@meta
 DocTestSetup = quote
   using ResumableFunctions
-  using SimJulia
+  using ConcurrentSim
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
     @yield timeout(sim, driving_time)
@@ -388,7 +388,7 @@ Finally, we can start the simulation. Since the car processes all terminate on t
 ```@meta
 DocTestSetup = quote
   using ResumableFunctions
-  using SimJulia
+  using ConcurrentSim
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
     @yield timeout(sim, driving_time)

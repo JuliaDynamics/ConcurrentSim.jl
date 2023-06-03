@@ -1,7 +1,7 @@
 """
-Main module for SimJulia.jl – a discrete event process oriented simulation framework for Julia.
+Main module for ConcurrentSim.jl – a discrete event process oriented simulation framework for Julia.
 """
-module SimJulia
+module ConcurrentSim
 
   using DataStructures
   using Dates

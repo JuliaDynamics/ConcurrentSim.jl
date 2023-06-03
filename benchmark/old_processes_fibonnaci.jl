@@ -1,4 +1,4 @@
-using SimJulia, BenchmarkTools
+using ConcurrentSim, BenchmarkTools
 
 function fibonnaci(sim::Simulation)
   a = 0.0

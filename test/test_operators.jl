@@ -1,4 +1,6 @@
-using SimJulia
+using ConcurrentSim
+
+struct TestException <: Exception end
 
 function and_callback(ev::AbstractEvent)
   println("Both events are triggered: $(value(ev))")

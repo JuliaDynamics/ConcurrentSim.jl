@@ -6,7 +6,7 @@ The base type for all environments is `Environment`. “Normal” simulations us
 
 ## Simulation control
 
-SimJulia is very flexible in terms of simulation execution. You can run your simulation until there are no more events, until a certain simulation time is reached, or until a certain event is triggered. You can also step through the simulation event by event. Furthermore, you can mix these things as you like.
+ConcurrentSim is very flexible in terms of simulation execution. You can run your simulation until there are no more events, until a certain simulation time is reached, or until a certain event is triggered. You can also step through the simulation event by event. Furthermore, you can mix these things as you like.
 
 For example, you could run your simulation until an interesting event occurs. You could then step through the simulation event by event for a while; and finally run the simulation until there are no more events left and your processes have all terminated.
 
@@ -36,7 +36,7 @@ end
 
 ```jldoctest
 using ResumableFunctions
-using SimJulia
+using ConcurrentSim
 
 @resumable function my_process(env::Environment)
   @yield timeout(env, 1)
@@ -79,7 +79,7 @@ Thus, it only makes sense to call this function from within a process function o
 ```jldoctest
 julia> using ResumableFunctions
 
-julia> using SimJulia
+julia> using ConcurrentSim
 
 julia> function subfunc(env::Environment)
          println(active_process(env))
@@ -96,22 +96,20 @@ julia> @resumable function my_proc(env::Environment)
 my_proc (generic function with 1 method)
 
 julia> sim = Simulation()
-SimJulia.Simulation time: 0.0 active_process: nothing
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
 
 julia> @process my_proc(sim)
-SimJulia.Process 1
+ConcurrentSim.Process 1
 
-julia> active_process(sim)
-ERROR: NullException()
-[...]
+julia> isnothing(active_process(sim))
+true
 
-julia> SimJulia.step(sim)
-SimJulia.Process 1
-SimJulia.Process 1
+julia> ConcurrentSim.step(sim)
+ConcurrentSim.Process 1
+ConcurrentSim.Process 1
 
-julia> active_process(sim)
-ERROR: NullException()
-[...]
+julia> isnothing(active_process(sim))
+true
 ```
 
 An exemplary use case for this is the resource system: If a process function calls `request` to request a `Resource`, the resource determines the requesting process via `active_process`.
@@ -127,7 +125,7 @@ A generator function can have a return value:
 end
 ```
 
-In SimJulia, this can be used to provide return values for processes that can be used by other processes:
+In ConcurrentSim, this can be used to provide return values for processes that can be used by other processes:
 
 ```julia
 @resumable function other_proc(env::Environment)

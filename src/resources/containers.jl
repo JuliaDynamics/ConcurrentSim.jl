@@ -16,7 +16,7 @@ mutable struct Container{N<:Real} <: AbstractResource
   end
 end
 
-function Container(env::Environment, capacity::N=one(N); level::N=zero(N)) where N<:Real
+function Container(env::Environment, capacity::N=one(N); level::N=zero(N)) where {N<:Real}
   Container{N}(env, capacity, level=level)
 end
 

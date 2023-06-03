@@ -15,9 +15,12 @@ The system is said to “crash” when a machine fails and no spares are availab
 ### Code
 
 ```jldoctest
-using Distributions
 using ResumableFunctions
-using SimJulia
+using ConcurrentSim
+
+using Distributions
+using Random
+using StableRNGs
 
 const RUNS = 5
 const N = 10
@@ -26,23 +29,23 @@ const SEED = 150
 const LAMBDA = 100
 const MU = 1
 
-srand(SEED)
+const rng = StableRNG(42) # setting a random seed for reproducibility
 const F = Exponential(LAMBDA)
 const G = Exponential(MU)
 
 @resumable function machine(env::Environment, repair_facility::Resource, spares::Store{Process})
     while true
-        try @yield timeout(env, Inf) end
-        @yield timeout(env, rand(F))
+        try @yield timeout(env, Inf) catch end
+        @yield timeout(env, rand(rng, F))
         get_spare = get(spares)
         @yield get_spare | timeout(env)
-        if state(get_spare) != SimJulia.idle 
+        if state(get_spare) != ConcurrentSim.idle 
             @yield interrupt(value(get_spare))
         else
             throw(StopSimulation("No more spares!"))
         end
         @yield request(repair_facility)
-        @yield timeout(env, rand(G))
+        @yield timeout(env, rand(rng, G))
         @yield release(repair_facility)
         @yield put(spares, active_process(env))
     end
@@ -76,10 +79,10 @@ println("Average crash time: ", sum(results)/RUNS)
 
 # output
 
-At time 5573.772841846017: No more spares!
-At time 1438.0294516073466: No more spares!
-At time 7077.413276961621: No more spares!
-At time 7286.490682742159: No more spares!
-At time 6820.788098062124: No more spares!
-Average crash time: 5639.298870243853
+At time 12715.718224958666: No more spares!
+At time 37335.53567595007: No more spares!
+At time 30844.62667837361: No more spares!
+At time 1601.2524911974856: No more spares!
+At time 824.1048708405848: No more spares!
+Average crash time: 16664.247588264083
 ```

@@ -1,11 +1,11 @@
-name = "SimJulia"
-uuid = "428bdadb-6287-5aa5-874b-9969638295fd"
+name = "ConcurrentSim"
+uuid = "6ed1e86c-fcaf-46a9-97e0-2b26a2cdb499"
 keywords = ["discrete-even simulation"]
 license = "MIT"
 desc = "A discrete event process oriented simulation framework."
-authors = ["Ben Lauwens <ben.lauwens@gmail.com>"]
-repo = "https://github.com/BenLauwens/SimJulia.jl.git"
-version = "0.8.2"
+authors = ["Ben Lauwens and SimJulia and ConcurrentSim contributors"]
+repo = "https://github.com/JuliaDynamics/ConcurrentSim.jl.git"
+version = "1.0.0"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
@@ -13,12 +13,6 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 ResumableFunctions = "c5292f4c-5179-55e1-98c5-05642aab7184"
 
 [compat]
-ResumableFunctions = "^0.6"
-DataStructures = "^0.18"
-julia = "^1.2"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
+DataStructures = "0.18"
+ResumableFunctions = "0.6"
+julia = "1.6"

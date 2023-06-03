@@ -1,4 +1,4 @@
-using ResumableFunctions, SimJulia, Distributions, BenchmarkTools
+using ResumableFunctions, ConcurrentSim, Distributions, BenchmarkTools
 
 @resumable function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float64)
   while true

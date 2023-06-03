@@ -1,4 +1,5 @@
-using SimJulia
+using ConcurrentSim
+using ResumableFunctions
 using Dates
 
 @resumable function datetimetest(sim::Simulation)
