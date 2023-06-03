@@ -2,9 +2,9 @@
 
 ## v1.0.0 - 2023-05-03
 
-- For off from SimJulia.jl
+- Rename from SimJulia.jl to ConcurrentSim.jl
 
-## Changelog of SimJulia.jl before the fork
+## Changelog of SimJulia.jl before the renaming
 
 * v0.8.2 (2021)
   * implementation of Store based on a Dict

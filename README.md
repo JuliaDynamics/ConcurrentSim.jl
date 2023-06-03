@@ -1,4 +1,4 @@
-# ConcurrentSim
+# ConcurrentSim (formerly SimJulia)
 
 <table>
     <tr>
@@ -29,7 +29,30 @@
     </tr>
 </table>
 
+A discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/). One of the longest-lived Julia packages (originally under the name SimJulia).
 
-A discrete event process oriented simulation framework written in [Julia](http://julialang.org/) inspired by the Python library [SimPy](https://simpy.readthedocs.io/).
+## Installation
 
-`ConcurrentSim.jl` is a fork Ben Lauwens' of `SimJulia.jl`.
+ConcurrentSim.jl is a [registered package](http://pkg.julialang.org), and is installed by running
+
+```julia
+julia> Pkg.add("ConcurrentSim")
+```
+
+## License
+
+[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
+
+## Authors
+
+* Ben Lauwens, Royal Military Academy, Brussels, Belgium.
+* Maintainer volunteers from the JuliaDynamics and QuantumSavory organizations.
+
+## Contributing
+
+* To discuss problems or feature requests, file an issue. For bugs, please include as much information as possible, including operating system, julia version, and version of the dependencies: `DataStructures` and `ResumableFunctions`.
+* To contribute, make a pull request. Contributions should include tests for any new features/bug fixes.
+
+## Release Notes
+
+A [detailed change log is kept](https://github.com/JuliaDynamics/ConcurrentSim.jl/blob/master/CHANGELOG.md).
