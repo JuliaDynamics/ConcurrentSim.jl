@@ -35,7 +35,7 @@ end
   You can also pass other types of events (remember, that a `Process` is an event, too):
 
 ```jldoctest
-using Semicoroutines
+using ResumableFunctions
 using ConcurrentSim
 
 @resumable function my_process(env::Environment)
@@ -77,7 +77,7 @@ The function `active_process` is comparable to `Base.Libc.getpid` and returns th
 Thus, it only makes sense to call this function from within a process function or a function that is called by your process function:
 
 ```jldoctest
-julia> using Semicoroutines
+julia> using ResumableFunctions
 
 julia> using ConcurrentSim
 

@@ -3,16 +3,17 @@ uuid = "6ed1e86c-fcaf-46a9-97e0-2b26a2cdb499"
 keywords = ["discrete-even simulation"]
 license = "MIT"
 desc = "A discrete event process oriented simulation framework."
-authors = ["ConcurrentSim contributors", "Ben Lauwens of SimJulia"]
-repo = "https://github.com/QuantumSavory/ConcurrentSim.jl.git"
+authors = ["Ben Lauwens and SimJulia and ConcurrentSim contributors"]
+repo = "https://github.com/JuliaDynamics/ConcurrentSim.jl.git"
 version = "1.0.0"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-Semicoroutines = "b37d3d51-cc38-4fad-93cd-e6859934553f"
+ResumableFunctions = "c5292f4c-5179-55e1-98c5-05642aab7184"
 
 [compat]
 DataStructures = "0.18"
-Semicoroutines = "1"
+ResumableFunctions = "0.6"
 julia = "1.6"
+

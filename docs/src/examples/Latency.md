@@ -9,7 +9,7 @@ In this example we show how to separate the time delay between processes from th
 
 ```julia
 using ConcurrentSim
-using Semicoroutines
+using ResumableFunctions
 import  ConcurrentSim.put
 import Base.get
 ```

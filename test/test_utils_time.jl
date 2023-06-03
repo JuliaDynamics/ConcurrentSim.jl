@@ -1,5 +1,5 @@
 using ConcurrentSim
-using Semicoroutines
+using ResumableFunctions
 using Dates
 
 @resumable function datetimetest(sim::Simulation)

@@ -5,7 +5,7 @@ module ConcurrentSim
 
   using DataStructures
   using Dates
-  using Semicoroutines
+  using ResumableFunctions
 
   import Base.run, Base.isless, Base.show, Base.yield, Base.get
   import Base.(&), Base.(|)

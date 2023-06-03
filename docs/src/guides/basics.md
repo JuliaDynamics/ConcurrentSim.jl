@@ -17,7 +17,7 @@ If a process function yields an event, ConcurrentSim adds the process to the eve
 Here is a very simple example that illustrates all this:
 
 ```jldoctest
-using Semicoroutines
+using ResumableFunctions
 using ConcurrentSim
 
 @resumable function example(env::Environment)

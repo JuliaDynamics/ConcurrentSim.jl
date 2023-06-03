@@ -1,5 +1,5 @@
 using ConcurrentSim
-using Semicoroutines
+using ResumableFunctions
 
 struct StoreObject
   i :: Int

@@ -16,7 +16,7 @@ The system is said to “crash” when a machine fails and no spares are availab
 
 ```jldoctest
 using Distributions
-using Semicoroutines
+using ResumableFunctions
 using ConcurrentSim
 
 const RUNS = 5

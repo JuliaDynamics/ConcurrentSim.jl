@@ -7,7 +7,7 @@ Simjulia is a discrete-event simulation library. The behavior of active componen
 Processes are described by `@resumable` functions. You can call them process function. During their lifetime, they create events and `@yield` them in order to wait for them to be triggered.
 
 !!! note
-    Detailed information about the `@resumable` and the `@yield` macros can be found in the documentation of [Semicoroutines](https://github.com/QuantumSavory/Semicoroutines.jl.git).
+    Detailed information about the `@resumable` and the `@yield` macros can be found in the documentation of [ResumableFunctions](https://github.com/JuliaDynamics/ResumableFunctions.jl.git).
 
 When a process yields an event, the process gets suspended. ConcurrentSim resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. ConcurrentSim resumes them in the same order in which they yielded that event.
 
@@ -20,7 +20,7 @@ Our first example will be a car process. The car will alternately drive and park
 So let’s start:
 
 ```jldoctest
-julia> using Semicoroutines
+julia> using ResumableFunctions
 
 julia> using ConcurrentSim
 
@@ -45,7 +45,7 @@ Now that the behavior of our car has been modeled, lets create an instance of it
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
   using ConcurrentSim
 
   @resumable function car(env::Environment)
@@ -103,7 +103,7 @@ We can model this with an additional charge process for our car. Therefore, we r
 A new charge process is started every time the vehicle starts parking. By yielding the `Process` instance that the `@process` macro returns, the `run` process starts waiting for it to finish:
 
 ```jldoctest
-julia> using Semicoroutines
+julia> using ResumableFunctions
 
 julia> using ConcurrentSim
 
@@ -128,7 +128,7 @@ car (generic function with 1 method)
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
 
   using ConcurrentSim
 
@@ -178,7 +178,7 @@ Imagine, you don’t want to wait until your electric vehicle is fully charged b
 ConcurrentSim allows you to interrupt a running process by calling the `interrupt` function:
 
 ```jldoctest
-julia> using Semicoroutines
+julia> using ResumableFunctions
 
 julia> using ConcurrentSim
 
@@ -195,7 +195,7 @@ Interrupts are thrown into process functions as `Interrupt` exceptions that can 
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
   using ConcurrentSim
 end
 ```
@@ -228,7 +228,7 @@ When you compare the output of this simulation with the previous example, you’
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
   using ConcurrentSim
 
   @resumable function driver(env::Environment, car_process::Process)
@@ -294,7 +294,7 @@ We’ll slightly modify our electric vehicle process `car` that we introduced in
 The car will now drive to a battery charging station (BCS) and request one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards:
 
 ```jldoctest
-julia> using Semicoroutines
+julia> using ResumableFunctions
 
 julia> using ConcurrentSim
 
@@ -318,7 +318,7 @@ A resource needs a reference to an `Environment` and a capacity when it is creat
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
   using ConcurrentSim
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
@@ -345,7 +345,7 @@ We can now create the car processes and pass a reference to our resource as well
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
   using ConcurrentSim
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
@@ -387,7 +387,7 @@ Finally, we can start the simulation. Since the car processes all terminate on t
 
 ```@meta
 DocTestSetup = quote
-  using Semicoroutines
+  using ResumableFunctions
   using ConcurrentSim
 
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)

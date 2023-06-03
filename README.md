@@ -4,20 +4,20 @@
     <tr>
         <td>Documentation</td>
         <td>
-            <a href="https://quantumsavory.github.io/ConcurrentSim.jl/stable"><img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Documentation of latest stable version"></a>
-            <a href="https://quantumsavory.github.io/ConcurrentSim.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Documentation of dev version"></a>
+            <a href="https://juliadynamics.github.io/ConcurrentSim.jl/stable"><img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Documentation of latest stable version"></a>
+            <a href="https://juliadynamics.github.io/ConcurrentSim.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Documentation of dev version"></a>
         </td>
     </tr><tr></tr>
     <tr>
         <td>Continuous integration</td>
         <td>
-            <a href="https://github.com/QuantumSavory/ConcurrentSim.jl/actions?query=workflow%3ACI+branch%3Amaster"><img src="https://img.shields.io/github/actions/workflow/status/QuantumSavory/ConcurrentSim.jl/ci.yml?branch=master" alt="GitHub Workflow Status"></a>
+            <a href="https://github.com/JuliaDynamics/ConcurrentSim.jl/actions?query=workflow%3ACI+branch%3Amaster"><img src="https://img.shields.io/github/actions/workflow/status/JuliaDynamics/ConcurrentSim.jl/ci.yml?branch=master" alt="GitHub Workflow Status"></a>
         </td>
     </tr><tr></tr>
     <tr>
         <td>Code coverage</td>
         <td>
-            <a href="https://codecov.io/gh/QuantumSavory/ConcurrentSim.jl"><img src="https://img.shields.io/codecov/c/gh/QuantumSavory/ConcurrentSim.jl?label=codecov" alt="Test coverage from codecov"></a>
+            <a href="https://codecov.io/gh/JuliaDynamics/ConcurrentSim.jl"><img src="https://img.shields.io/codecov/c/gh/JuliaDynamics/ConcurrentSim.jl?label=codecov" alt="Test coverage from codecov"></a>
         </td>
     </tr><tr></tr>
     <tr>
