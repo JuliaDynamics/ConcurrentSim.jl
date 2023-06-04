@@ -11,16 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - nightly
-        os:
-          - ubuntu-latest
-        threads:
-          - '1'
-        jet:
-          - 'false'
-        arch:
-          - x64
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            version: nightly
+            threads: 2
+            jet: 'false'
+          - os: ubuntu-latest
+            arch: x64
+            version: '1'
+            threads: 2
+            jet: 'true'
     steps:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
