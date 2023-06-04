@@ -4,3 +4,4 @@ docs/build
 docs/site
 *.cov
 .DS_Store
+Manifest.toml
