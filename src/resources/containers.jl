@@ -1,5 +1,5 @@
-struct ContainerKey{N<:Real} <: ResourceKey
-  priority :: Number
+struct ContainerKey{T<:Number, N<:Real} <: ResourceKey
+  priority :: T
   id :: UInt
   amount :: N
 end
