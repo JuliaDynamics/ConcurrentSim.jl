@@ -1,7 +1,7 @@
 using ConcurrentSim
 using ResumableFunctions
 
-@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
+@resumable function client(sim::Simulation, res::Resource, i::Int, priority::Number)
   println("$(now(sim)), client $i is waiting")
   @yield request(res, priority=priority)
   println("$(now(sim)), client $i is being served")
