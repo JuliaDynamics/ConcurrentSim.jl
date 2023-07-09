@@ -2,7 +2,7 @@ struct StorePutKey{T, N<:Number} <: ResourceKey
   priority :: N
   id :: UInt
   item :: T
-  StorePutKey{T}(priority, id, item) where T = new(priority, id, item)
+  StorePutKey{T, N}(priority, id, item) where T, N = new(priority, id, item)
 end
 
 struct StoreGetKey{N<:Number} <: ResourceKey
