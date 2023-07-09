@@ -1,5 +1,5 @@
-struct StorePutKey{T} <: ResourceKey
-  priority :: Number
+struct StorePutKey{T, N<:Number} <: ResourceKey
+  priority :: N
   id :: UInt
   item :: T
   StorePutKey{T}(priority, id, item) where T = new(priority, id, item)
