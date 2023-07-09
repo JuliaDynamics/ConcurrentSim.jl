@@ -25,6 +25,6 @@ function timeout(env::Environment, delay::Number=0; priority::Number=0, value::A
   schedule(Timeout(env), delay; priority=priority, value=value)
 end
 
-function run(env::Environment, until::Number=typemax(Float64))
+function run(env::Environment, until::Number=Inf)
   run(env, timeout(env, until-now(env)))
 end
