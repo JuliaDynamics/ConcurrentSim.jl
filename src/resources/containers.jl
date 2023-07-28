@@ -55,3 +55,36 @@ function do_get(con::Container{N}, get_ev::Get, key::ContainerKey{N}) where N<:R
   con.level -= key.amount
   true
 end
+
+"""
+    isready(::Container)
+
+Returns `true` if the Container is not empty, similarly to the meaning of `isready` for `Base.Channel`.
+
+```jldoctest
+julia> sim = Simulation(); res = Resource(sim); isready(res)
+false
+
+julia> request(res); isready(res)
+true
+```
+"""
+isready(c::Container) = c.level > 0
+
+"""
+    islocked(::Container)
+
+Returns `true` if the store is full, similarly to the meaning of `islocked` for `Base.ReentrantLock`.
+
+```jldoctest
+julia> sim = Simulation(); res = Resource(sim); islocked(res)
+false
+
+julia> request(res); islocked(res)
+true
+```
+"""
+islocked(c::Container) = c.level==c.capacity
+
+unlock(c::Container) = release(c)
+lock(c::Container) = request(c)

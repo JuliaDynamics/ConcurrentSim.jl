@@ -19,8 +19,8 @@ mutable struct Store{T} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{T}}
   get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey}
-  function Store{T}(env::Environment; capacity::UInt=typemax(UInt)) where {T}
-    new(env, capacity, zero(UInt), Dict{T, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{T}}(), DataStructures.PriorityQueue{Get, StoreGetKey}())
+  function Store{T}(env::Environment; capacity=typemax(UInt)) where {T}
+    new(env, UInt(capacity), zero(UInt), Dict{T, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{T}}(), DataStructures.PriorityQueue{Get, StoreGetKey}())
   end
 end
 
@@ -66,3 +66,36 @@ function do_get(sto::Store{T}, get_ev::Get, key::StoreGetKey) where {T}
   end
   true
 end
+
+"""
+    isready(::Store)
+
+Returns `true` if the store is not empty, similarly to the meaning of `isready` for `Base.Channel`.
+
+```jldoctest
+julia> sim = Simulation(); store = Store{Symbol}(sim); isready(store)
+false
+
+julia> put!(store, :message); isready(store)
+true
+```
+"""
+isready(sto::Store) = sto.load > 0
+
+"""
+    islocked(::Store)
+
+Returns `true` if the store is full, similarly to the meaning of `islocked` for `Base.ReentrantLock`.
+
+```jldoctest
+julia> sim = Simulation(); store = Store{Symbol}(sim; capacity=1); islocked(store)
+false
+
+julia> put!(store, :message); islocked(store)
+true
+```
+"""
+islocked(sto::Store) = sto.load==sto.capacity
+
+unlock(::Store) = error("There is no well defined way to \"unlock\" a store. Instead of attempting `unlock` consider using `pop!(::Store)` or use a `Resource` instead of a `Store`.")
+lock(::Store) = error("There is no well defined way to \"lock\" a store. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`.")

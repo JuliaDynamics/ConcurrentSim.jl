@@ -7,7 +7,7 @@ module ConcurrentSim
   using Dates
   using ResumableFunctions
 
-  import Base: run, isless, show, yield, get, put!, &, |
+  import Base: run, isless, show, yield, get, put!, isready, islocked, unlock, lock, &, |
   import Dates: now
 
   export AbstractEvent, Environment, value, state, environment
