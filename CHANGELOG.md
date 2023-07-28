@@ -1,5 +1,8 @@
 # News
 
+## v1.0.1 - dev
+
+- Start using `Base`'s API: `lock`, `unlock`, `islocked`, `isready`, `get!` and deprecate `get`, `request`, `release`.
 ## v1.0.0 - 2023-05-03
 
 - Rename from SimJulia.jl to ConcurrentSim.jl
