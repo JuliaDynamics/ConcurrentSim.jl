@@ -47,7 +47,7 @@ const G = Exponential(MU)
         @yield request(repair_facility)
         @yield timeout(env, rand(rng, G))
         @yield release(repair_facility)
-        @yield put(spares, active_process(env))
+        @yield put!(spares, active_process(env))
     end
 end
 
@@ -58,7 +58,7 @@ end
     end
     for i in 1:S
         proc = @process machine(env, repair_facility, spares)
-        @yield put(spares, proc) 
+        @yield put!(spares, proc) 
     end
 end
 

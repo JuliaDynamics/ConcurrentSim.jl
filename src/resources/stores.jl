@@ -24,7 +24,7 @@ mutable struct Store{T} <: AbstractResource
   end
 end
 
-function put(sto::Store{T}, item::T; priority::Int=0) where T
+function put!(sto::Store{T}, item::T; priority::Int=0) where T
   put_ev = Put(sto.env)
   sto.put_queue[put_ev] = StorePutKey{T}(priority, sto.seid+=one(UInt), item)
   @callback trigger_get(put_ev, sto)

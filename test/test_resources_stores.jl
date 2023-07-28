@@ -17,7 +17,7 @@ end
 @resumable function my_producer(sim::Simulation, sto::Store)
   for j in 1:10
     println("$(now(sim)), producer is offering object $j")
-    @yield put(sto, StoreObject(j))
+    @yield put!(sto, StoreObject(j))
     println("$(now(sim)), producer is being served")
     @yield timeout(sim, 2*rand())
   end

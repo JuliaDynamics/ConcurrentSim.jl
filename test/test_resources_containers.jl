@@ -46,7 +46,7 @@ end
     amount = 2*rand()
     println("$(now(sim)), producer is offering $amount")
     @yield timeout(sim, 1.0*rand())
-    @yield put(con, amount)
+    @yield put!(con, amount)
     level = con.level
     println("$(now(sim)), producer is being served, level is ", level)
     delay = 5.0*rand()
@@ -58,4 +58,24 @@ sim = Simulation()
 con = Container(sim, 10.0; level=5.0)
 @process my_consumer(sim, con)
 @process my_producer(sim, con)
+run(sim)
+
+
+@resumable function my_producer_old_put(sim::Simulation, con::Container) # from before deprecating put
+  for i in 1:10
+    amount = 2*rand()
+    println("$(now(sim)), producer is offering $amount")
+    @yield timeout(sim, 1.0*rand())
+    @yield put(con, amount)
+    level = con.level
+    println("$(now(sim)), producer is being served, level is ", level)
+    delay = 5.0*rand()
+    @yield timeout(sim, delay)
+  end
+end
+
+sim = Simulation()
+con = Container(sim, 10.0; level=5.0)
+@process my_consumer(sim, con)
+@process my_producer_old_put(sim, con)
 run(sim)
