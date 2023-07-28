@@ -40,7 +40,7 @@ function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   get_ev
 end
 
-release(res::Resource; priority::Int=0) = get(res, 1; priority=priority)
+unlock(res::Resource; priority::Int=0) = get(res, 1; priority=priority)
 
 function do_put(con::Container{N}, put_ev::Put, key::ContainerKey{N}) where N<:Real
   con.level + key.amount > con.capacity && return false
@@ -88,5 +88,3 @@ true
 ```
 """
 islocked(c::Container) = c.level==c.capacity
-
-unlock(c::Container) = release(c)

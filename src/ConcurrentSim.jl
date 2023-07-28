@@ -17,7 +17,7 @@ module ConcurrentSim
   export @resumable, @yield
   export AbstractProcess, Simulation, run, now, active_process, StopSimulation
   export Process, @process, interrupt
-  export Container, Resource, Store, put!, get, release, cancel
+  export Container, Resource, Store, put!, get, cancel
   export nowDatetime
 
   include("base.jl")

@@ -25,7 +25,7 @@ service_dist = Exponential(1 / mu) # service time distribution
     @yield lock(server) # customer starts service
     println("Customer $id entered service: ", now(env))
     @yield timeout(env, rand(d_s)) # server is busy
-    @yield release(server) # customer exits service
+    @yield unlock(server) # customer exits service
     println("Customer $id exited service: ", now(env))
 end
 

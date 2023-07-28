@@ -7,7 +7,7 @@ using ResumableFunctions
   println("$(now(sim)), client $i is being served")
   @yield timeout(sim, rand())
   println("$(now(sim)), client $i has been served")
-  @yield release(res)
+  @yield unlock(res)
 end
 
 @resumable function generate(sim::Simulation, res::Resource)

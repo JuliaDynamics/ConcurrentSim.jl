@@ -12,7 +12,7 @@ end
   @yield lock(server)
   dt = rand(Exponential(1 / mu))
   @yield timeout(sim, dt)
-  @yield release(server)
+  @yield unlock(server)
 end
 
 function test_mm1(n::Float64)

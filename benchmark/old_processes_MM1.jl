@@ -12,7 +12,7 @@ function customer(sim::Simulation, server::Resource, mu::Float64)
   yield(lock(server))
   dt = rand(Exponential(1/mu))
   yield(timeout(sim, dt))
-  yield(release(server))
+  yield(unlock(server))
 end
 
 function customer2(sim::Simulation, server::Resource, mu::Float64)

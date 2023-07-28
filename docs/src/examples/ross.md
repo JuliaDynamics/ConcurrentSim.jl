@@ -46,7 +46,7 @@ const G = Exponential(MU)
         end
         @yield lock(repair_facility)
         @yield timeout(env, rand(rng, G))
-        @yield release(repair_facility)
+        @yield unlock(repair_facility)
         @yield put!(spares, active_process(env))
     end
 end
