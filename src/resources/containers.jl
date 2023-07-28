@@ -77,7 +77,10 @@ isready(c::Container) = c.level > 0
 Returns `true` if the store is full, similarly to the meaning of `islocked` for `Base.ReentrantLock`.
 
 ```jldoctest
-julia> sim = Simulation(); res = Resource(sim); islocked(res)
+julia> sim = Simulation(); res = Resource(sim, 2); islocked(res)
+false
+
+julia> request(res); islocked(res)
 false
 
 julia> request(res); islocked(res)
