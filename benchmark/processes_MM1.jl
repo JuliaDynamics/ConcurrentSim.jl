@@ -9,7 +9,7 @@ using ResumableFunctions, ConcurrentSim, Distributions, BenchmarkTools
 end
 
 @resumable function customer(sim::Simulation, server::Resource, mu::Float64)
-  @yield request(server)
+  @yield lock(server)
   dt = rand(Exponential(1 / mu))
   @yield timeout(sim, dt)
   @yield release(server)

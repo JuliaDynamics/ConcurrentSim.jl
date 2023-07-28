@@ -30,7 +30,7 @@ function put!(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   put_ev
 end
 
-request(res::Resource; priority::Int=0) = put!(res, 1; priority=priority)
+lock(res::Resource; priority::Int=0) = put!(res, 1; priority=priority)
 
 function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   get_ev = Get(con.env)
@@ -65,7 +65,7 @@ Returns `true` if the Container is not empty, similarly to the meaning of `isrea
 julia> sim = Simulation(); res = Resource(sim); isready(res)
 false
 
-julia> request(res); isready(res)
+julia> lock(res); isready(res)
 true
 ```
 """
@@ -80,14 +80,13 @@ Returns `true` if the store is full, similarly to the meaning of `islocked` for 
 julia> sim = Simulation(); res = Resource(sim, 2); islocked(res)
 false
 
-julia> request(res); islocked(res)
+julia> lock(res); islocked(res)
 false
 
-julia> request(res); islocked(res)
+julia> lock(res); islocked(res)
 true
 ```
 """
 islocked(c::Container) = c.level==c.capacity
 
 unlock(c::Container) = release(c)
-lock(c::Container) = request(c)

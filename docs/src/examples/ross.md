@@ -44,7 +44,7 @@ const G = Exponential(MU)
         else
             throw(StopSimulation("No more spares!"))
         end
-        @yield request(repair_facility)
+        @yield lock(repair_facility)
         @yield timeout(env, rand(rng, G))
         @yield release(repair_facility)
         @yield put!(spares, active_process(env))

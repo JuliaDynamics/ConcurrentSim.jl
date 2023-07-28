@@ -9,14 +9,14 @@ function exp_source(sim::Simulation, lambd::Float64, server::Resource, mu::Float
 end
 
 function customer(sim::Simulation, server::Resource, mu::Float64)
-  yield(request(server))
+  yield(lock(server))
   dt = rand(Exponential(1/mu))
   yield(timeout(sim, dt))
   yield(release(server))
 end
 
 function customer2(sim::Simulation, server::Resource, mu::Float64)
-  request(server) do req
+  lock(server) do req
     yield(req)
     dt = rand(Exponential(1/mu))
     yield(timeout(sim, dt))

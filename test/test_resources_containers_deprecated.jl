@@ -3,7 +3,7 @@ using ResumableFunctions
 
 @resumable function client(sim::Simulation, res::Resource, i::Int, priority::Int)
   println("$(now(sim)), client $i is waiting")
-  @yield lock(res, priority=priority)
+  @yield request(res, priority=priority) # deprecated
   println("$(now(sim)), client $i is being served")
   @yield timeout(sim, rand())
   println("$(now(sim)), client $i has been served")
@@ -46,7 +46,7 @@ end
     amount = 2*rand()
     println("$(now(sim)), producer is offering $amount")
     @yield timeout(sim, 1.0*rand())
-    @yield put!(con, amount)
+    @yield put(con, amount) # deprecated
     level = con.level
     println("$(now(sim)), producer is being served, level is ", level)
     delay = 5.0*rand()
