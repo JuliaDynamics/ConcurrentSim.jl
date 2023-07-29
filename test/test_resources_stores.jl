@@ -28,3 +28,8 @@ sto = Store{StoreObject}(sim)
 @process my_consumer(sim, sto)
 @process my_producer(sim, sto)
 run(sim)
+
+##
+
+@test_throws ErrorException unlock(sto)
+@test_throws ErrorException lock(sto)
