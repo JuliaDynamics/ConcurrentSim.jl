@@ -2,7 +2,8 @@
 
 ## v1.0.1 - dev
 
-- Start using `Base`'s API: `lock`, `trylock`, `unlock`, `islocked`, `isready`, `get!` and deprecate `get`, `request`, `release`.
+- Start using `Base`'s API: `lock`, `trylock`, `unlock`, `islocked`, `isready`, `put!`, `take!`. Deprecate `put`, `request`, `release`. Moreover, consider using `take!` instead of `get` (which was not deprecated as it has numerous internal uses).
+
 ## v1.0.0 - 2023-05-03
 
 - Rename from SimJulia.jl to ConcurrentSim.jl

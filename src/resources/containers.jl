@@ -4,6 +4,21 @@ struct ContainerKey{N<:Real} <: ResourceKey
   amount :: N
 end
 
+"""
+    Container{N}(env::Environment, capacity::N=one(N); level::N=zero(N))
+
+A "Container" resource object, storing up to `capacity` units of a resource (of type `N`).
+
+There is a `Resource` alias for `Container{Int}`.
+
+`Resource()` with default capacity of `1` is very similar to a typical lock.
+The [`lock`](@ref), [`unlock`](@ref), and [`trylock`](@ref) functions are a convenient way to interact with such a "lock",
+in a way mostly compatible with other discrete event and concurrency frameworks.
+
+See [`Store`](@ref) for a more channel-like resource.
+
+Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).
+"""
 mutable struct Container{N<:Real} <: AbstractResource
   env :: Environment
   capacity :: N
@@ -30,7 +45,12 @@ function put!(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   put_ev
 end
 
-lock(res::Resource; priority::Int=0) = put!(res, 1; priority=priority)
+"""
+    lock(res::Container)
+
+Locks the Container and return the lock event.
+"""
+lock(res::Container; priority::Int=0) = put!(res, 1; priority=priority)
 
 """
     trylock(res::Resource)
@@ -51,7 +71,7 @@ julia> trylock(res)
 false
 ```
 """
-function trylock(res::Resource; priority::Int=0)
+function trylock(res::Container; priority::Int=0)
     islocked(res) && return false # TODO check priority
     lock(res; priority)
 end
@@ -64,7 +84,12 @@ function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   get_ev
 end
 
-unlock(res::Resource; priority::Int=0) = get(res, 1; priority=priority)
+"""
+    unlock(res::Container)
+
+Unlocks the Container and return the unlock event.
+"""
+unlock(res::Container; priority::Int=0) = get(res, 1; priority=priority)
 
 function do_put(con::Container{N}, put_ev::Put, key::ContainerKey{N}) where N<:Real
   con.level + key.amount > con.capacity && return false

@@ -37,7 +37,7 @@ const G = Exponential(MU)
     while true
         try @yield timeout(env, Inf) catch end
         @yield timeout(env, rand(rng, F))
-        get_spare = get(spares)
+        get_spare = take!(spares)
         @yield get_spare | timeout(env)
         if state(get_spare) != ConcurrentSim.idle 
             @yield interrupt(value(get_spare))
