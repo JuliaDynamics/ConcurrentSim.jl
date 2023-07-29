@@ -2,9 +2,13 @@ using Documenter
 using ResumableFunctions
 using ConcurrentSim
 
+DocMeta.setdocmeta!(ConcurrentSim, :DocTestSetup, :(using ConcurrentSim, ResumableFunctions); recursive=true)
+
 makedocs(
   sitename = "ConcurrentSim",
   authors = "Ben Lauwens and SimJulia & ConcurrentSim contributors",
+  strict = true,
+  doctest = false,
   pages    = [
     "Home" => "index.md",
     "Tutorial" => "tutorial.md",
