@@ -59,3 +59,5 @@ con = Container(sim, 10.0; level=5.0)
 @process my_consumer(sim, con)
 @process my_producer(sim, con)
 run(sim)
+
+@test_throws ErrorException take!(con)
