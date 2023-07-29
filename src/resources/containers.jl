@@ -32,6 +32,30 @@ end
 
 lock(res::Resource; priority::Int=0) = put!(res, 1; priority=priority)
 
+"""
+    trylock(res::Resource)
+
+If the Resource is not locked, locks it and return the lock event.
+Returns `false` if the Resource is locked, similarly to the meaning of `trylock` for `Base.ReentrantLock`.
+
+```jldoctest
+julia> sim = Simulation(); res = Resource(sim);
+
+julia> ev = trylock(res)
+ConcurrentSim.Put 1
+
+julia> typeof(ev)
+ConcurrentSim.Put
+
+julia> trylock(res)
+false
+```
+"""
+function trylock(res::Resource; priority::Int=0)
+    islocked(res) && return false # TODO check priority
+    lock(res; priority)
+end
+
 function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
   get_ev = Get(con.env)
   con.get_queue[get_ev] = ContainerKey(priority, con.seid+=one(UInt), amount)

@@ -102,3 +102,4 @@ islocked(sto::Store) = sto.load==sto.capacity
 
 unlock(::Store) = error("There is no well defined way to \"unlock\" a store. Instead of attempting `unlock` consider using `pop!(::Store)` or use a `Resource` instead of a `Store`.")
 lock(::Store) = error("There is no well defined way to \"lock\" a store. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`.")
+trylock(::Store) = error("There is no well defined way to \"lock\" a store. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`.")
