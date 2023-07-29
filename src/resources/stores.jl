@@ -1,35 +1,35 @@
-struct StorePutKey{N<:Number, T} <: ResourceKey
-  priority :: N
+struct StorePutKey{N, T<:Number} <: ResourceKey
   id :: UInt
-  item :: T
+  item :: N
+  priority :: T
 end
 
-struct StoreGetKey{N<:Number} <: ResourceKey
-  priority :: N
+struct StoreGetKey{T<:Number} <: ResourceKey
   id :: UInt
   filter :: Function
+  priority :: T
 end
 
-mutable struct Store{T, N<:Number} <: AbstractResource
+mutable struct Store{N, T<:Number} <: AbstractResource
   env :: Environment
   capacity :: UInt
   load :: UInt
-  items :: Dict{T, UInt}
+  items :: Dict{N, UInt}
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{N, T}}
-  get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey{N}}
-  function Store{T,N}(env::Environment; capacity::UInt=typemax(UInt)) where {T, N<:Number}
-    new(env, capacity, zero(UInt), Dict{T, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{N}}())
+  get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey{T}}
+  function Store{N, T}(env::Environment; capacity::UInt=typemax(UInt)) where {N, T<:Number}
+    new(env, capacity, zero(UInt), Dict{N, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{T}}())
   end
 end
 
-function Store{T}(env::Environment; capacity::UInt=typemax(UInt)) where {T}
-  Store{T,Int}(env; capacity)
+function Store{N}(env::Environment; capacity::UInt=typemax(UInt)) where {N}
+  Store{N, Int}(env; capacity)
 end
 
-function put(sto::Store{T, N}, item::T; priority::N=zero(N)) where {T, N<:Number}
+function put(sto::Store{N, T}, item::N; priority::T=zero(T)) where {N, T<:Number}
   put_ev = Put(sto.env)
-  sto.put_queue[put_ev] = StorePutKey{N, T}(priority, sto.seid+=one(UInt), item)
+  sto.put_queue[put_ev] = StorePutKey{N, T}(sto.seid+=one(UInt), item, priority)
   @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   put_ev
@@ -37,15 +37,15 @@ end
 
 get_any_item(::T) where T = true
 
-function get(sto::Store{T, N}, filter::Function=get_any_item; priority::N=zero(N)) where {T, N<:Number}
+function get(sto::Store{N, T}, filter::Function=get_any_item; priority::T=zero(T)) where {N, T<:Number}
   get_ev = Get(sto.env)
-  sto.get_queue[get_ev] = StoreGetKey(priority, sto.seid+=one(UInt), filter)
+  sto.get_queue[get_ev] = StoreGetKey(sto.seid+=one(UInt), filter, priority)
   @callback trigger_put(get_ev, sto)
   trigger_get(get_ev, sto)
   get_ev
 end
 
-function do_put(sto::Store{T, N}, put_ev::Put, key::StorePutKey{N,T}) where {T, N<:Number}
+function do_put(sto::Store{N, T}, put_ev::Put, key::StorePutKey{N, T}) where {N, T<:Number}
   if sto.load < sto.capacity
     sto.load += one(UInt)
     sto.items[key.item] = get(sto.items, key.item, zero(UInt)) + one(UInt)
@@ -54,7 +54,7 @@ function do_put(sto::Store{T, N}, put_ev::Put, key::StorePutKey{N,T}) where {T, 
   false
 end
 
-function do_get(sto::Store{T, N}, get_ev::Get, key::StoreGetKey{N}) where {T, N<:Number}
+function do_get(sto::Store{N, T}, get_ev::Get, key::StoreGetKey{T}) where {N, T<:Number}
   for (item, number) in sto.items
     if key.filter(item)
       sto.load -= one(UInt)
