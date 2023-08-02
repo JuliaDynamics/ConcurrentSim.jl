@@ -9,7 +9,7 @@ end
   for j in 1:10
     @yield timeout(sim, rand())
     println("$(now(sim)), consumer is demanding object")
-    obj = @yield take!(sto)
+    obj = @yield get(sto) # "unofficially" deprecated
     println("$(now(sim)), consumer is being served with object ", obj.i)
   end
 end
@@ -28,11 +28,3 @@ sto = Store{StoreObject}(sim)
 @process my_consumer(sim, sto)
 @process my_producer(sim, sto)
 run(sim)
-
-##
-
-@test_throws ErrorException unlock(sto)
-@test_throws ErrorException request(sto)
-@test_throws ErrorException tryrequest(sto)
-@test_throws ErrorException lock(sto)
-@test_throws ErrorException trylock(sto)

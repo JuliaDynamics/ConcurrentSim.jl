@@ -112,7 +112,7 @@ julia> isnothing(active_process(sim))
 true
 ```
 
-An exemplary use case for this is the resource system: If a process function calls `request` to request a `Resource`, the resource determines the requesting process via `active_process`.
+An exemplary use case for this is the resource system: If a process function calls `request` to request (lock) a `Resource`, the resource determines the requesting process via `active_process`.
 
 ## Miscellaneous
 
