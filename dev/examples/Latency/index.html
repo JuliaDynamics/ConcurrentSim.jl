@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Latency · ConcurrentSim</title><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ConcurrentSim</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Topical Guides</span><ul><li><a class="tocitem" href="../../guides/basics/">Basics</a></li><li><a class="tocitem" href="../../guides/environments/">Environments</a></li><li><a class="tocitem" href="../../guides/events/">Events</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../ross/">Ross</a></li><li class="is-active"><a class="tocitem" href>Latency</a><ul class="internal"><li><a class="tocitem" href="#Description"><span>Description</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Latency</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Latency</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl/blob/master/docs/src/examples/Latency.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Event-Latency"><a class="docs-heading-anchor" href="#Event-Latency">Event Latency</a><a id="Event-Latency-1"></a><a class="docs-heading-anchor-permalink" href="#Event-Latency" title="Permalink"></a></h1><h2 id="Description"><a class="docs-heading-anchor" href="#Description">Description</a><a id="Description-1"></a><a class="docs-heading-anchor-permalink" href="#Description" title="Permalink"></a></h2><p>In this example we show how to separate the time delay between processes from the processes themselves. We model a communications channel, called a <code>Cable</code>, where a sender sends messages regularly each <code>SEND_PERIOD</code> time units and a receiver listens each <code>RECEIVE_PERIOD</code>. The messages in the cable have a delay fo <code>DELAY_DURATION</code> until they reach the recevier.</p><h3 id="Load-Packages"><a class="docs-heading-anchor" href="#Load-Packages">Load Packages</a><a id="Load-Packages-1"></a><a class="docs-heading-anchor-permalink" href="#Load-Packages" title="Permalink"></a></h3><pre><code class="language-julia hljs">using ConcurrentSim
 using ResumableFunctions
-import  ConcurrentSim.put
-import Base.get</code></pre><h3 id="Define-Constants"><a class="docs-heading-anchor" href="#Define-Constants">Define Constants</a><a id="Define-Constants-1"></a><a class="docs-heading-anchor-permalink" href="#Define-Constants" title="Permalink"></a></h3><pre><code class="language-julia hljs">srand(8710) # set random number seed for reproducibility
-const SIM_DURATION = 100.
+import Base: put!, take!
+
+# output</code></pre><h3 id="Define-Constants"><a class="docs-heading-anchor" href="#Define-Constants">Define Constants</a><a id="Define-Constants-1"></a><a class="docs-heading-anchor-permalink" href="#Define-Constants" title="Permalink"></a></h3><pre><code class="language-julia hljs">const SIM_DURATION = 100.
 const SEND_PERIOD = 5.0
-const RECEIVE_PERIOD = 3.0;</code></pre><h3 id="Define-Cable-model"><a class="docs-heading-anchor" href="#Define-Cable-model">Define Cable model</a><a id="Define-Cable-model-1"></a><a class="docs-heading-anchor-permalink" href="#Define-Cable-model" title="Permalink"></a></h3><p>The <code>Cable</code> contains reference to the simulation it is part of, the delay that messages experience, and a store that contains the sent messages</p><pre><code class="language-julia hljs">mutable struct Cable
+const RECEIVE_PERIOD = 3.0;
+
+nothing # hide
+
+# output</code></pre><h3 id="Define-Cable-model"><a class="docs-heading-anchor" href="#Define-Cable-model">Define Cable model</a><a id="Define-Cable-model-1"></a><a class="docs-heading-anchor-permalink" href="#Define-Cable-model" title="Permalink"></a></h3><p>The <code>Cable</code> contains reference to the simulation it is part of, the delay that messages experience, and a store that contains the sent messages</p><pre><code class="language-julia hljs">mutable struct Cable
     env::Simulation
     delay::Float64
     store::Store{String}
@@ -13,35 +17,55 @@ const RECEIVE_PERIOD = 3.0;</code></pre><h3 id="Define-Cable-model"><a class="do
     function Cable(env::Simulation, delay::Float64)
         return new(env, delay, Store{String}(env))
     end
-end;</code></pre><p>The latency function is a generator which yields two events: first a <code>timeout</code> that represents the transmission delay, then a put event when the message gets stored in the store.</p><pre><code class="language-julia hljs">@resumable function latency(env::Simulation, cable::Cable, value::String)
+end;
+
+nothing # hide
+
+# output</code></pre><p>The latency function is a generator which yields two events: first a <code>timeout</code> that represents the transmission delay, then a put event when the message gets stored in the store.</p><pre><code class="language-julia hljs">@resumable function latency(env::Simulation, cable::Cable, value::String)
     @yield timeout(cable.env, cable.delay)
-    @yield put(cable.store, value)
-    end;</code></pre><p>The <code>put</code> and <code>get</code> functions allow interaction with the cable (note that these are not <code>@resumable</code> because they need to return the result of the operation and not the operation itself).</p><pre><code class="language-julia hljs">function put(cable::Cable, value::String)
+    @yield put!(cable.store, value)
+end;
+
+nothing # hide
+
+# output</code></pre><p>The <code>put!</code> and <code>take!</code> functions allow interaction with the cable (note that these are not <code>@resumable</code> because they need to return the result of the operation and not the operation itself).</p><pre><code class="language-julia hljs">function put!(cable::Cable, value::String)
     @process latency(cable.env, cable, value) # results in the scheduling of all events generated by latency
 end
 
-function get(cable::Cable)
-    get(cable.store) # returns an element stored in the cable store
-end;</code></pre><p>The <code>sender</code> and <code>receiver</code> generators yield events to the simulator.</p><pre><code class="language-julia hljs">@resumable function sender(env::Simulation, cable::Cable)
+function take!(cable::Cable); output = false
+    take!(cable.store) # returns an element stored in the cable store
+end;
+
+nothing # hide
+
+# output</code></pre><p>The <code>sender</code> and <code>receiver</code> generators yield events to the simulator.</p><pre><code class="language-julia hljs">@resumable function sender(env::Simulation, cable::Cable)
     while true
         @yield timeout(env, SEND_PERIOD)
         value = &quot;sender sent this at $(now(env))&quot;
-        put(cable, value)
+        put!(cable, value)
     end
 end
 
 @resumable function receiver(env::Simulation, cable::Cable)
     while true
         @yield timeout(env, RECEIVE_PERIOD)
-        msg = @yield get(cable)
+        msg = @yield take!(cable)
         println(&quot;Received this at $(now(env)) while $msg&quot;)
     end
-end;</code></pre><p>Create simulation, register events, and run!</p><pre><code class="language-julia hljs">env = Simulation()
+end;
+
+nothing # hide
+
+# output</code></pre><p>Create simulation, register events, and run!</p><pre><code class="language-julia hljs">env = Simulation()
 cable = Cable(env, 10.)
 @process sender(env, cable)
 @process receiver(env, cable)
 
-run(env, SIM_DURATION)</code></pre><pre><code class="nohighlight hljs">Received this at 15.0 while sender sent this at 5.0
+run(env, SIM_DURATION)
+
+# output
+
+Received this at 15.0 while sender sent this at 5.0
 Received this at 20.0 while sender sent this at 10.0
 Received this at 25.0 while sender sent this at 15.0
 Received this at 30.0 while sender sent this at 20.0
@@ -57,4 +81,4 @@ Received this at 75.0 while sender sent this at 65.0
 Received this at 80.0 while sender sent this at 70.0
 Received this at 85.0 while sender sent this at 75.0
 Received this at 90.0 while sender sent this at 80.0
-Received this at 95.0 while sender sent this at 85.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ross/">« Ross</a><a class="docs-footer-nextpage" href="../../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Sunday 4 June 2023 18:21">Sunday 4 June 2023</span>. Using Julia version 1.9.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Received this at 95.0 while sender sent this at 85.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ross/">« Ross</a><a class="docs-footer-nextpage" href="../../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Wednesday 2 August 2023 18:48">Wednesday 2 August 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
