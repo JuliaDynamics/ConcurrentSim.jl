@@ -37,7 +37,7 @@ const G = Exponential(MU)
     while true
         try @yield timeout(env, Inf) catch end
         @yield timeout(env, rand(rng, F))
-        get_spare = get(spares)
+        get_spare = take!(spares)
         @yield get_spare | timeout(env)
         if state(get_spare) != ConcurrentSim.idle 
             @yield interrupt(value(get_spare))
@@ -46,8 +46,8 @@ const G = Exponential(MU)
         end
         @yield request(repair_facility)
         @yield timeout(env, rand(rng, G))
-        @yield release(repair_facility)
-        @yield put(spares, active_process(env))
+        @yield unlock(repair_facility)
+        @yield put!(spares, active_process(env))
     end
 end
 
@@ -58,7 +58,7 @@ end
     end
     for i in 1:S
         proc = @process machine(env, repair_facility, spares)
-        @yield put(spares, proc) 
+        @yield put!(spares, proc) 
     end
 end
 

@@ -291,7 +291,7 @@ In this section, we’ll briefly introduce ConcurrentSim’s `Resource` class.
 
 We’ll slightly modify our electric vehicle process `car` that we introduced in the last sections.
 
-The car will now drive to a battery charging station (BCS) and request one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards:
+The car will now drive to a battery charging station (BCS) and request (lock) one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards:
 
 ```jldoctest
 julia> using ResumableFunctions
@@ -305,14 +305,14 @@ julia> @resumable function car(env::Environment, name::Int, bcs::Resource, drivi
          println(name, " starting to charge at ", now(env))
          @yield timeout(sim, charge_duration)
          println(name, " leaving the bcs at ", now(env))
-         @yield release(bcs)
+         @yield unlock(bcs)
        end
 car (generic function with 1 method)
 ```
 
-The resource’s `request` function generates an event that lets you wait until the resource becomes available again. If you are resumed, you “own” the resource until you release it.
+The resource’s `request` function generates an event that lets you wait until the resource becomes available again. If you are resumed, you “own” the resource until you release it with `unlock`.
 
-You are responsible to call `release` once you are done using the resource. When you release a resource, the next waiting process is resumed and now “owns” one of the resource’s slots. The basic `Resource` sorts waiting processes in a FIFO (first in—first out) way.
+You are responsible to call `unlock` once you are done using the resource. When you unlock (release) a resource, the next waiting process is resumed and now “owns” one of the resource’s slots. The basic `Resource` sorts waiting processes in a FIFO (first in—first out) way.
 
 A resource needs a reference to an `Environment` and a capacity when it is created:
 
@@ -328,7 +328,7 @@ DocTestSetup = quote
     println(name, " starting to charge at ", now(env))
     @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
-    @yield release(bcs)
+    @yield unlock(bcs)
   end
 end
 ```
@@ -355,7 +355,7 @@ DocTestSetup = quote
     println(name, " starting to charge at ", now(env))
     @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
-    @yield release(bcs)
+    @yield unlock(bcs)
   end
 
   sim = Simulation()
@@ -397,7 +397,7 @@ DocTestSetup = quote
     println(name, " starting to charge at ", now(env))
     @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
-    @yield release(bcs)
+    @yield unlock(bcs)
   end
 
   sim = Simulation()

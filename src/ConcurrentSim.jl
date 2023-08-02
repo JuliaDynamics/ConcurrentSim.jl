@@ -7,9 +7,8 @@ module ConcurrentSim
   using Dates
   using ResumableFunctions
 
-  import Base.run, Base.isless, Base.show, Base.yield, Base.get
-  import Base.(&), Base.(|)
-  import Dates.now
+  import Base: run, isless, show, yield, get, put!, take!, isready, islocked, unlock, lock, trylock, &, |
+  import Dates: now
 
   export AbstractEvent, Environment, value, state, environment
   export Event, succeed, fail, @callback, remove_callback
@@ -18,7 +17,7 @@ module ConcurrentSim
   export @resumable, @yield
   export AbstractProcess, Simulation, run, now, active_process, StopSimulation
   export Process, @process, interrupt
-  export Container, Resource, Store, put, get, request, release, cancel
+  export Container, Resource, Store, put!, get, cancel, request, tryrequest
   export nowDatetime
 
   include("base.jl")
@@ -30,4 +29,5 @@ module ConcurrentSim
   include("resources/containers.jl")
   include("resources/stores.jl")
   include("utils/time.jl")
+  include("deprecated.jl")
 end
