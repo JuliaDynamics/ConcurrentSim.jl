@@ -52,7 +52,7 @@ Locks the Container (or Resources) and return the lock event.
 If the capacity of the Container is greater than 1,
 multiple requests can be made before blocking occurs.
 """
-request(res::Resource; priority::Number=0) = put(res, 1; priority=priority)
+request(res::Resource; priority::Number=0) = put!(res, 1; priority=priority)
 
 """
     tryrequest(res::Container)
