@@ -42,7 +42,7 @@ end
 
 Put an item into the store. Returns the put event, blocking if the store is full.
 """
-function put(sto::Store{N, T}, item::N; priority::T=zero(T)) where {N, T<:Number}
+function put!(sto::Store{N, T}, item::N; priority::T=zero(T)) where {N, T<:Number}
   put_ev = Put(sto.env)
   sto.put_queue[put_ev] = StorePutKey{N, T}(sto.seid+=one(UInt), item, priority)
   @callback trigger_get(put_ev, sto)
