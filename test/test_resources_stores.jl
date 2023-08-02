@@ -32,5 +32,7 @@ run(sim)
 ##
 
 @test_throws ErrorException unlock(sto)
+@test_throws ErrorException request(sto)
+@test_throws ErrorException tryrequest(sto)
 @test_throws ErrorException lock(sto)
 @test_throws ErrorException trylock(sto)

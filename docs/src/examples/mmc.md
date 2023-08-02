@@ -22,7 +22,7 @@ service_dist = Exponential(1 / mu) # service time distribution
 @resumable function customer(env::Environment, server::Resource, id::Integer, t_a::Float64, d_s::Distribution)
     @yield timeout(env, t_a) # customer arrives
     println("Customer $id arrived: ", now(env))
-    @yield lock(server) # customer starts service
+    @yield request(server) # customer starts service
     println("Customer $id entered service: ", now(env))
     @yield timeout(env, rand(d_s)) # server is busy
     @yield unlock(server) # customer exits service

@@ -301,7 +301,7 @@ julia> using ConcurrentSim
 julia> @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
          @yield timeout(sim, driving_time)
          println(name, " arriving at ", now(env))
-         @yield lock(bcs)
+         @yield request(bcs)
          println(name, " starting to charge at ", now(env))
          @yield timeout(sim, charge_duration)
          println(name, " leaving the bcs at ", now(env))
@@ -310,7 +310,7 @@ julia> @resumable function car(env::Environment, name::Int, bcs::Resource, drivi
 car (generic function with 1 method)
 ```
 
-The resource’s `lock` function generates an event that lets you wait until the resource becomes available again. If you are resumed, you “own” the resource until you release it with `unlock`.
+The resource’s `request` function generates an event that lets you wait until the resource becomes available again. If you are resumed, you “own” the resource until you release it with `unlock`.
 
 You are responsible to call `unlock` once you are done using the resource. When you unlock (release) a resource, the next waiting process is resumed and now “owns” one of the resource’s slots. The basic `Resource` sorts waiting processes in a FIFO (first in—first out) way.
 
@@ -324,7 +324,7 @@ DocTestSetup = quote
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
     @yield timeout(sim, driving_time)
     println(name, " arriving at ", now(env))
-    @yield lock(bcs)
+    @yield request(bcs)
     println(name, " starting to charge at ", now(env))
     @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
@@ -351,7 +351,7 @@ DocTestSetup = quote
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
     @yield timeout(sim, driving_time)
     println(name, " arriving at ", now(env))
-    @yield lock(bcs)
+    @yield request(bcs)
     println(name, " starting to charge at ", now(env))
     @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))
@@ -393,7 +393,7 @@ DocTestSetup = quote
   @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
     @yield timeout(sim, driving_time)
     println(name, " arriving at ", now(env))
-    @yield lock(bcs)
+    @yield request(bcs)
     println(name, " starting to charge at ", now(env))
     @yield timeout(sim, charge_duration)
     println(name, " leaving the bcs at ", now(env))

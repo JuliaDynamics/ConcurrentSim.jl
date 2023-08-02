@@ -1,8 +1,9 @@
 # News
 
-## v1.0.1 - dev
+## v1.1.0 - 2023-08-02
 
-- Start using `Base`'s API: `lock`, `trylock`, `unlock`, `islocked`, `isready`, `put!`, `take!`. Deprecate `put`, `request`, `release`. Moreover, consider using `take!` instead of `get` (which was not deprecated as it has numerous internal uses).
+- Start using `Base`'s API: `Base.unlock`, `Base.islocked`, `Base.isready`, `Base.put!`, `Base.take!`. Deprecate `put`, `release`. Moreover, consider using `Base.take!` instead of `Base.get` (which was not deprecated yet, as we decide which semantics to follow). Lastly, `Base.lock` and `Base.trylock` are **not** implement -- they are superficially similar to `request` and `tryrequest`, but have to be explicitly `@yield`-ed.
+- Implement `tryrequest` (similar to `Base.trylock`). However, consider also using `Base.isready` and `request` instead of `tryrequest`.
 
 ## v1.0.0 - 2023-05-03
 

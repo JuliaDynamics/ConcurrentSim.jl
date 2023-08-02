@@ -12,7 +12,7 @@ A "Container" resource object, storing up to `capacity` units of a resource (of 
 There is a `Resource` alias for `Container{Int}`.
 
 `Resource()` with default capacity of `1` is very similar to a typical lock.
-The [`lock`](@ref), [`unlock`](@ref), and [`trylock`](@ref) functions are a convenient way to interact with such a "lock",
+The [`request`](@ref) and [`unlock`](@ref) functions are a convenient way to interact with such a "lock",
 in a way mostly compatible with other discrete event and concurrency frameworks.
 
 See [`Store`](@ref) for a more channel-like resource.
@@ -46,34 +46,39 @@ function put!(con::Container{N}, amount::N; priority::Int=0) where N<:Real
 end
 
 """
-    lock(res::Container)
+    request(res::Container)
 
-Locks the Container and return the lock event.
+Locks the Container (or Resources) and return the lock event.
+If the capacity of the Container is greater than 1,
+multiple requests can be made before blocking occurs.
 """
-lock(res::Container; priority::Int=0) = put!(res, 1; priority=priority)
+request(res::Container; priority::Int=0) = put!(res, 1; priority=priority)
 
 """
-    trylock(res::Resource)
+    tryrequest(res::Container)
 
-If the Resource is not locked, locks it and return the lock event.
-Returns `false` if the Resource is locked, similarly to the meaning of `trylock` for `Base.ReentrantLock`.
+If the Container (or Resource) is not locked, locks it and return the lock event.
+Returns `false` if the Container is locked, similarly to the meaning of `trylock` for `Base.ReentrantLock`.
+
+If the capacity of the Container is greater than 1,
+multiple requests can be made before blocking occurs.
 
 ```jldoctest
 julia> sim = Simulation(); res = Resource(sim);
 
-julia> ev = trylock(res)
+julia> ev = tryrequest(res)
 ConcurrentSim.Put 1
 
 julia> typeof(ev)
 ConcurrentSim.Put
 
-julia> trylock(res)
+julia> tryrequest(res)
 false
 ```
 """
-function trylock(res::Container; priority::Int=0)
+function tryrequest(res::Container; priority::Int=0)
     islocked(res) && return false # TODO check priority
-    lock(res; priority)
+    request(res; priority)
 end
 
 function get(con::Container{N}, amount::N; priority::Int=0) where N<:Real
@@ -114,7 +119,7 @@ Returns `true` if the Container is not empty, similarly to the meaning of `isrea
 julia> sim = Simulation(); res = Resource(sim); isready(res)
 false
 
-julia> lock(res); isready(res)
+julia> request(res); isready(res)
 true
 ```
 """
@@ -129,13 +134,15 @@ Returns `true` if the store is full, similarly to the meaning of `islocked` for 
 julia> sim = Simulation(); res = Resource(sim, 2); islocked(res)
 false
 
-julia> lock(res); islocked(res)
+julia> request(res); islocked(res)
 false
 
-julia> lock(res); islocked(res)
+julia> request(res); islocked(res)
 true
 ```
 """
 islocked(c::Container) = c.level==c.capacity
 
 take!(::Container, args...) = error("There is no well defined `take!` for `Container`. Instead of attempting `take!` consider using `unlock(::Container)` or use a `Store` instead of a `Resource` or `Container`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
+lock(::Container) = error("Directly locking a `Container` is not implemented yet. Instead of attempting `lock`, consider using `@yield request(::Container)` from inside of a resumable function.")
+trylock(::Container) = error("Directly locking a `Container` is not implemented yet. Instead of attempting `lock`, consider using `@yield request(::Container)` from inside of a resumable function.")
