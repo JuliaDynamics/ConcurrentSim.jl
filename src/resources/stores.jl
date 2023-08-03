@@ -28,13 +28,13 @@ mutable struct Store{N, T<:Number} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{N, T}}
   get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey{T}}
-  function Store{N, T}(env::Environment; capacity::UInt=typemax(UInt)) where {N, T<:Number}
-    new(env, capacity, zero(UInt), Dict{N, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{T}}())
+  function Store{N, T}(env::Environment; capacity=typemax(UInt)) where {N, T<:Number}
+    new(env, UInt(capacity), zero(UInt), Dict{N, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{T}}())
   end
 end
 
-function Store{N}(env::Environment; capacity::UInt=typemax(UInt)) where {N}
-  Store{N, Int}(env; capacity)
+function Store{N}(env::Environment; capacity=typemax(UInt)) where {N}
+  Store{N, Int}(env; capacity=UInt(capacity))
 end    
     
 """
@@ -42,9 +42,9 @@ end
 
 Put an item into the store. Returns the put event, blocking if the store is full.
 """
-function put!(sto::Store{N, T}, item::N; priority::U=zero(T)) where {N, T<:Number, U<:Number}
+function put!(sto::Store{N, T}, item::N; priority=zero(T)) where {N, T<:Number}
   put_ev = Put(sto.env)
-  sto.put_queue[put_ev] = StorePutKey{N, T}(sto.seid+=one(UInt), item, convert(T,priority))
+  sto.put_queue[put_ev] = StorePutKey{N, T}(sto.seid+=one(UInt), item, T(priority))
   @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   put_ev
@@ -52,9 +52,9 @@ end
 
 get_any_item(::N) where N = true
 
-function get(sto::Store{N, T}, filter::Function=get_any_item; priority::U=zero(T)) where {N, T<:Number, U<:Number}
+function get(sto::Store{N, T}, filter::Function=get_any_item; priority=zero(T)) where {N, T<:Number}
   get_ev = Get(sto.env)
-  sto.get_queue[get_ev] = StoreGetKey(sto.seid+=one(UInt), filter, convert(T,priority))
+  sto.get_queue[get_ev] = StoreGetKey(sto.seid+=one(UInt), filter, T(priority))
   @callback trigger_put(get_ev, sto)
   trigger_get(get_ev, sto)
   get_ev
@@ -129,4 +129,4 @@ tryrequest(::Store) = error("There is no well defined way to \"request\" a Store
 
 An alias for `get(::Store)` for easier interoperability with the `Base.Channel` interface. Blocks if the store is empty.
 """
-take!(sto::Store, filter::Function=get_any_item; priority::Int=0) = get(sto, filter; priority)
+take!(sto::Store, filter::Function=get_any_item; priority=0) = get(sto, filter; priority)

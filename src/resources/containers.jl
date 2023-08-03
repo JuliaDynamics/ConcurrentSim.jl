@@ -26,24 +26,24 @@ mutable struct Container{N<:Real, T<:Number} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N, T}}
   get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N, T}}
-  function Container{N, T}(env::Environment, capacity::N=one(N); level::N=zero(N)) where {N<:Real, T<:Number}
-    new(env, capacity, level, zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N, T}}(), DataStructures.PriorityQueue{Get, ContainerKey{N, T}}())
+  function Container{N, T}(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real, T<:Number}
+    new(env, capacity, N(level), zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N, T}}(), DataStructures.PriorityQueue{Get, ContainerKey{N, T}}())
   end
 end
 
-function Container(env::Environment, capacity::N=one(N); level::N=zero(N)) where {N<:Real}
-  Container{N, Int}(env, capacity, level=level)
+function Container(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real}
+  Container{N, Int}(env, capacity; level=N(level))
 end
 
-function Container{T}(env::Environment, capacity::N=one(N); level::N=zero(N)) where {N<:Real, T<:Number}
-  Container{N, T}(env, capacity, level=level)
+function Container{T}(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real, T<:Number}
+  Container{N, T}(env, capacity; level=N(level))
 end
 
 const Resource = Container{Int, Int}
 
-function put!(con::Container{N, T}, amount::N; priority::U=zero(T)) where {N<:Real, T<:Number, U<:Number}
+function put!(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real, T<:Number}
   put_ev = Put(con.env)
-  con.put_queue[put_ev] = ContainerKey{N,T}(con.seid+=one(UInt), amount, convert(T,priority))
+  con.put_queue[put_ev] = ContainerKey{N,T}(con.seid+=one(UInt), amount, T(priority))
   @callback trigger_get(put_ev, con)
   trigger_put(put_ev, con)
   put_ev
@@ -56,7 +56,7 @@ Locks the Container (or Resources) and return the lock event.
 If the capacity of the Container is greater than 1,
 multiple requests can be made before blocking occurs.
 """
-request(res::Resource; priority::Number=0) = put!(res, 1; priority=priority)
+request(res::Resource; priority=0) = put!(res, 1; priority)
 
 """
     tryrequest(res::Container)
@@ -80,14 +80,14 @@ julia> tryrequest(res)
 false
 ```
 """
-function tryrequest(res::Container; priority::Int=0)
+function tryrequest(res::Container; priority=0)
     islocked(res) && return false # TODO check priority
     request(res; priority)
 end
 
-function get(con::Container{N, T}, amount::N; priority::U=zero(T)) where {N<:Real, T<:Number, U<:Number}
+function get(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real, T<:Number}
   get_ev = Get(con.env)
-  con.get_queue[get_ev] = ContainerKey(con.seid+=one(UInt), amount, convert(T,priority))
+  con.get_queue[get_ev] = ContainerKey(con.seid+=one(UInt), amount, T(priority))
   @callback trigger_put(get_ev, con)
   trigger_get(get_ev, con)
   get_ev
