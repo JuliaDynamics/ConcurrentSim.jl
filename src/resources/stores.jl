@@ -106,7 +106,7 @@ isready(sto::Store) = sto.load > 0
 Returns `true` if the store is full, similarly to the meaning of `islocked` for `Base.ReentrantLock`.
 
 ```jldoctest
-julia> sim = Simulation(); store = Store{Symbol}(sim; capacity=UInt(2)); islocked(store)
+julia> sim = Simulation(); store = Store{Symbol}(sim; capacity=2); islocked(store)
 false
 
 julia> put!(store, :message); islocked(store)
