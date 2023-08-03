@@ -1,5 +1,9 @@
 # News
 
+## v1.2.0 - 2023-08-03
+
+- Rudimentary utilization tracker for resources is now implemented as the `TrackedResource` wrapper, together with a converter `DataFrame(::TrackedResource)` (thanks to implementing the `Tables.jl` API).
+
 ## v1.1.0 - 2023-08-02
 
 - Start using `Base`'s API: `Base.unlock`, `Base.islocked`, `Base.isready`, `Base.put!`, `Base.take!`. Deprecate `put`, `release`. Moreover, consider using `Base.take!` instead of `Base.get` (which was not deprecated yet, as we decide which semantics to follow). Lastly, `Base.lock` and `Base.trylock` are **not** implement -- they are superficially similar to `request` and `tryrequest`, but have to be explicitly `@yield`-ed.
