@@ -32,7 +32,7 @@ function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{Abstrac
     end
   elseif state(op) === scheduled
     if isa(val, Exception)
-      schedule(op; priority=Inf, value=val)
+      schedule(op; priority=typemax(Int), value=val)
     else
       event_state_values[ev] = StateValue(state(ev), val)
     end

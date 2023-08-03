@@ -8,9 +8,9 @@ end
 
 struct EmptySchedule <: Exception end
 
-struct EventKey{N<:Number}
+struct EventKey
   time :: Float64
-  priority :: N
+  priority :: Int
   id :: UInt
 end
 
