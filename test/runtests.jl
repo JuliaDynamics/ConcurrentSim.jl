@@ -35,6 +35,7 @@ println("Starting tests with $(Threads.nthreads()) threads out of `Sys.CPU_THREA
 @doset "resources_containers_deprecated"
 @doset "resources_stores"
 @doset "resources_stores_deprecated"
+@doset "resources_tracked"
 @doset "resource_priorities"
 @doset "utils_time"
 VERSION >= v"1.9" && @doset "doctests"

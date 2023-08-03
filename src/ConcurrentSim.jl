@@ -18,6 +18,7 @@ module ConcurrentSim
   export AbstractProcess, Simulation, run, now, active_process, StopSimulation
   export Process, @process, interrupt
   export Container, Resource, Store, put!, get, cancel, request, tryrequest
+  export TrackedResource
   export nowDatetime
 
   include("base.jl")
@@ -28,6 +29,7 @@ module ConcurrentSim
   include("resources/base.jl")
   include("resources/containers.jl")
   include("resources/stores.jl")
+  include("resources/tracked.jl")
   include("utils/time.jl")
   include("deprecated.jl")
 end
