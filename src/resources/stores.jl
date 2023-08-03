@@ -11,9 +11,9 @@ struct StoreGetKey{T<:Number} <: ResourceKey
 end
 
 """
-    Store{T}(env::Environment; capacity::UInt=typemax(UInt))
+    Store{N, T<:Number}(env::Environment; capacity::UInt=typemax(UInt))
 
-A store is a resource that can hold a number of items of type `T`. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
+A store is a resource that can hold a number of items of type `N`. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
 The [`put!`](@ref) and [`take!`](@ref) functions are a convenient way to interact with such a "channel" in a way mostly compatible with other discrete event and concurrency frameworks.
 
 See [`Container`](@ref) for a more lock-like resource.
@@ -42,19 +42,19 @@ end
 
 Put an item into the store. Returns the put event, blocking if the store is full.
 """
-function put!(sto::Store{N, T}, item::N; priority::T=zero(T)) where {N, T<:Number}
+function put!(sto::Store{N, T}, item::N; priority::U=zero(T)) where {N, T<:Number, U<:Number}
   put_ev = Put(sto.env)
-  sto.put_queue[put_ev] = StorePutKey{N, T}(sto.seid+=one(UInt), item, priority)
+  sto.put_queue[put_ev] = StorePutKey{N, T}(sto.seid+=one(UInt), item, convert(T,priority))
   @callback trigger_get(put_ev, sto)
   trigger_put(put_ev, sto)
   put_ev
 end
 
-get_any_item(::T) where T = true
+get_any_item(::N) where N = true
 
-function get(sto::Store{N, T}, filter::Function=get_any_item; priority::T=zero(T)) where {N, T<:Number}
+function get(sto::Store{N, T}, filter::Function=get_any_item; priority::U=zero(T)) where {N, T<:Number, U<:Number}
   get_ev = Get(sto.env)
-  sto.get_queue[get_ev] = StoreGetKey(sto.seid+=one(UInt), filter, priority)
+  sto.get_queue[get_ev] = StoreGetKey(sto.seid+=one(UInt), filter, convert(T,priority))
   @callback trigger_put(get_ev, sto)
   trigger_get(get_ev, sto)
   get_ev
@@ -106,7 +106,7 @@ isready(sto::Store) = sto.load > 0
 Returns `true` if the store is full, similarly to the meaning of `islocked` for `Base.ReentrantLock`.
 
 ```jldoctest
-julia> sim = Simulation(); store = Store{Symbol}(sim; capacity=2); islocked(store)
+julia> sim = Simulation(); store = Store{Symbol}(sim; capacity=UInt(2)); islocked(store)
 false
 
 julia> put!(store, :message); islocked(store)

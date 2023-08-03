@@ -5,11 +5,11 @@ struct ContainerKey{N<:Real, T<:Number} <: ResourceKey
 end
 
 """
-    Container{N}(env::Environment, capacity::N=one(N); level::N=zero(N))
+    Container{N<:Real, T<:Number}(env::Environment, capacity::N=one(N); level::N=zero(N))
 
 A "Container" resource object, storing up to `capacity` units of a resource (of type `N`).
 
-There is a `Resource` alias for `Container{Int}`.
+There is a `Resource` alias for `Container{Int, Int}`.
 
 `Resource()` with default capacity of `1` is very similar to a typical lock.
 The [`request`](@ref) and [`unlock`](@ref) functions are a convenient way to interact with such a "lock",
@@ -35,11 +35,15 @@ function Container(env::Environment, capacity::N=one(N); level::N=zero(N)) where
   Container{N, Int}(env, capacity, level=level)
 end
 
+function Container{T}(env::Environment, capacity::N=one(N); level::N=zero(N)) where {N<:Real, T<:Number}
+  Container{N, T}(env, capacity, level=level)
+end
+
 const Resource = Container{Int, Int}
 
-function put!(con::Container{N, T}, amount::N; priority::T=zero(T)) where {N<:Real, T<:Number}
+function put!(con::Container{N, T}, amount::N; priority::U=zero(T)) where {N<:Real, T<:Number, U<:Number}
   put_ev = Put(con.env)
-  con.put_queue[put_ev] = ContainerKey(con.seid+=one(UInt), amount, priority)
+  con.put_queue[put_ev] = ContainerKey{N,T}(con.seid+=one(UInt), amount, convert(T,priority))
   @callback trigger_get(put_ev, con)
   trigger_put(put_ev, con)
   put_ev
@@ -81,9 +85,9 @@ function tryrequest(res::Container; priority::Int=0)
     request(res; priority)
 end
 
-function get(con::Container{N, T}, amount::N; priority::T=zero(T)) where {N<:Real, T<:Number}
+function get(con::Container{N, T}, amount::N; priority::U=zero(T)) where {N<:Real, T<:Number, U<:Number}
   get_ev = Get(con.env)
-  con.get_queue[get_ev] = ContainerKey(con.seid+=one(UInt), amount, priority)
+  con.get_queue[get_ev] = ContainerKey(con.seid+=one(UInt), amount, convert(T,priority))
   @callback trigger_put(get_ev, con)
   trigger_get(get_ev, con)
   get_ev
