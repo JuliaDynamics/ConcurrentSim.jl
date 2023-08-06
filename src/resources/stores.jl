@@ -13,12 +13,24 @@ end
 """
     Store{N, T<:Number}(env::Environment; capacity::UInt=typemax(UInt))
 
-A store is a resource that can hold a number of items of type `N`. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
+A store is a resource that can hold a number of items of type `N` in a FILO stack. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
 The [`put!`](@ref) and [`take!`](@ref) functions are a convenient way to interact with such a "channel" in a way mostly compatible with other discrete event and concurrency frameworks.
 
 See [`Container`](@ref) for a more lock-like resource.
 
-Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).
+Think of `Resource` and `Container` as locks and of `Store` as channels/stacks. They block only if empty (on taking) or full (on storing).
+
+```jldoctest
+julia> sim = Simulation(); store = Store{Int}(sim);
+
+julia> put!(store, 1); run(sim, 1); put!(store, 2);
+
+julia> value(take!(store))
+2
+
+julia> value(take!(store))
+1
+```
 """
 mutable struct Store{N, T<:Number} <: AbstractResource
   env :: Environment
@@ -35,8 +47,8 @@ end
 
 function Store{N}(env::Environment; capacity=typemax(UInt)) where {N}
   Store{N, Int}(env; capacity=UInt(capacity))
-end    
-    
+end
+
 """
     put!(sto::Store, item::T)
 
@@ -119,10 +131,8 @@ true
 islocked(sto::Store) = sto.load==sto.capacity
 
 unlock(::Store) = error("There is no well defined way to \"unlock\" a Store without taking an element out of it. Instead of attempting `unlock` consider using `take!(::Store)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
-lock(::Store) = error("There is no well defined way to \"lock\" a Store without storing an element in it. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
-trylock(::Store) = error("There is no well defined way to \"lock\" a Store without storing an element in it. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
-request(::Store) = error("There is no well defined way to \"request\" a Store without storing an element in it. Instead of attempting `request` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
-tryrequest(::Store) = error("There is no well defined way to \"request\" a Store without storing an element in it. Instead of attempting `request` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
+lock(::Store) = error("There is no well defined way to \"lock\" or \"request\" a Store without storing an element in it. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
+trylock(::Store) = error("There is no well defined way to \"lock\" or \"request\" a Store without storing an element in it. Instead of attempting `lock` consider using `put!(::Store, ...)` or use a `Resource` instead of a `Store`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
 
 """
     take!(::Store)
