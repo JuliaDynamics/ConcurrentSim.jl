@@ -31,8 +31,8 @@ Without further ado, here is the typical API used with:
 |---|:---|:---|:---|:---|:---|:---:|
 |`put!`|❌|❌|@yield|@yield|@yield|low-level "put an object in" API|
 |`take!`|❌|block|❌|❌|@yield|the `Channel`-like API for `Store`|
-|`lock`|block|❌|@yield|@yield|❌|the `Lock`-like API for `Resource` (there is also `trylock`)|
-|`unlock`|✔️|❌|@yield|@yield|❌|the `Lock`-like API for `Resource`|
+|`lock`|block|❌|❌|@yield|❌|the `Lock`-like API for `Resource` (there is also `trylock`)|
+|`unlock`|✔️|❌|❌|@yield|❌|the `Lock`-like API for `Resource`|
 |`isready`|❌|✔️|✔️|✔️|✔️|something is stored in the resource|
 |`islocked`|✔️|❌|✔️|✔️|✔️|the resource can not store anything more|
 
@@ -44,6 +44,6 @@ The table denotes which methods exist (✔️), are blocking (block), need to be
 
 As you can see `Resource` shares some properties with `ReentrantLock` and avails itself of the `lock`/`unlock`/`trylock` Base API. `Store` similarly shares some properties with `Channel` and shares the `put!`/`take!` Base API. Of note is that when the Base API would be blocking, the corresponding `ConcurrentSim` methods actually give coroutines that need to be `@yield`-ed.
 
-`take` and `lock` are both implemented on top of the lower level `get`.
+`take!` and `unlock` are both implemented on top of the lower level `get`.
 
 The `Base.lock` and `Base.unlock` are aliased to `ConcurrentSim.request` and `ConcurrentSim.release` respectively for semantic convenience when working with `Resource`. 

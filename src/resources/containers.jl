@@ -51,18 +51,18 @@ function put!(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real,
 end
 
 """
-    lock(res::Container)
+    lock(res::Resource)
 
-Locks the Container (or Resources) and return the lock event.
+Locks the Resource and return the lock event.
 If the capacity of the Container is greater than 1,
 multiple requests can be made before blocking occurs.
 """
 lock(res::Container; priority=0) = put!(res, 1; priority)
 
 """
-    trylock(res::Container)
+    trylock(res::Resource)
 
-If the Container (or Resource) is not locked, locks it and return the lock event.
+If the Resource is not locked, locks it and return the lock event.
 Returns `false` if the Container is locked, similarly to the meaning of `trylock` for `Base.ReentrantLock`.
 
 If the capacity of the Container is greater than 1,
@@ -81,7 +81,7 @@ julia> tryrequest(res)
 false
 ```
 """
-function trylock(res::Container; priority=0)
+function trylock(res::Resource; priority=0)
     islocked(res) && return false # TODO check priority
     lock(res; priority)
 end
@@ -95,9 +95,9 @@ function get(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real, 
 end
 
 """
-    unlock(res::Container)
+    unlock(res::Resource)
 
-Unlocks the Container and return the unlock event.
+Unlocks the Resource and return the unlock event.
 """
 unlock(res::Resource; priority::Number=0) = get(res, 1; priority=priority)
 
