@@ -47,3 +47,5 @@ As you can see `Resource` shares some properties with `ReentrantLock` and avails
 `take!` and `unlock` are both implemented on top of the lower level `get`.
 
 The `Base.lock` and `Base.unlock` are aliased to `ConcurrentSim.request` and `ConcurrentSim.release` respectively for semantic convenience when working with `Resource`. 
+
+`unlock(::Resource)` is instantaneous so the `@yield` is not strictly necessary. Similarly for `put!(::Store)` if the store has infinite capacity.
