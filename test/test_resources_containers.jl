@@ -3,7 +3,7 @@ using ResumableFunctions
 
 @resumable function client(sim::Simulation, res::Resource, i::Int, priority::Number)
   println("$(now(sim)), client $i is waiting")
-  @yield request(res, priority=priority)
+  @yield lock(res, priority=priority)
   println("$(now(sim)), client $i is being served")
   @yield timeout(sim, rand())
   println("$(now(sim)), client $i has been served")
@@ -25,10 +25,10 @@ run(sim)
 
 ##
 
-@resumable function client_tryrequest(sim::Simulation, res::Resource, i::Int, priority::Int)
+@resumable function client_trylock(sim::Simulation, res::Resource, i::Int, priority::Int)
   while true
-    println("$(now(sim)), client $i attempting to request")
-    attempt = tryrequest(res, priority=priority)
+    println("$(now(sim)), client $i attempting to lock")
+    attempt = trylock(res, priority=priority)
     if attempt===false
         println("$(now(sim)), client $i is going elsewhere for a bit instead of waiting")
         @yield timeout(sim, 0.1)
@@ -45,7 +45,7 @@ end
 
 @resumable function generate(sim::Simulation, res::Resource)
   for i in 1:10
-    @process client_tryrequest(sim, res, i, 10-i)
+    @process client_trylock(sim, res, i, 10-i)
     @yield timeout(sim, 0.5*rand())
   end
 end
@@ -96,5 +96,9 @@ con = Container(sim, 10.0; level=5.0)
 run(sim)
 
 @test_throws ErrorException take!(con)
-@test_throws ErrorException lock(con)
-@test_throws ErrorException trylock(con)
+
+con = Resource(sim)
+@test_throws ErrorException take!(con)
+trylock(con)
+trylock(con)
+trylock(con)

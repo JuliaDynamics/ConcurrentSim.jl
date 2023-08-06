@@ -13,11 +13,17 @@ makedocs(
   pages    = [
     "Home" => "index.md",
     "Tutorial" => "tutorial.md",
-    "Topical Guides" => ["Basics" => "guides/basics.md",
-                         "Environments" => "guides/environments.md",
-                         "Events" => "guides/events.md",],
-    "Examples" => ["Ross" => "examples/ross.md", "Latency" =>
-                   "examples/Latency.md"],
+    "Topical Guides" => [
+        "Basics" => "guides/basics.md",
+        "Environments" => "guides/environments.md",
+        "Events" => "guides/events.md",
+        "Resource API" => "guides/blockingandyielding.md",
+        ],
+    "Examples" => [
+        "Ross" => "examples/ross.md",
+        "Latency" => "examples/Latency.md",
+        "Multi-server Queue" => "examples/mmc.md",
+    ],
     "API" => "api.md"
   ]
 )

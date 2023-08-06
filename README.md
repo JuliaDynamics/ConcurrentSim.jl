@@ -59,4 +59,7 @@ A [detailed change log is kept](https://github.com/JuliaDynamics/ConcurrentSim.j
 
 ## Alternatives
 
-`ConcurrentSim.jl` and `DiscreteEvents.jl` both provide for typical event-based simulations. `ConcurrentSim.jl` is built around coroutines (implemented in `ResumableFunctions.jl`), while `DiscreteEvents.jl` uses Julia's async primitives via `Channels`. If you are evaluating which library to you for your goals, `ConcurrentSim.jl` might be a good choice if you are used to python's SimPy, but otherwise you are advised to try a small demo project in each and do your own benchmarks. Do not hesitate to submit issues on Github with questions or suggestions or feature requests. We value hearing what your experience with this library (compared to other libraries) has been.
+`ConcurrentSim.jl` and `DiscreteEvents.jl` both provide for typical event-based simulations.
+`ConcurrentSim.jl` is built around coroutines (implemented in `ResumableFunctions.jl`), while `DiscreteEvents.jl` uses Julia's async primitives via `Channels`.
+`DiscreteEvents.jl` has an explicit clock that "ticks" at a fixed finite resolution, while `ConcurrentSim.jl` uses coroutines to make arbitrary jumps in time.
+If you are evaluating which library to you for your goals, `ConcurrentSim.jl` might be a good choice if you are used to python's SimPy, but otherwise you are advised to try a small demo project in each and do your own benchmarks. Do not hesitate to submit issues on Github with questions or suggestions or feature requests. We value hearing what your experience with this library (compared to other libraries) has been.

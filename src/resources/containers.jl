@@ -12,8 +12,9 @@ A "Container" resource object, storing up to `capacity` units of a resource (of 
 There is a `Resource` alias for `Container{Int, Int}`.
 
 `Resource()` with default capacity of `1` is very similar to a typical lock.
-The [`request`](@ref) and [`unlock`](@ref) functions are a convenient way to interact with such a "lock",
+The [`lock`](@ref) and [`unlock`](@ref) functions are a convenient way to interact with such a "lock",
 in a way mostly compatible with other discrete event and concurrency frameworks.
+The `request` and `release` aliases are also available for these two functions.
 
 See [`Store`](@ref) for a more channel-like resource.
 
@@ -50,16 +51,16 @@ function put!(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real,
 end
 
 """
-    request(res::Container)
+    lock(res::Container)
 
 Locks the Container (or Resources) and return the lock event.
 If the capacity of the Container is greater than 1,
 multiple requests can be made before blocking occurs.
 """
-request(res::Resource; priority=0) = put!(res, 1; priority)
+lock(res::Container; priority=0) = put!(res, 1; priority)
 
 """
-    tryrequest(res::Container)
+    trylock(res::Container)
 
 If the Container (or Resource) is not locked, locks it and return the lock event.
 Returns `false` if the Container is locked, similarly to the meaning of `trylock` for `Base.ReentrantLock`.
@@ -80,9 +81,9 @@ julia> tryrequest(res)
 false
 ```
 """
-function tryrequest(res::Container; priority=0)
+function trylock(res::Container; priority=0)
     islocked(res) && return false # TODO check priority
-    request(res; priority)
+    lock(res; priority)
 end
 
 function get(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real, T<:Number}
@@ -148,5 +149,3 @@ true
 islocked(c::Container) = c.level==c.capacity
 
 take!(::Container, args...) = error("There is no well defined `take!` for `Container`. Instead of attempting `take!` consider using `unlock(::Container)` or use a `Store` instead of a `Resource` or `Container`. Think of `Resource` and `Container` as locks and of `Store` as channels. They block only if empty (on taking) or full (on storing).")
-lock(::Container) = error("Directly locking a `Container` is not implemented yet. Instead of attempting `lock`, consider using `@yield request(::Container)` from inside of a resumable function.")
-trylock(::Container) = error("Directly locking a `Container` is not implemented yet. Instead of attempting `lock`, consider using `@yield request(::Container)` from inside of a resumable function.")
