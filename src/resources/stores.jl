@@ -13,12 +13,14 @@ end
 """
     Store{N, T<:Number}(env::Environment; capacity::UInt=typemax(UInt))
 
-A store is a resource that can hold a number of items of type `N` in a FILO stack. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
+A store is a resource that can hold a number of items of type `N`. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
 The [`put!`](@ref) and [`take!`](@ref) functions are a convenient way to interact with such a "channel" in a way mostly compatible with other discrete event and concurrency frameworks.
 
 See [`Container`](@ref) for a more lock-like resource.
 
 Think of `Resource` and `Container` as locks and of `Store` as channels/stacks. They block only if empty (on taking) or full (on storing).
+
+`Store` does not guarantee any order of items. See [`StackStore`](@ref) and [`QueueStore`](@ref) for ordered variants.
 
 ```jldoctest
 julia> sim = Simulation(); store = Store{Int}(sim);
@@ -32,17 +34,21 @@ julia> value(take!(store))
 1
 ```
 """
-mutable struct Store{N, T<:Number} <: AbstractResource
+mutable struct Store{N, T<:Number, D} <: AbstractResource
   env :: Environment
   capacity :: UInt
   load :: UInt
-  items :: Dict{N, UInt}
+  items :: D
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{N, T}}
   get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey{T}}
-  function Store{N, T}(env::Environment; capacity=typemax(UInt)) where {N, T<:Number}
-    new(env, UInt(capacity), zero(UInt), Dict{N, UInt}(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{T}}())
+  function Store{N, T, D}(env::Environment; capacity=typemax(UInt)) where {N, T<:Number, D}
+    new(env, UInt(capacity), zero(UInt), D(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{T}}())
   end
+end
+
+function Store{N, T}(env::Environment; capacity=typemax(UInt)) where {N, T<:Number}
+    Store{N, T, Dict{N, UInt}}(env; capacity=UInt(capacity))
 end
 
 function Store{N}(env::Environment; capacity=typemax(UInt)) where {N}
@@ -64,7 +70,7 @@ end
 
 get_any_item(::N) where N = true
 
-function get(sto::Store{N, T}, filter::Function=get_any_item; priority=zero(T)) where {N, T<:Number}
+function get(sto::Store{N, T, D}, filter::Function=get_any_item; priority=zero(T)) where {N, T<:Number, D}
   get_ev = Get(sto.env)
   sto.get_queue[get_ev] = StoreGetKey(sto.seid+=one(UInt), filter, T(priority))
   @callback trigger_put(get_ev, sto)
@@ -72,7 +78,7 @@ function get(sto::Store{N, T}, filter::Function=get_any_item; priority=zero(T)) 
   get_ev
 end
 
-function do_put(sto::Store{N, T}, put_ev::Put, key::StorePutKey{N, T}) where {N, T<:Number}
+function do_put(sto::Store{N, T, Dict{N,UInt}}, put_ev::Put, key::StorePutKey{N, T}) where {N, T<:Number}
   if sto.load < sto.capacity
     sto.load += one(UInt)
     sto.items[key.item] = get(sto.items, key.item, zero(UInt)) + one(UInt)
@@ -81,7 +87,7 @@ function do_put(sto::Store{N, T}, put_ev::Put, key::StorePutKey{N, T}) where {N,
   false
 end
 
-function do_get(sto::Store{N, T}, get_ev::Get, key::StoreGetKey{T}) where {N, T<:Number}
+function do_get(sto::Store{N, T, Dict{N,UInt}}, get_ev::Get, key::StoreGetKey{T}) where {N, T<:Number}
   for (item, number) in sto.items
     if key.filter(item)
       sto.load -= one(UInt)

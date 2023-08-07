@@ -21,7 +21,7 @@ In particular, the `ConcurrentSim.jl` package uses the async "coroutines" model 
 Without further ado, here is the typical API used with:
 
 - `ConcurrentSim.Resource` which is used to represent scarce resource that can be used by only up to a fixed number of tasks. If the limit is just one task (the default), this is very similar to `Base.ReentrantLock`. `Resource` is a special case of `Container` with an integer "resource counter".
-- `ConcurrentSim.Store` which is used to represent a FILO stack.
+- `ConcurrentSim.Store` which is used to represent an unordered heap. For the ordered versions, consider `QueueStore` or `StackStore`.
 
 ```@raw html
 <div style="width:120%;min-width:120%;">
