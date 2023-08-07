@@ -13,12 +13,13 @@ end
 """
     Store{N, T<:Number}(env::Environment; capacity::UInt=typemax(UInt))
 
-A store is a resource that can hold a number of items of type `N` in a FILO stack. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
+A store is a resource that can hold a number of items of type `N`. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
 The [`put!`](@ref) and [`take!`](@ref) functions are a convenient way to interact with such a "channel" in a way mostly compatible with other discrete event and concurrency frameworks.
 
 See [`Container`](@ref) for a more lock-like resource.
 
 Think of `Resource` and `Container` as locks and of `Store` as channels/stacks. They block only if empty (on taking) or full (on storing).
+
 `Store` does not guarantee any order of items. See [`StackStore`](@ref) and [`QueueStore`](@ref) for ordered variants.
 
 ```jldoctest
