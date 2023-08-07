@@ -1,5 +1,9 @@
 # News
 
+## v1.3.0 - 2023-08-07
+
+- Implement ordered versions of `Store`, namely `QueueStore` and `StackStore`.
+
 ## v1.2.0 - 2023-08-06
 
 - Priorities can now be non-integer.
