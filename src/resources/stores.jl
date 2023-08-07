@@ -19,6 +19,7 @@ The [`put!`](@ref) and [`take!`](@ref) functions are a convenient way to interac
 See [`Container`](@ref) for a more lock-like resource.
 
 Think of `Resource` and `Container` as locks and of `Store` as channels/stacks. They block only if empty (on taking) or full (on storing).
+`Store` does not guarantee any order of items. See [`StackStore`](@ref) and [`QueueStore`](@ref) for ordered variants.
 
 ```jldoctest
 julia> sim = Simulation(); store = Store{Int}(sim);
