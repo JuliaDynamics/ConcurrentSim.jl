@@ -1,4 +1,4 @@
-raw"""
+@doc raw"""
     DelayQueue{T}
 
 A queue in which items are stored in a FIFO order, but are only available after a delay.
