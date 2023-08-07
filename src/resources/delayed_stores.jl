@@ -23,7 +23,6 @@ julia> sim = Simulation()
        @process producer(sim, queue)
        @process consumer(sim, queue)
        run(sim, 30)
-
 [ Info: putting a at time 0.0
 [ Info: putting b at time 2.0
 [ Info: putting a at time 4.0
@@ -47,7 +46,7 @@ end
 
 @resumable function latency(env::Environment, channel::DelayQueue, value)
     @yield timeout(channel.store.env, channel.delay)
-    put(channel.store, value)
+    put!(channel.store, value)
 end
 
 function Base.put!(channel::DelayQueue, value)
