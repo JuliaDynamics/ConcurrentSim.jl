@@ -1,5 +1,10 @@
 # News
 
+## v1.4.0 - 2023-08-07
+
+- Implement a `DelayQueue`, i.e. a `QueueStore` with latency between the store and take events.
+- Bugfix to `QueueStore` and `StackStore` for take events on empty stores.
+
 ## v1.3.0 - 2023-08-07
 
 - Implement ordered versions of `Store`, namely `QueueStore` and `StackStore`.

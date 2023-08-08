@@ -17,7 +17,8 @@ module ConcurrentSim
   export @resumable, @yield
   export AbstractProcess, Simulation, run, now, active_process, StopSimulation
   export Process, @process, interrupt
-  export Container, Resource, Store, StackStore, QueueStore, put!, get, cancel, request, tryrequest, release
+  export Container, Resource, Store, StackStore, QueueStore, DelayQueue
+  export put!, get, cancel, request, tryrequest, release
   export nowDatetime
 
   include("base.jl")
@@ -29,6 +30,7 @@ module ConcurrentSim
   include("resources/containers.jl")
   include("resources/stores.jl")
   include("resources/ordered_stores.jl")
+  include("resources/delayed_stores.jl")
   include("utils/time.jl")
   include("deprecated_aliased.jl")
 end

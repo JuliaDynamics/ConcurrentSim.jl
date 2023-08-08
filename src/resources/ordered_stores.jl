@@ -79,6 +79,7 @@ end
 
 function do_get(sto::StackStore{N, T}, get_ev::Get, key::StoreGetKey{T}) where {N, T<:Number}
   key.filter !== get_any_item && error("Filtering not supported for `StackStore`. Use an unordered store instead, or submit a feature request for implementing filtering to our issue tracker.")
+  isempty(sto.items) && return true
   item = pop!(sto.items)
   sto.load -= one(UInt)
   schedule(get_ev; value=item)
@@ -96,6 +97,7 @@ end
 
 function do_get(sto::QueueStore{N, T}, get_ev::Get, key::StoreGetKey{T}) where {N, T<:Number}
   key.filter !== get_any_item && error("Filtering not supported for `QueueStore`. Use an unordered store instead, or submit a feature request for implementing filtering to our issue tracker.")
+  isempty(sto.items) && return true
   item = dequeue!(sto.items)
   sto.load -= one(UInt)
   schedule(get_ev; value=item)
