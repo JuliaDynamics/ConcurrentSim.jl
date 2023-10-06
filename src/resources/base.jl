@@ -23,7 +23,7 @@ struct Get <: ResourceEvent
 end
 
 function isless(a::ResourceKey, b::ResourceKey)
-  (a.priority < b.priority) || (a.priority === b.priority && a.id < b.id)
+  (a.priority > b.priority) || (a.priority === b.priority && a.id < b.id)
 end
 
 function trigger_put(put_ev::ResourceEvent, res::AbstractResource)
