@@ -2,7 +2,7 @@
 
 ## Basic Concepts
 
-Simjulia is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with processes. All processes live in an environment. They interact with the environment and with each other via events.
+ConcurrentSim is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with processes. All processes live in an environment. They interact with the environment and with each other via events.
 
 Processes are described by `@resumable` functions. You can call them process function. During their lifetime, they create events and `@yield` them in order to wait for them to be triggered.
 
@@ -80,7 +80,7 @@ Start parking at 14.0
 DocTestSetup = nothing
 ```
 
-The first thing we need to do is to create an environment, e.g. an instance of `Simulation`. The macro `@process` having as argument a car process function call creates a process that is initialised and added to the environment automatically.
+The first thing we need to do is to create an environment, e.g. an instance of `Simulation`. The macro `@process` having as argument a car process function call creates a process that is initialized and added to the environment automatically.
 
 Note, that at this time, none of the code of our process function is being executed. Its execution is merely scheduled at the current simulation time.
 
