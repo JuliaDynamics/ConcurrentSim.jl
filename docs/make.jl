@@ -8,7 +8,6 @@ DocMeta.setdocmeta!(ConcurrentSim, :DocTestSetup, :(using ConcurrentSim, Resumab
 makedocs(
   sitename = "ConcurrentSim",
   authors = "Ben Lauwens and SimJulia & ConcurrentSim contributors",
-  strict = true,
   doctest = false,
   pages    = [
     "Home" => "index.md",
