@@ -57,3 +57,20 @@ put!(sto, :b; priority = BigInt(5))
 put!(sto, :b; priority = typemin(UInt))
 @show sto.items
 @show keys(sto.put_queue)
+
+@testset "Resource priority evaluation" begin
+  using ResumableFunctions
+  
+  let sim = Simulation()
+    @resumable function f(env, res)
+      @yield lock(res)
+    end
+    
+    res = Resource(sim)
+    ev1 = unlock(res, priority=5)
+    ev2 = unlock(res)
+    @process f(sim, res)
+    run(sim)
+    @test state(ev1) === ConcurrentSim.processed
+  end
+end
