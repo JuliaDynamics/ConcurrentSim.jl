@@ -1,11 +1,11 @@
 name = "ConcurrentSim"
 uuid = "6ed1e86c-fcaf-46a9-97e0-2b26a2cdb499"
-keywords = ["discrete-even simulation"]
+keywords = ["discrete-event simulation"]
 license = "MIT"
 desc = "A discrete event process oriented simulation framework."
 authors = ["Ben Lauwens and SimJulia and ConcurrentSim contributors"]
 repo = "https://github.com/JuliaDynamics/ConcurrentSim.jl.git"
-version = "1.4.0"
+version = "1.4.1"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"

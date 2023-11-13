@@ -27,8 +27,8 @@ mutable struct Container{N<:Real, T<:Number} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N, T}}
   get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N, T}}
-  function Container{N, T}(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real, T<:Number}
-    new(env, capacity, N(level), zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N, T}}(), DataStructures.PriorityQueue{Get, ContainerKey{N, T}}())
+  function Container{N, T}(env::Environment, capacity::N=one(N); level=zero(N), highpriofirst::Bool=false) where {N<:Real, T<:Number}
+    new(env, capacity, N(level), zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N, T}}( pickorder(highpriofirst) ), DataStructures.PriorityQueue{Get, ContainerKey{N, T}}( pickorder(highpriofirst) ))
   end
 end
 

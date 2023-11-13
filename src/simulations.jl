@@ -14,8 +14,12 @@ struct EventKey
   id :: UInt
 end
 
-function isless(a::EventKey, b::EventKey) :: Bool
+function Base.lt( ::HighPrioFirst, a::EventKey, b::EventKey ) :: Bool
   (a.time < b.time) || (a.time === b.time && a.priority > b.priority) || (a.time === b.time && a.priority === b.priority && a.id < b.id)
+end
+
+function Base.lt( ::LowPrioFirst, a::EventKey, b::EventKey ) :: Bool
+  (a.time < b.time) || (a.time === b.time && a.priority < b.priority) || (a.time === b.time && a.priority === b.priority && a.id < b.id)
 end
 
 mutable struct Simulation <: Environment
@@ -24,8 +28,8 @@ mutable struct Simulation <: Environment
   eid :: UInt
   sid :: UInt
   active_proc :: Union{AbstractProcess, Nothing}
-  function Simulation(initial_time::Number=zero(Float64))
-    new(initial_time, DataStructures.PriorityQueue{BaseEvent, EventKey}(), zero(UInt), zero(UInt), nothing)
+  function Simulation(initial_time::Number=zero(Float64), highpriofirst::Bool=true)
+    new(initial_time, DataStructures.PriorityQueue{BaseEvent, EventKey}( pickorder(highpriofirst) ), zero(UInt), zero(UInt), nothing)
   end
 end
 
