@@ -37,11 +37,11 @@ mutable struct DelayQueue{T}
     store::QueueStore{T, Int}
     delay::Float64
 end
-function DelayQueue(env::Environment, delay)
-    return DelayQueue(QueueStore{Any}(env), float(delay))
+function DelayQueue(env::Environment, delay; highpriofirst::Bool=false)
+    return DelayQueue(QueueStore{Any}(env, highpriofirst=highpriofirst), float(delay))
 end
-function DelayQueue{T}(env::Environment, delay) where T
-    return DelayQueue(QueueStore{T}(env), float(delay))
+function DelayQueue{T}(env::Environment, delay; highpriofirst::Bool=false) where T
+    return DelayQueue(QueueStore{T}(env, highpriofirst=highpriofirst), float(delay))
 end
 
 @resumable function latency(env::Environment, channel::DelayQueue, value)
