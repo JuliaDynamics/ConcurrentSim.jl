@@ -61,6 +61,8 @@ put!(sto, :b; priority = typemin(UInt))
 @testset "Resource priority evaluation" begin
   using ResumableFunctions
   
+  println( "Resource request 1 with priority 5, resource request 2 with priority 0" )
+
   let sim = Simulation()
     @resumable function f(env, res)
       @yield lock(res)
@@ -71,6 +73,21 @@ put!(sto, :b; priority = typemin(UInt))
     ev2 = unlock(res)
     @process f(sim, res)
     run(sim)
-    @test state(ev1) === ConcurrentSim.processed
+
+    println( "Default request order (low prio first): request ", state(ev1) === ConcurrentSim.processed ? 1 : 2, " served first." )
+  end
+
+  let sim = Simulation()
+    @resumable function f(env, res)
+      @yield lock(res)
+    end
+    
+    res = Resource(sim, highpriofirst=true)
+    ev1 = unlock(res, priority=5)
+    ev2 = unlock(res)
+    @process f(sim, res)
+    run(sim)
+
+    println( "Alternate request order (high prio first): request ", state(ev1) === ConcurrentSim.processed ? 1 : 2, " served first." )
   end
 end

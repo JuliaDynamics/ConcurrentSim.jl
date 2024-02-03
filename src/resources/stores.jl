@@ -11,10 +11,12 @@ struct StoreGetKey{T<:Number} <: ResourceKey
 end
 
 """
-    Store{N, T<:Number}(env::Environment; capacity::UInt=typemax(UInt))
+    Store{N, T<:Number}(env::Environment; capacity::UInt=typemax(UInt), highpriofirst::Bool=false)
 
 A store is a resource that can hold a number of items of type `N`. It is similar to a `Base.Channel` with a finite capacity ([`put!`](@ref) blocks after reaching capacity).
 The [`put!`](@ref) and [`take!`](@ref) functions are a convenient way to interact with such a "channel" in a way mostly compatible with other discrete event and concurrency frameworks.
+
+`highpriofirst` determines the order of handling requests that can be met at the same time.
 
 See [`Container`](@ref) for a more lock-like resource.
 
@@ -42,17 +44,17 @@ mutable struct Store{N, T<:Number, D} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, StorePutKey{N, T}}
   get_queue :: DataStructures.PriorityQueue{Get, StoreGetKey{T}}
-  function Store{N, T, D}(env::Environment; capacity=typemax(UInt)) where {N, T<:Number, D}
-    new(env, UInt(capacity), zero(UInt), D(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}(), DataStructures.PriorityQueue{Get, StoreGetKey{T}}())
+  function Store{N, T, D}(env::Environment; capacity=typemax(UInt), highpriofirst::Bool=false) where {N, T<:Number, D}
+    new(env, UInt(capacity), zero(UInt), D(), zero(UInt), DataStructures.PriorityQueue{Put, StorePutKey{N, T}}( pickorder(highpriofirst) ), DataStructures.PriorityQueue{Get, StoreGetKey{T}}( pickorder(highpriofirst) ))
   end
 end
 
-function Store{N, T}(env::Environment; capacity=typemax(UInt)) where {N, T<:Number}
-    Store{N, T, Dict{N, UInt}}(env; capacity=UInt(capacity))
+function Store{N, T}(env::Environment; capacity=typemax(UInt), highpriofirst::Bool=false) where {N, T<:Number}
+    Store{N, T, Dict{N, UInt}}(env; capacity=UInt(capacity), highpriofirst=highpriofirst)
 end
 
-function Store{N}(env::Environment; capacity=typemax(UInt)) where {N}
-  Store{N, Int}(env; capacity=UInt(capacity))
+function Store{N}(env::Environment; capacity=typemax(UInt), highpriofirst::Bool=false) where {N}
+  Store{N, Int}(env; capacity=UInt(capacity), highpriofirst=highpriofirst)
 end
 
 """

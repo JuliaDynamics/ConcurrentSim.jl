@@ -31,7 +31,7 @@ julia> [value(take!(stack)) for _ in 1:length(items)]
 See also: [`QueueStore`](@ref), [`Store`](@ref)
 """
 const StackStore = Store{N, T, DataStructures.Stack{N}} where {N, T<:Number}
-StackStore{N}(env::Environment; capacity=typemax(UInt)) where {N} = StackStore{N, Int}(env; capacity)
+StackStore{N}(env::Environment; capacity=typemax(UInt), highpriofirst::Bool=false) where {N} = StackStore{N, Int}(env; capacity, highpriofirst=highpriofirst)
 
 """
     QueueStore{N, T<:Number}
@@ -66,7 +66,7 @@ julia> [value(take!(queue)) for _ in 1:length(items)]
 See also: [`StackStore`](@ref), [`Store`](@ref)
 """
 const QueueStore = Store{N, T, DataStructures.Queue{N}} where {N, T<:Number}
-QueueStore{N}(env::Environment; capacity=typemax(UInt)) where {N} = QueueStore{N, Int}(env; capacity)
+QueueStore{N}(env::Environment; capacity=typemax(UInt), highpriofirst::Bool=false) where {N} = QueueStore{N, Int}(env; capacity, highpriofirst=highpriofirst)
 
 function do_put(sto::StackStore{N, T}, put_ev::Put, key::StorePutKey{N, T}) where {N, T<:Number}
   if sto.load < sto.capacity

@@ -5,7 +5,7 @@ struct ContainerKey{N<:Real, T<:Number} <: ResourceKey
 end
 
 """
-    Container{N<:Real, T<:Number}(env::Environment, capacity::N=one(N); level::N=zero(N))
+    Container{N<:Real, T<:Number}(env::Environment, capacity::N=one(N); level::N=zero(N), highpriofirst::Bool=false)
 
 A "Container" resource object, storing up to `capacity` units of a resource (of type `N`).
 
@@ -15,6 +15,8 @@ There is a `Resource` alias for `Container{Int, Int}`.
 The [`lock`](@ref) and [`unlock`](@ref) functions are a convenient way to interact with such a "lock",
 in a way mostly compatible with other discrete event and concurrency frameworks.
 The `request` and `release` aliases are also available for these two functions.
+
+`highpriofirst` determines the order of handling requests that can be met at the same time.
 
 See [`Store`](@ref) for a more channel-like resource.
 
@@ -27,17 +29,17 @@ mutable struct Container{N<:Real, T<:Number} <: AbstractResource
   seid :: UInt
   put_queue :: DataStructures.PriorityQueue{Put, ContainerKey{N, T}}
   get_queue :: DataStructures.PriorityQueue{Get, ContainerKey{N, T}}
-  function Container{N, T}(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real, T<:Number}
-    new(env, capacity, N(level), zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N, T}}(), DataStructures.PriorityQueue{Get, ContainerKey{N, T}}())
+  function Container{N, T}(env::Environment, capacity::N=one(N); level=zero(N), highpriofirst::Bool=false) where {N<:Real, T<:Number}
+    new(env, capacity, N(level), zero(UInt), DataStructures.PriorityQueue{Put, ContainerKey{N, T}}( pickorder(highpriofirst) ), DataStructures.PriorityQueue{Get, ContainerKey{N, T}}( pickorder(highpriofirst) ))
   end
 end
 
-function Container(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real}
-  Container{N, Int}(env, capacity; level=N(level))
+function Container(env::Environment, capacity::N=one(N); level=zero(N), highpriofirst::Bool=false) where {N<:Real}
+  Container{N, Int}(env, capacity; level=N(level), highpriofirst=highpriofirst)
 end
 
-function Container{T}(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real, T<:Number}
-  Container{N, T}(env, capacity; level=N(level))
+function Container{T}(env::Environment, capacity::N=one(N); level=zero(N), highpriofirst::Bool=false) where {N<:Real, T<:Number}
+  Container{N, T}(env, capacity; level=N(level), highpriofirst=highpriofirst)
 end
 
 const Resource = Container{Int, Int}

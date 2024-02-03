@@ -22,6 +22,12 @@ mutable struct BaseEvent
   end
 end
 
+struct HighPrioFirst <: Base.Ordering end
+struct LowPrioFirst <: Base.Ordering end
+const HighPrio = HighPrioFirst()
+const LowPrio = LowPrioFirst()
+pickorder( hpf::Bool ) = hpf ? HighPrio : LowPrio
+
 function show(io::IO, ev::AbstractEvent)
   print(io, "$(typeof(ev)) $(ev.bev.id)")
 end
