@@ -13,7 +13,7 @@ end
 sim = Simulation()
 ev1 = Event(sim)
 @callback test_callback_event(ev1)
-succeed(ev1, value="Succes")
+succeed(ev1, value="Success")
 ev2 = Event(sim)
 @callback test_callback_event(ev2)
 fail(ev2, TestException())

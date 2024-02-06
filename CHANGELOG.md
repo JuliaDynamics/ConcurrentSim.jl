@@ -42,7 +42,7 @@
   * This version no longer integrates a continuous time solver. A continuous simulation framework based on [DISCO](http://www.akira.ruc.dk/~keld/research/DISCO/) and inspired by the standalone [QSS](https://sourceforge.net/projects/qssengine/) solver using ConcurrentSim as its discrete-event engine can be found in the repository [QuantizedStateSystems](https://github.com/BenLauwens/QuantizedStateSystems.jl.git) (WIP):
   * Documentation is automated with [Documenter.jl](https://github.com/JuliaDocs/Documenter.jl) (WIP: Overview and Tutorial OK).
 * v0.4.1 (2017)
-  * the `@resumable` and `@yield` macros are put in a seperate package [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git):
+  * the `@resumable` and `@yield` macros are put in a separate package [ResumableFunctions](https://github.com/BenLauwens/ResumableFunctions.jl.git):
   * Users have to take into account the following syntax change: `@yield return arg` is replaced by `@yield arg`.
 * v0.4 (2017) only supports Julia v0.6 and above. It is a complete rewrite: more julian and less pythonic. The discrete event features are on par with v0.3 (SimPy v3) and following features are added:
   * Scheduling of events can be done with `Base.Dates.Datetime` and `Base.Dates.Period`
