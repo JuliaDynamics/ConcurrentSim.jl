@@ -23,7 +23,7 @@ jobs:
           version: ${{ matrix.version }}
       - uses: cjdoris/julia-downgrade-compat-action@v1
         with:
-          skip: Pkg,TOML,InteractiveUtils,Random,LinearAlgebra
+          skip: Pkg,TOML,InteractiveUtils,Random,LinearAlgebra,Dates
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
