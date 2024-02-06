@@ -20,7 +20,7 @@ num_customers = 10 # total number of customers generated
 num_servers = 2 # number of servers
 mu = 1.0 / 2 # service rate
 lam = 0.9 # arrival rate
-arrival_dist = Exponential(1 / lam) # interarrival time distriubtion
+arrival_dist = Exponential(1 / lam) # interarrival time distribution
 service_dist = Exponential(1 / mu) # service time distribution
 
 # define customer behavior

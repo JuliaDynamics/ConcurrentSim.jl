@@ -4,7 +4,7 @@
 There is a built-in [`DelayQueue`](@ref) if you need a store [`Store`](@ref) with latency between `put!` and `take!` events. However here, we show you how you could have built one for yourself. If you modify this in order to construct a particularly useful type of latency store, please contribute it to the library through a pull request.
 
 ## Description 
-In this example we show how to separate the time delay between processes from the processes themselves. We model a communications channel, called a `Cable`, where a sender sends messages regularly each `SEND_PERIOD` time units and a receiver listens each `RECEIVE_PERIOD`. The messages in the cable have a delay fo `DELAY_DURATION` until they reach the recevier.
+In this example we show how to separate the time delay between processes from the processes themselves. We model a communications channel, called a `Cable`, where a sender sends messages regularly each `SEND_PERIOD` time units and a receiver listens each `RECEIVE_PERIOD`. The messages in the cable have a delay of `DELAY_DURATION` until they reach the receiver.
 
 ### Load Packages
 
