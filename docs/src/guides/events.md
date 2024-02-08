@@ -107,4 +107,9 @@ end
 env = Simulation()
 school = School(env)
 run(env)
+
+#output
+
+ \o/ \o/ \o/
+ \o/ \o/ \o/
 ```
