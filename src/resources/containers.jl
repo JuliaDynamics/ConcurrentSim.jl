@@ -40,6 +40,7 @@ function Container{T}(env::Environment, capacity::N=one(N); level=zero(N)) where
   Container{N, T}(env, capacity; level=N(level))
 end
 
+"""An alias for `Container{Int, Int}`, one of the most frequently used types of synchronization primitive."""
 const Resource = Container{Int, Int}
 
 function put!(con::Container{N, T}, amount::N; priority=zero(T)) where {N<:Real, T<:Number}

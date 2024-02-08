@@ -59,3 +59,70 @@ ConcurrentSim.Event 1
 julia> run(sim)
 Called back from ConcurrentSim.Event 1
 ```
+
+## Example usages of Event
+
+The simple mechanics outlined above provide a great flexibility in the way events can be used.
+
+One example for this is that events can be shared. They can be created by a process or outside of the context of a process. They can be passed to other processes and chained. 
+
+Below we give such an example, however this is a **very low-level example** and you would probably prefer to use the safer and more user-friendly [`Resource`](@ref) or [`Store`](@ref).
+
+```jldoctest
+using ResumableFunctions
+using ConcurrentSim
+
+mutable struct School
+  class_ends :: Event
+  pupil_procs :: Vector{Process}
+  bell_proc :: Process
+  function School(env::Simulation)
+    school = new()
+    school.class_ends = Event(env)
+    school.pupil_procs = Process[@process pupil(env, school, i) for i=1:3]
+    school.bell_proc = @process bell(env, school)
+    return school
+  end
+end
+
+@resumable function bell(env::Simulation, school::School)
+  for i=1:2
+    println("starting the bell timer at t=$(now(env))")
+    @yield timeout(env, 45.0)
+    succeed(school.class_ends)
+    school.class_ends = Event(env) # the event is now idle (i.e. spent) so we need to create a new one
+    println("bell is ringing at t=$(now(env))")
+  end
+end
+
+@resumable function pupil(env::Simulation, school::School, pupil)
+  for i=1:2
+    println("pupil $pupil goes to class")
+    @yield school.class_ends
+    println("pupil $pupil leaves class at t=$(now(env))")
+  end
+end
+
+env = Simulation()
+school = School(env)
+run(env)
+
+# output
+
+pupil 1 goes to class
+pupil 2 goes to class
+pupil 3 goes to class
+starting the bell timer at t=0.0
+bell is ringing at t=45.0
+starting the bell timer at t=45.0
+pupil 1 leaves class at t=45.0
+pupil 1 goes to class
+pupil 2 leaves class at t=45.0
+pupil 2 goes to class
+pupil 3 leaves class at t=45.0
+pupil 3 goes to class
+bell is ringing at t=90.0
+pupil 1 leaves class at t=90.0
+pupil 2 leaves class at t=90.0
+pupil 3 leaves class at t=90.0
+```

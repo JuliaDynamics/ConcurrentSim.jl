@@ -1,5 +1,9 @@
 # News
 
+## v1.4.1 - dev
+
+- Added examples to the documentation that were lost around the time of the rewrite for v0.5 in 2018.
+
 ## v1.4.0 - 2023-08-07
 
 - Implement a `DelayQueue`, i.e. a `QueueStore` with latency between the store and take events.
