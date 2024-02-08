@@ -1,6 +1,6 @@
 # News
 
-## v1.4.1 - 2024-02-08
+## v1.4.1 - dev
 
 - Added examples to the documentation that were lost around the time of the rewrite for v0.5 in 2018.
 
