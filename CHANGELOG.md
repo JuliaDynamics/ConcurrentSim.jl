@@ -1,5 +1,9 @@
 # News
 
+## v1.4.1 - 2024-02-08
+
+- added example into events.md - code is taken from SimJulia old doc, ported and tested	
+
 ## v1.4.0 - 2023-08-07
 
 - Implement a `DelayQueue`, i.e. a `QueueStore` with latency between the store and take events.

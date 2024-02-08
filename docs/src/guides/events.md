@@ -66,7 +66,7 @@ The simple mechanics outlined above provide a great flexibility in the way event
 
 One example for this is that events can be shared. They can be created by a process or outside of the context of a process. They can be passed to other processes and chained:
 
-```
+```jldoctest
 # based on example from
 # https://simjuliajl.readthedocs.io/en/stable/topical_guides/3_events.html#example-usages-for-event
 #
