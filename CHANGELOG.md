@@ -2,7 +2,7 @@
 
 ## v1.4.1 - 2024-02-08
 
-- added example into events.md - code is taken from SimJulia old doc, ported and tested	
+- Added examples to the documentation that were lost around the time of the rewrite for v0.5 in 2018.
 
 ## v1.4.0 - 2023-08-07
 
