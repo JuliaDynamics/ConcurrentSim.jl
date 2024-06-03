@@ -34,6 +34,7 @@ println("Starting tests with $(Threads.nthreads()) threads out of `Sys.CPU_THREA
 @doset "resources_containers"
 @doset "resources_containers_deprecated"
 @doset "resources_stores"
+@doset "resources_stores_cast"
 @doset "resources_stores_deprecated"
 @doset "resources_fancy_stores"
 @doset "resource_priorities"

@@ -68,6 +68,8 @@ function put!(sto::Store{N, T}, item::N; priority=zero(T)) where {N, T<:Number}
   put_ev
 end
 
+put!(sto::Store{N, T}, item; priority=zero(T)) where {N, T<:Number} = put!(sto, convert(N, item); priority)
+
 get_any_item(::N) where N = true
 
 function get(sto::Store{N, T, D}, filter::Function=get_any_item; priority=zero(T)) where {N, T<:Number, D}
