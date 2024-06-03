@@ -1,7 +1,9 @@
 # News
 
-## v1.4.1 - dev
+## v1.4.1 - 2024-05-03
 
+
+- Permit stores `put!` methods to cast the value being placed to the type appropriate for the given store.
 - Added examples to the documentation that were lost around the time of the rewrite for v0.5 in 2018.
 
 ## v1.4.0 - 2023-08-07
