@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Events · ConcurrentSim</title><meta name="title" content="Events · ConcurrentSim"/><meta property="og:title" content="Events · ConcurrentSim"/><meta property="twitter:title" content="Events · ConcurrentSim"/><meta name="description" content="Documentation for ConcurrentSim."/><meta property="og:description" content="Documentation for ConcurrentSim."/><meta property="twitter:description" content="Documentation for ConcurrentSim."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ConcurrentSim</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Topical Guides</span><ul><li><a class="tocitem" href="../basics/">Basics</a></li><li><a class="tocitem" href="../environments/">Environments</a></li><li class="is-active"><a class="tocitem" href>Events</a><ul class="internal"><li><a class="tocitem" href="#Event-basics"><span>Event basics</span></a></li><li><a class="tocitem" href="#Adding-callbacks-to-an-event"><span>Adding callbacks to an event</span></a></li><li><a class="tocitem" href="#Example-usages-of-Event"><span>Example usages of Event</span></a></li></ul></li><li><a class="tocitem" href="../blockingandyielding/">Resource API</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/ross/">Ross</a></li><li><a class="tocitem" href="../../examples/Latency/">Latency</a></li><li><a class="tocitem" href="../../examples/mmc/">Multi-server Queue</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Topical Guides</a></li><li class="is-active"><a href>Events</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Events</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl/blob/master/docs/src/guides/events.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Events"><a class="docs-heading-anchor" href="#Events">Events</a><a id="Events-1"></a><a class="docs-heading-anchor-permalink" href="#Events" title="Permalink"></a></h1><p>ConcurrentSim includes an extensive set of event types for various purposes. All of them are descendants of <code>AbstractEvent</code>. Here the following events are discussed:</p><ul><li><code>Event</code></li><li><code>timeout</code></li><li><code>Operator</code></li></ul><p>The guide to resources describes the various resource events.</p><h2 id="Event-basics"><a class="docs-heading-anchor" href="#Event-basics">Event basics</a><a id="Event-basics-1"></a><a class="docs-heading-anchor-permalink" href="#Event-basics" title="Permalink"></a></h2><p>ConcurrentSim events are very similar – if not identical — to deferreds, futures or promises. Instances of the type AbstractEvent are used to describe any kind of events. Events can be in one of the following states. An event:</p><ul><li>might happen (idle),</li><li>is going to happen (scheduled) or</li><li>has happened (processed).</li></ul><p>They traverse these states exactly once in that order. Events are also tightly bound to time and time causes events to advance their state.</p><p>Initially, events are idle and the function <code>state</code> returns <code>ConcurrentSim.idle</code>.</p><p>If an event gets scheduled at a given time, it is inserted into ConcurrentSim’s event queue. The function <code>state</code> returns <code>ConcurrentSim.scheduled</code>.</p><p>As long as the event is not processed, you can add callbacks to an event. Callbacks are function having an <code>AbstractEvent</code> as first parameter.</p><p>An event becomes processed when ConcurrentSim pops it from the event queue and calls all of its callbacks. It is now no longer possible to add callbacks. The function <code>state</code> returns <code>ConcurrentSim.processed</code>.</p><p>Events also have a value. The value can be set before or when the event is scheduled and can be retrieved via the function <code>value</code> or, within a process, by yielding the event (<code>value = @yield event</code>).</p><h2 id="Adding-callbacks-to-an-event"><a class="docs-heading-anchor" href="#Adding-callbacks-to-an-event">Adding callbacks to an event</a><a id="Adding-callbacks-to-an-event-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-callbacks-to-an-event" title="Permalink"></a></h2><p>“What? Callbacks? I’ve never seen no callbacks!”, you might think if you have worked your way through the tutorial.</p><p>That’s on purpose. The most common way to add a callback to an event is yielding it from your process function (<code>@yield event</code>). This will add the process’ <code>resume</code> function as a callback. That’s how your process gets resumed when it yielded an event.</p><p>However, you can add any function to the list of callbacks as long as it accepts <code>AbstractEvent</code> or a descendant as first parameter:</p><pre><code class="language-julia-repl hljs">julia&gt; using ConcurrentSim
+
+julia&gt; function my_callback(ev::AbstractEvent)
+         println(&quot;Called back from &quot;, ev)
+       end
+my_callback (generic function with 1 method)
+
+julia&gt; sim = Simulation()
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
+
+julia&gt; ev = Event(sim)
+ConcurrentSim.Event 1
+
+julia&gt; @callback my_callback(ev)
+#1 (generic function with 1 method)
+
+julia&gt; succeed(ev)
+ConcurrentSim.Event 1
+
+julia&gt; run(sim)
+Called back from ConcurrentSim.Event 1</code></pre><h2 id="Example-usages-of-Event"><a class="docs-heading-anchor" href="#Example-usages-of-Event">Example usages of Event</a><a id="Example-usages-of-Event-1"></a><a class="docs-heading-anchor-permalink" href="#Example-usages-of-Event" title="Permalink"></a></h2><p>The simple mechanics outlined above provide a great flexibility in the way events can be used.</p><p>One example for this is that events can be shared. They can be created by a process or outside of the context of a process. They can be passed to other processes and chained. </p><p>Below we give such an example, however this is a <strong>very low-level example</strong> and you would probably prefer to use the safer and more user-friendly <a href="../../api/#ConcurrentSim.Resource"><code>Resource</code></a> or <a href="../../api/#ConcurrentSim.Store"><code>Store</code></a>.</p><pre><code class="language-julia hljs">using ResumableFunctions
+using ConcurrentSim
+
+mutable struct School
+  class_ends :: Event
+  pupil_procs :: Vector{Process}
+  bell_proc :: Process
+  function School(env::Simulation)
+    school = new()
+    school.class_ends = Event(env)
+    school.pupil_procs = Process[@process pupil(env, school, i) for i=1:3]
+    school.bell_proc = @process bell(env, school)
+    return school
+  end
+end
+
+@resumable function bell(env::Simulation, school::School)
+  for i=1:2
+    println(&quot;starting the bell timer at t=$(now(env))&quot;)
+    @yield timeout(env, 45.0)
+    succeed(school.class_ends)
+    school.class_ends = Event(env) # the event is now idle (i.e. spent) so we need to create a new one
+    println(&quot;bell is ringing at t=$(now(env))&quot;)
+  end
+end
+
+@resumable function pupil(env::Simulation, school::School, pupil)
+  for i=1:2
+    println(&quot;pupil $pupil goes to class&quot;)
+    @yield school.class_ends
+    println(&quot;pupil $pupil leaves class at t=$(now(env))&quot;)
+  end
+end
+
+env = Simulation()
+school = School(env)
+run(env)
+
+# output
+
+pupil 1 goes to class
+pupil 2 goes to class
+pupil 3 goes to class
+starting the bell timer at t=0.0
+bell is ringing at t=45.0
+starting the bell timer at t=45.0
+pupil 1 leaves class at t=45.0
+pupil 1 goes to class
+pupil 2 leaves class at t=45.0
+pupil 2 goes to class
+pupil 3 leaves class at t=45.0
+pupil 3 goes to class
+bell is ringing at t=90.0
+pupil 1 leaves class at t=90.0
+pupil 2 leaves class at t=90.0
+pupil 3 leaves class at t=90.0</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../environments/">« Environments</a><a class="docs-footer-nextpage" href="../blockingandyielding/">Resource API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 3 June 2024 16:37">Monday 3 June 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

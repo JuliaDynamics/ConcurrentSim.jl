@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · ConcurrentSim</title><meta name="title" content="Tutorial · ConcurrentSim"/><meta property="og:title" content="Tutorial · ConcurrentSim"/><meta property="twitter:title" content="Tutorial · ConcurrentSim"/><meta name="description" content="Documentation for ConcurrentSim."/><meta property="og:description" content="Documentation for ConcurrentSim."/><meta property="twitter:description" content="Documentation for ConcurrentSim."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">ConcurrentSim</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Basic-Concepts"><span>Basic Concepts</span></a></li><li><a class="tocitem" href="#Our-First-Process"><span>Our First Process</span></a></li><li><a class="tocitem" href="#Process-Interaction"><span>Process Interaction</span></a></li><li><a class="tocitem" href="#Shared-Resources"><span>Shared Resources</span></a></li></ul></li><li><span class="tocitem">Topical Guides</span><ul><li><a class="tocitem" href="../guides/basics/">Basics</a></li><li><a class="tocitem" href="../guides/environments/">Environments</a></li><li><a class="tocitem" href="../guides/events/">Events</a></li><li><a class="tocitem" href="../guides/blockingandyielding/">Resource API</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../examples/ross/">Ross</a></li><li><a class="tocitem" href="../examples/Latency/">Latency</a></li><li><a class="tocitem" href="../examples/mmc/">Multi-server Queue</a></li></ul></li><li><a class="tocitem" href="../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl/blob/master/docs/src/tutorial.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial"><a class="docs-heading-anchor" href="#Tutorial">Tutorial</a><a id="Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Tutorial" title="Permalink"></a></h1><h2 id="Basic-Concepts"><a class="docs-heading-anchor" href="#Basic-Concepts">Basic Concepts</a><a id="Basic-Concepts-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Concepts" title="Permalink"></a></h2><p>ConcurrentSim is a discrete-event simulation library. The behavior of active components (like vehicles, customers or messages) is modeled with processes. All processes live in an environment. They interact with the environment and with each other via events.</p><p>Processes are described by <code>@resumable</code> functions. You can call them process function. During their lifetime, they create events and <code>@yield</code> them in order to wait for them to be triggered.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Detailed information about the <code>@resumable</code> and the <code>@yield</code> macros can be found in the documentation of <a href="https://github.com/JuliaDynamics/ResumableFunctions.jl.git">ResumableFunctions</a>.</p></div></div><p>When a process yields an event, the process gets suspended. ConcurrentSim resumes the process, when the event occurs (we say that the event is triggered). Multiple processes can wait for the same event. ConcurrentSim resumes them in the same order in which they yielded that event.</p><p>An important event type is the <code>timeout</code>. Events of this type are scheduled after a certain amount of (simulated) time has passed. They allow a process to sleep (or hold its state) for the given time. A <code>timeout</code> and all other events can be created by calling a constructor having the environment as first argument.</p><h2 id="Our-First-Process"><a class="docs-heading-anchor" href="#Our-First-Process">Our First Process</a><a id="Our-First-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Our-First-Process" title="Permalink"></a></h2><p>Our first example will be a car process. The car will alternately drive and park for a while. When it starts driving (or parking), it will print the current simulation time.</p><p>So let’s start:</p><pre><code class="language-julia-repl hljs">julia&gt; using ResumableFunctions
+
+julia&gt; using ConcurrentSim
+
+julia&gt; @resumable function car(env::Environment)
+           while true
+             println(&quot;Start parking at &quot;, now(env))
+             parking_duration = 5
+             @yield timeout(env, parking_duration)
+             println(&quot;Start driving at &quot;, now(env))
+             trip_duration = 2
+             @yield timeout(env, trip_duration)
+           end
+         end
+car (generic function with 1 method)</code></pre><p>Our car process requires a reference to an <code>Environment</code> in order to create new events. The car‘s behavior is described in an infinite loop. Remember, the <code>car</code> function is a <code>@resumable</code> function. Though it will never terminate, it will pass the control flow back to the simulation once a <code>@yield</code> statement is reached. Once the yielded event is triggered (“it occurs”), the simulation will resume the function at this statement.</p><p>As said before, our car switches between the states parking and driving. It announces its new state by printing a message and the current simulation time (as returned by the function call <code>now</code>). It then calls the constructor <code>timeout</code> to create a timeout event. This event describes the point in time the car is done parking (or driving, respectively). By yielding the event, it signals the simulation that it wants to wait for the event to occur.</p><p>Now that the behavior of our car has been modeled, lets create an instance of it and see how it behaves:</p><pre><code class="language-julia-repl hljs">julia&gt; sim = Simulation()
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
+
+julia&gt; @process car(sim)
+ConcurrentSim.Process 1
+
+julia&gt; run(sim, 15)
+Start parking at 0.0
+Start driving at 5.0
+Start parking at 7.0
+Start driving at 12.0
+Start parking at 14.0</code></pre><p>The first thing we need to do is to create an environment, e.g. an instance of <code>Simulation</code>. The macro <code>@process</code> having as argument a car process function call creates a process that is initialized and added to the environment automatically.</p><p>Note, that at this time, none of the code of our process function is being executed. Its execution is merely scheduled at the current simulation time.</p><p>The <code>Process</code> returned by the <code>@process</code> macro can be used for process interactions.</p><p>Finally, we start the simulation by calling <code>run</code> and passing an end time to it.</p><h2 id="Process-Interaction"><a class="docs-heading-anchor" href="#Process-Interaction">Process Interaction</a><a id="Process-Interaction-1"></a><a class="docs-heading-anchor-permalink" href="#Process-Interaction" title="Permalink"></a></h2><p>The <code>Process</code> instance that is returned by <code>@process</code> macro can be utilized for process interactions. The two most common examples for this are to wait for another process to finish and to interrupt another process while it is waiting for an event.</p><h3 id="Waiting-for-a-Process"><a class="docs-heading-anchor" href="#Waiting-for-a-Process">Waiting for a Process</a><a id="Waiting-for-a-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Waiting-for-a-Process" title="Permalink"></a></h3><p>As it happens, a ConcurrentSim <code>Process</code> can be used like an event. If you yield it, you are resumed once the process has finished. Imagine a car-wash simulation where cars enter the car-wash and wait for the washing process to finish, or an airport simulation where passengers have to wait until a security check finishes.</p><p>Lets assume that the car from our last example is an electric vehicle. Electric vehicles usually take a lot of time charging their batteries after a trip. They have to wait until their battery is charged before they can start driving again.</p><p>We can model this with an additional charge process for our car. Therefore, we redefine our <code>car</code> process function and add a <code>charge</code> process function.</p><p>A new charge process is started every time the vehicle starts parking. By yielding the <code>Process</code> instance that the <code>@process</code> macro returns, the <code>run</code> process starts waiting for it to finish:</p><pre><code class="language-julia-repl hljs">julia&gt; using ResumableFunctions
+
+julia&gt; using ConcurrentSim
+
+julia&gt; @resumable function charge(env::Environment, duration::Number)
+         @yield timeout(env, duration)
+       end
+charge (generic function with 1 method)
+
+julia&gt; @resumable function car(env::Environment)
+         while true
+           println(&quot;Start parking and charging at &quot;, now(env))
+           charge_duration = 5
+           charge_process = @process charge(sim, charge_duration)
+           @yield charge_process
+           println(&quot;Start driving at &quot;, now(env))
+           trip_duration = 2
+           @yield timeout(sim, trip_duration)
+         end
+       end
+car (generic function with 1 method)</code></pre><p>Starting the simulation is straightforward again: We create a <code>Simulation</code>, one (or more) cars and finally call <code>run</code>.</p><pre><code class="language-julia-repl hljs">julia&gt; sim = Simulation()
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
+
+julia&gt; @process car(sim)
+ConcurrentSim.Process 1
+
+julia&gt; run(sim, 15)
+Start parking and charging at 0.0
+Start driving at 5.0
+Start parking and charging at 7.0
+Start driving at 12.0
+Start parking and charging at 14.0</code></pre><h3 id="Interrupting-Another-Process"><a class="docs-heading-anchor" href="#Interrupting-Another-Process">Interrupting Another Process</a><a id="Interrupting-Another-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Interrupting-Another-Process" title="Permalink"></a></h3><p>Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.</p><p>ConcurrentSim allows you to interrupt a running process by calling the <code>interrupt</code> function:</p><pre><code class="language-julia-repl hljs">julia&gt; using ResumableFunctions
+
+julia&gt; using ConcurrentSim
+
+julia&gt; @resumable function driver(env::Environment, car_process::Process)
+         @yield timeout(env, 3)
+         @yield interrupt(car_process)
+       end
+driver (generic function with 1 method)</code></pre><p>The driver process has a reference to the car process. After waiting for 3 time steps, it interrupts that process.</p><p>Interrupts are thrown into process functions as <code>Interrupt</code> exceptions that can (should) be handled by the interrupted process. The process can then decide what to do next (e.g., continuing to wait for the original event or yielding a new event):</p><pre><code class="language-julia-repl hljs">julia&gt; @resumable function charge(env::Environment, duration::Number)
+         @yield timeout(env, duration)
+       end
+charge (generic function with 1 method)
+
+julia&gt; @resumable function car(env::Environment)
+         while true
+           println(&quot;Start parking and charging at &quot;, now(env))
+           charge_duration = 5
+           charge_process = @process charge(sim, charge_duration)
+           try
+             @yield charge_process
+           catch
+             println(&quot;Was interrupted. Hopefully, the battery is full enough ...&quot;)
+           end
+           println(&quot;Start driving at &quot;, now(env))
+           trip_duration = 2
+           @yield timeout(sim, trip_duration)
+         end
+       end
+car (generic function with 1 method)</code></pre><p>When you compare the output of this simulation with the previous example, you’ll notice that the car now starts driving at time 3 instead of 5:</p><pre><code class="language-julia-repl hljs">julia&gt; sim = Simulation()
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
+
+julia&gt; car_process = @process car(sim)
+ConcurrentSim.Process 1
+
+julia&gt; @process driver(sim, car_process)
+ConcurrentSim.Process 3
+
+julia&gt; run(sim, 15)
+Start parking and charging at 0.0
+Was interrupted. Hopefully, the battery is full enough ...
+Start driving at 3.0
+Start parking and charging at 5.0
+Start driving at 10.0
+Start parking and charging at 12.0</code></pre><h2 id="Shared-Resources"><a class="docs-heading-anchor" href="#Shared-Resources">Shared Resources</a><a id="Shared-Resources-1"></a><a class="docs-heading-anchor-permalink" href="#Shared-Resources" title="Permalink"></a></h2><p>ConcurrentSim offers three types of resources that help you modeling problems, where multiple processes want to use a resource of limited capacity (e.g., cars at a fuel station with a limited number of fuel pumps) or classical producer-consumer problems.</p><p>In this section, we’ll briefly introduce ConcurrentSim’s <code>Resource</code> class.</p><h3 id="Basic-Resource-Usage"><a class="docs-heading-anchor" href="#Basic-Resource-Usage">Basic Resource Usage</a><a id="Basic-Resource-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Resource-Usage" title="Permalink"></a></h3><p>We’ll slightly modify our electric vehicle process <code>car</code> that we introduced in the last sections.</p><p>The car will now drive to a battery charging station (BCS) and request (lock) one of its two charging spots. If both of these spots are currently in use, it waits until one of them becomes available again. It then starts charging its battery and leaves the station afterwards:</p><pre><code class="language-julia-repl hljs">julia&gt; using ResumableFunctions
+
+julia&gt; using ConcurrentSim
+
+julia&gt; @resumable function car(env::Environment, name::Int, bcs::Resource, driving_time::Number, charge_duration::Number)
+         @yield timeout(sim, driving_time)
+         println(name, &quot; arriving at &quot;, now(env))
+         @yield request(bcs)
+         println(name, &quot; starting to charge at &quot;, now(env))
+         @yield timeout(sim, charge_duration)
+         println(name, &quot; leaving the bcs at &quot;, now(env))
+         @yield unlock(bcs)
+       end
+car (generic function with 1 method)</code></pre><p>The resource’s <code>request</code> function generates an event that lets you wait until the resource becomes available again. If you are resumed, you “own” the resource until you release it with <code>unlock</code>.</p><p>You are responsible to call <code>unlock</code> once you are done using the resource. When you unlock (release) a resource, the next waiting process is resumed and now “owns” one of the resource’s slots. The basic <code>Resource</code> sorts waiting processes in a FIFO (first in—first out) way.</p><p>A resource needs a reference to an <code>Environment</code> and a capacity when it is created:</p><pre><code class="language-julia-repl hljs">julia&gt; sim = Simulation()
+ConcurrentSim.Simulation time: 0.0 active_process: nothing
+
+julia&gt; bcs = Resource(sim, 2)
+ConcurrentSim.Resource</code></pre><p>We can now create the car processes and pass a reference to our resource as well as some additional parameters to them</p><pre><code class="language-julia-repl hljs">julia&gt; for i in 1:4
+         @process car(sim, i, bcs, 2i, 5)
+       end
+
+julia&gt; run(sim)
+1 arriving at 2.0
+1 starting to charge at 2.0
+2 arriving at 4.0
+2 starting to charge at 4.0
+3 arriving at 6.0
+1 leaving the bcs at 7.0
+3 starting to charge at 7.0
+4 arriving at 8.0
+2 leaving the bcs at 9.0
+4 starting to charge at 9.0
+3 leaving the bcs at 12.0
+4 leaving the bcs at 14.0</code></pre><p>Finally, we can start the simulation. Since the car processes all terminate on their own in this simulation, we don’t need to specify an until time — the simulation will automatically stop when there are no more events left:</p><pre><code class="language-julia-repl hljs">julia&gt; run(sim)
+1 arriving at 2.0
+1 starting to charge at 2.0
+2 arriving at 4.0
+2 starting to charge at 4.0
+3 arriving at 6.0
+1 leaving the bcs at 7.0
+3 starting to charge at 7.0
+4 arriving at 8.0
+2 leaving the bcs at 9.0
+4 starting to charge at 9.0
+3 leaving the bcs at 12.0
+4 leaving the bcs at 14.0</code></pre><p>Note that the first two cars can start charging immediately after they arrive at the BCS, while cars 3 and 4 have to wait.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../guides/basics/">Basics »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 3 June 2024 16:37">Monday 3 June 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

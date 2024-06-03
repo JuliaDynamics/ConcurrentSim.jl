@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Ross · ConcurrentSim</title><meta name="title" content="Ross · ConcurrentSim"/><meta property="og:title" content="Ross · ConcurrentSim"/><meta property="twitter:title" content="Ross · ConcurrentSim"/><meta name="description" content="Documentation for ConcurrentSim."/><meta property="og:description" content="Documentation for ConcurrentSim."/><meta property="twitter:description" content="Documentation for ConcurrentSim."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ConcurrentSim</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Topical Guides</span><ul><li><a class="tocitem" href="../../guides/basics/">Basics</a></li><li><a class="tocitem" href="../../guides/environments/">Environments</a></li><li><a class="tocitem" href="../../guides/events/">Events</a></li><li><a class="tocitem" href="../../guides/blockingandyielding/">Resource API</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li class="is-active"><a class="tocitem" href>Ross</a><ul class="internal"><li><a class="tocitem" href="#A-repair-problem"><span>A repair problem</span></a></li></ul></li><li><a class="tocitem" href="../Latency/">Latency</a></li><li><a class="tocitem" href="../mmc/">Multi-server Queue</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Ross</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Ross</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/ConcurrentSim.jl/blob/master/docs/src/examples/ross.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Ross,-Simulation-5th-edition:"><a class="docs-heading-anchor" href="#Ross,-Simulation-5th-edition:">Ross, Simulation 5th edition:</a><a id="Ross,-Simulation-5th-edition:-1"></a><a class="docs-heading-anchor-permalink" href="#Ross,-Simulation-5th-edition:" title="Permalink"></a></h1><h2 id="A-repair-problem"><a class="docs-heading-anchor" href="#A-repair-problem">A repair problem</a><a id="A-repair-problem-1"></a><a class="docs-heading-anchor-permalink" href="#A-repair-problem" title="Permalink"></a></h2><h3 id="Source"><a class="docs-heading-anchor" href="#Source">Source</a><a id="Source-1"></a><a class="docs-heading-anchor-permalink" href="#Source" title="Permalink"></a></h3><p>Ross, Simulation 5th edition, Section 7.7, p. 124-126</p><h3 id="Description"><a class="docs-heading-anchor" href="#Description">Description</a><a id="Description-1"></a><a class="docs-heading-anchor-permalink" href="#Description" title="Permalink"></a></h3><p>A system needs <span>$n$</span> working machines to be operational. To guard against machine breakdown, additional machines are kept available as spares. Whenever a machine breaks down it is immediately replaced by a spare and is itself sent to the repair facility, which consists of a single repairperson who repairs failed machines one at a time. Once a failed machine has been repaired it becomes available as a spare to be used when the need arises. All repair times are independent random variables having the common distribution function <span>$G$</span>. Each time a machine is put into use the amount of time it functions before breaking down is a random variable, independent of the past, having distribution function <span>$F$</span>.</p><p>The system is said to “crash” when a machine fails and no spares are available. Assuming that there are initially <span>$n + s$</span> functional machines of which <span>$n$</span> are put in use and <span>$s$</span> are kept as spares, we are interested in simulating this system so as to approximate <span>$E[T]$</span>, where <span>$T$</span> is the time at which the system crashes.</p><h3 id="Code"><a class="docs-heading-anchor" href="#Code">Code</a><a id="Code-1"></a><a class="docs-heading-anchor-permalink" href="#Code" title="Permalink"></a></h3><pre><code class="language-julia hljs">using ResumableFunctions
+using ConcurrentSim
+
+using Distributions
+using Random
+using StableRNGs
+
+const RUNS = 5
+const N = 10
+const S = 3
+const SEED = 150
+const LAMBDA = 100
+const MU = 1
+
+const rng = StableRNG(42) # setting a random seed for reproducibility
+const F = Exponential(LAMBDA)
+const G = Exponential(MU)
+
+@resumable function machine(env::Environment, repair_facility::Resource, spares::Store{Process})
+    while true
+        try @yield timeout(env, Inf) catch end
+        @yield timeout(env, rand(rng, F))
+        get_spare = take!(spares)
+        @yield get_spare | timeout(env)
+        if state(get_spare) != ConcurrentSim.idle 
+            @yield interrupt(value(get_spare))
+        else
+            throw(StopSimulation(&quot;No more spares!&quot;))
+        end
+        @yield request(repair_facility)
+        @yield timeout(env, rand(rng, G))
+        @yield unlock(repair_facility)
+        @yield put!(spares, active_process(env))
+    end
+end
+
+@resumable function start_sim(env::Environment, repair_facility::Resource, spares::Store{Process})
+    for i in 1:N
+        proc = @process machine(env, repair_facility, spares)
+        @yield interrupt(proc)
+    end
+    for i in 1:S
+        proc = @process machine(env, repair_facility, spares)
+        @yield put!(spares, proc) 
+    end
+end
+
+function sim_repair()
+    sim = Simulation()
+    repair_facility = Resource(sim)
+    spares = Store{Process}(sim)
+    @process start_sim(sim, repair_facility, spares)
+    msg = run(sim)
+    stop_time = now(sim)
+    println(&quot;At time $stop_time: $msg&quot;)
+    stop_time
+end
+
+results = Float64[]
+for i in 1:RUNS push!(results, sim_repair()) end
+println(&quot;Average crash time: &quot;, sum(results)/RUNS)
+
+# output
+
+At time 12715.718224958666: No more spares!
+At time 37335.53567595007: No more spares!
+At time 30844.62667837361: No more spares!
+At time 1601.2524911974856: No more spares!
+At time 824.1048708405848: No more spares!
+Average crash time: 16664.247588264083</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../guides/blockingandyielding/">« Resource API</a><a class="docs-footer-nextpage" href="../Latency/">Latency »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 3 June 2024 16:37">Monday 3 June 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
