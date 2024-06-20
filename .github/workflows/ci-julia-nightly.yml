@@ -16,7 +16,7 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x64
-            version: nightly
+            version: alpha
             threads: 2
             jet: 'false'
           - os: ubuntu-latest
@@ -26,10 +26,9 @@ jobs:
             jet: 'true'
     steps:
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/install-juliaup@v2
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
+          channel: ${{ matrix.version }}~${{ matrix.arch }}
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
