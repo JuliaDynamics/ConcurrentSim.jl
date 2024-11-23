@@ -4,6 +4,14 @@ on:
     branches: [master, main]
     tags: ["*"]
   pull_request:
+
+concurrency:
+  # group by workflow and ref; the last slightly strange component ensures that for pull
+  # requests, we limit to 1 concurrent job, but for the master branch we don't
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ (github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main') || github.run_number }}
+  # Cancel intermediate builds, but only if it is a pull request build.
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
 env:
   PYTHON: ~
 jobs:
@@ -14,18 +22,28 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.6'
-          - '1.7'
-          - '1.8'
-          - '1.9'
-          - '1.10'
           - '1'
+          - '1.10'
         os:
           - ubuntu-latest
         threads:
           - '1'
+          - '5'
         arch:
           - x64
+        include:
+          - arch: aarch64
+            os: macos-latest
+            version: '1'
+            threads: '1'
+          - arch: x64
+            os: macos-latest
+            version: '1'
+            threads: '1'
+          - arch: x64
+            os: windows-latest
+            version: '1'
+            threads: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
