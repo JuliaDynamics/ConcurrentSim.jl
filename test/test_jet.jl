@@ -12,5 +12,5 @@ using InteractiveUtils
     )
     @show rep
     @test_broken length(JET.get_reports(rep)) == 0
-    @test length(JET.get_reports(rep)) <= 3
+    @test length(JET.get_reports(rep)) <= 1
 end

@@ -32,11 +32,11 @@ mutable struct Container{N<:Real, T<:Number} <: AbstractResource
   end
 end
 
-function Container(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real}
+function Container(env::Environment, capacity::N; level=zero(N)) where {N<:Real}
   Container{N, Int}(env, capacity; level=N(level))
 end
 
-function Container{T}(env::Environment, capacity::N=one(N); level=zero(N)) where {N<:Real, T<:Number}
+function Container{T}(env::Environment, capacity::N; level=zero(N)) where {N<:Real, T<:Number}
   Container{N, T}(env, capacity; level=N(level))
 end
 
