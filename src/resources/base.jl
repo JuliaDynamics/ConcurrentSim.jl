@@ -29,27 +29,27 @@ end
 function trigger_put(put_ev::ResourceEvent, res::AbstractResource)
   queue = DataStructures.PriorityQueue(res.put_queue)
   while length(queue) > 0
-    (put_ev, key) = DataStructures.peek(queue)
+    (put_ev, key) = DataStructures.first(queue)
     proceed = do_put(res, put_ev, key)
-    state(put_ev) === scheduled && DataStructures.dequeue!(res.put_queue, put_ev)
-    proceed ? DataStructures.dequeue!(queue) : break
+    state(put_ev) === scheduled && DataStructures.popat!(res.put_queue, put_ev).first
+    proceed ? DataStructures.popfirst!(queue).first : break
   end
 end
 
 function trigger_get(get_ev::ResourceEvent, res::AbstractResource)
   queue = DataStructures.PriorityQueue(res.get_queue)
   while length(queue) > 0
-    (get_ev, key) = DataStructures.peek(queue)
+    (get_ev, key) = DataStructures.first(queue)
     proceed = do_get(res, get_ev, key)
-    state(get_ev) === scheduled && DataStructures.dequeue!(res.get_queue, get_ev)
-    proceed ? DataStructures.dequeue!(queue) : break
+    state(get_ev) === scheduled && DataStructures.popat!(res.get_queue, get_ev).first
+    proceed ? DataStructures.popfirst!(queue).first : break
   end
 end
 
 function cancel(res::AbstractResource, put_ev::Put)
-  DataStructures.dequeue!(res.put_queue, put_ev)
+  DataStructures.popat!(res.put_queue, put_ev).first
 end
 
 function cancel(res::AbstractResource, get_ev::Get)
-  DataStructures.dequeue!(res.get_queue, get_ev)
+  DataStructures.popat!(res.get_queue, get_ev).first
 end
