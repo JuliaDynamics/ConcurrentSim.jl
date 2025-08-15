@@ -1,5 +1,9 @@
 # News
 
+## v1.5.1 - 2025-08-15
+
+- Bump DataStructures to 0.19.
+
 ## v1.5.0 - 2024-11-23
 
 - Bump ResumableFunctions compat to 1.0.0.
