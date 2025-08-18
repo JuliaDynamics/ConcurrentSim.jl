@@ -50,8 +50,7 @@ ConcurrentSim.Simulation time: 0.0 active_process: nothing
 julia> ev = Event(sim)
 ConcurrentSim.Event 1
 
-julia> @callback my_callback(ev)
-#1 (generic function with 1 method)
+julia> @callback my_callback(ev);
 
 julia> succeed(ev)
 ConcurrentSim.Event 1
