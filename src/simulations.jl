@@ -32,7 +32,7 @@ end
 function step(sim::Simulation)
   isempty(sim.heap) && throw(EmptySchedule())
   (bev, key) = DataStructures.first(sim.heap)
-  DataStructures.popfirst!(sim.heap).first
+  DataStructures.popfirst!(sim.heap)
   sim.time = key.time
   bev.state = processed
   for callback in bev.callbacks

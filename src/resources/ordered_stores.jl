@@ -89,7 +89,7 @@ end
 function do_put(sto::QueueStore{N, T}, put_ev::Put, key::StorePutKey{N, T}) where {N, T<:Number}
   if sto.load < sto.capacity
     sto.load += one(UInt)
-    enqueue!(sto.items, key.item)
+    push!(sto.items, key.item)
     schedule(put_ev)
   end
   false
@@ -98,7 +98,7 @@ end
 function do_get(sto::QueueStore{N, T}, get_ev::Get, key::StoreGetKey{T}) where {N, T<:Number}
   key.filter !== get_any_item && error("Filtering not supported for `QueueStore`. Use an unordered store instead, or submit a feature request for implementing filtering to our issue tracker.")
   isempty(sto.items) && return true
-  item = popfirst!(sto.items).first
+  item = popfirst!(sto.items)
   sto.load -= one(UInt)
   schedule(get_ev; value=item)
   true
