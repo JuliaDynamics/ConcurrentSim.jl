@@ -1,4 +1,5 @@
 [deps]
+AnythingLLMDocs = "333fe5f5-19c9-4863-8caf-c9193e7dba62"
 ConcurrentSim = "6ed1e86c-fcaf-46a9-97e0-2b26a2cdb499"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
