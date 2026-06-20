@@ -33,7 +33,7 @@ jobs:
             threads: 2
             jet: 'true'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: julia-actions/install-juliaup@v3
         with:
           channel: ${{ matrix.version }}~${{ matrix.arch }}
