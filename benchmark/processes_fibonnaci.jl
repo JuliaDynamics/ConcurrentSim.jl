@@ -15,5 +15,7 @@ function run_test()
   run(sim, 10)
 end
 
-run_test()
-@btime run_test()
+if abspath(PROGRAM_FILE) == @__FILE__
+  run_test()
+  @btime run_test()
+end
