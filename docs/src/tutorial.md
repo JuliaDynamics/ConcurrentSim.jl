@@ -175,7 +175,7 @@ DocTestSetup = nothing
 
 Imagine, you don’t want to wait until your electric vehicle is fully charged but want to interrupt the charging process and just start driving instead.
 
-ConcurrentSim allows you to interrupt a running process by calling the `interrupt` function:
+ConcurrentSim allows you to interrupt a running process by calling the `interrupt` function from an active process in the same simulation. Calling `interrupt` on an unfinished process when no process is active throws an `ArgumentError`:
 
 ```jldoctest
 julia> using ResumableFunctions
