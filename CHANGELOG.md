@@ -1,6 +1,6 @@
 # News
 
-## Unreleased
+## v1.5.2 - 2026-09-11
 
 - Report an `ArgumentError` before changing the event queue when `interrupt` is called on an unfinished process without an active process.
 
