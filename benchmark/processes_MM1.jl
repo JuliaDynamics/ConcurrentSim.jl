@@ -22,5 +22,7 @@ function test_mm1(n::Float64)
   run(sim, n)
 end
 
-test_mm1(100.0)
-@btime test_mm1(100.0)
+if abspath(PROGRAM_FILE) == @__FILE__
+  test_mm1(100.0)
+  @btime test_mm1(100.0)
+end

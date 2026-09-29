@@ -72,7 +72,7 @@ Note
 !!! note
     Although the simulation time is technically unitless, you can pretend that it is, for example, in milliseconds and use it like a timestamp returned by `Base.Dates.datetime2epochm` to calculate a date or the day of the week. The `Simulation` constructor and the `run` function accept as argument a `Base.Dates.DateTime` and the `timeout` constructor a `Base.Dates.Delay`. Together with the convenience function `nowDateTime` a simulation can transparently schedule its events in seconds, minutes, hours, days, ...
 
-The function `active_process` is comparable to `Base.Libc.getpid` and returns the current active `Process`. If no process is active, a `NullException` is thrown. A process is active when its process function is being executed. It becomes inactive (or suspended) when it yields an event.
+The function `active_process` is comparable to `Base.Libc.getpid` and returns the current active `Process`. If no process is active, it returns `nothing`. A process is active when its process function is being executed. It becomes inactive (or suspended) when it yields an event.
 
 Thus, it only makes sense to call this function from within a process function or a function that is called by your process function:
 
