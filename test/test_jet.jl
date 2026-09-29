@@ -5,7 +5,7 @@ using Test
 using InteractiveUtils
 
 @testset "JET checks" begin
-    rep = report_package("ConcurrentSim";
+    rep = report_package(ConcurrentSim;
         ignored_modules=(
             AnyFrameModule(InteractiveUtils),
         )

@@ -1,5 +1,6 @@
 using ConcurrentSim
 using ResumableFunctions
+using Test
 
 struct TestException <: Exception end
 
@@ -70,4 +71,40 @@ try
   run(sim)
 catch exc
   println("$exc has been thrown")
+end
+
+@resumable function record_interruption(sim::Simulation, trace)
+  try
+    @yield timeout(sim, 10)
+    push!(trace, now(sim))
+  catch exc
+    push!(trace, exc)
+  end
+end
+
+@resumable function interrupt_with_cause(sim::Simulation, proc::Process)
+  @yield timeout(sim, 2)
+  @yield interrupt(proc, :cancelled)
+end
+
+@testset "Interrupt caller and cause" begin
+  sim = Simulation()
+  trace = Any[]
+  proc = @process record_interruption(sim, trace)
+  @test_throws ArgumentError interrupt(proc)
+  run(sim, 1)
+  @test_throws ArgumentError interrupt(proc)
+  run(sim)
+  @test trace == [10.0]
+
+  sim = Simulation()
+  empty!(trace)
+  proc = @process record_interruption(sim, trace)
+  caller = @process interrupt_with_cause(sim, proc)
+  run(sim)
+  @test length(trace) == 1
+  exc = only(trace)
+  @test exc isa ConcurrentSim.InterruptException
+  @test exc.by === caller
+  @test exc.cause === :cancelled
 end
