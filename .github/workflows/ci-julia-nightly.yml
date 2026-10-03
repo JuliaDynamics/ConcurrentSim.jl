@@ -34,7 +34,7 @@ jobs:
             jet: 'true'
     steps:
       - uses: actions/checkout@v7
-      - uses: julia-actions/install-juliaup@v3.1.4
+      - uses: julia-actions/install-juliaup@v3.1.6
         with:
           channel: ${{ matrix.version }}~${{ matrix.arch }}
       - uses: julia-actions/cache@v3
