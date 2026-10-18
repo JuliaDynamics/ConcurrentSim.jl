@@ -1,5 +1,13 @@
 # News
 
+## Unreleased
+
+- Conditions release their input subscriptions before notifying their callers. Custom
+  events can opt into abandonment when their last subscriber is removed using
+  `abandon_on_unobserved` and `on_abandon`. Abandoned events reject reuse with
+  `EventAbandoned`; ordinary events, processes, and resource operations continue.
+- Removing an absent callback is harmless, including repeated removal.
+
 ## v1.5.2 - 2026-09-11
 
 - Report an `ArgumentError` before changing the event queue when `interrupt` is called on an unfinished process without an active process.

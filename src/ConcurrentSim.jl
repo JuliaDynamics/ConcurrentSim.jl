@@ -12,6 +12,7 @@ module ConcurrentSim
 
   export AbstractEvent, Environment, value, state, environment
   export Event, succeed, fail, @callback, remove_callback
+  export abandon_on_unobserved, on_abandon, EventAbandoned
   export timeout
   export Operator, &, |, AllOf, AnyOf
   export @resumable, @yield

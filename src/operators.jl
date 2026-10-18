@@ -9,19 +9,43 @@ end
 struct Operator <: AbstractEvent
   bev :: BaseEvent
   eval :: Function
+  subscriptions :: Vector{Tuple{AbstractEvent, Function}}
+  abandonable :: Bool
   function Operator(eval::Function, fev::AbstractEvent, events::AbstractEvent...)
+    inputs = tuple(fev, events...)
+    for ev in inputs
+      check_not_abandoned(ev)
+      state(ev) === processed && throw(EventProcessed(ev))
+    end
     env = environment(fev)
-    op = new(BaseEvent(env), eval)
+    op = new(BaseEvent(env), eval, Tuple{AbstractEvent, Function}[], any(abandon_on_unobserved, inputs))
+    # Release inputs before consumer callbacks can resume their processes.
+    @callback release_inputs(op)
     event_state_values = Dict{AbstractEvent, StateValue}()
-    for ev in tuple(fev, events...)
+    for ev in inputs
       event_state_values[ev] = StateValue(state(ev))
-      @callback check(ev, op, event_state_values)
+      cb = @callback check(ev, op, event_state_values)
+      push!(op.subscriptions, (ev, cb))
     end
     op
   end
 end
 
+abandon_on_unobserved(op::Operator) = op.abandonable
+# The first callback releases inputs and is not a subscriber.
+has_subscribers(op::Operator) = length(op.bev.callbacks) > 1
+on_abandon(op::Operator) = release_inputs(op)
+
+function release_inputs(op::Operator)
+  for (ev, cb) in op.subscriptions
+    remove_callback(cb, ev)
+  end
+  empty!(op.subscriptions)
+  nothing
+end
+
 function check(ev::AbstractEvent, op::Operator, event_state_values::Dict{AbstractEvent, StateValue})
+  op.bev.abandoned && return nothing
   val = value(ev)
   if state(op) === idle
     if isa(val, Exception)

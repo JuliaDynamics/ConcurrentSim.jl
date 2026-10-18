@@ -34,6 +34,7 @@ function execute(ev::AbstractEvent, proc::Process)
     if proc.fsmi._state === 0xff
       schedule(proc; value=target)
     else
+      check_not_abandoned(target)
       proc.target = state(target) == processed ? timeout(env; value=value(target)) : target
       proc.resume = @callback execute(proc.target, proc)
     end

@@ -11,15 +11,51 @@ struct EventNotIdle <: Exception
   ev :: AbstractEvent
 end
 
+"""An unfinished event lost its last subscriber and cannot be reused. Create a fresh event."""
+struct EventAbandoned <: Exception
+  ev :: AbstractEvent
+end
+
+function Base.showerror(io::IO, exc::EventAbandoned)
+  print(io, "Event abandoned: ", exc.ev, ". Create a fresh event instead of reusing this wait.")
+end
+
 mutable struct BaseEvent
   env :: Environment
   id :: UInt
   callbacks :: Vector{Function}
   state :: EVENT_STATE
   value :: Any
+  abandoned :: Bool
   function BaseEvent(env::Environment)
-    new(env, env.eid+=one(UInt), Vector{Function}(), idle, nothing)
+    new(env, env.eid+=one(UInt), Vector{Function}(), idle, nothing, false)
   end
+end
+
+"""
+    abandon_on_unobserved(event::AbstractEvent)
+
+Return whether an unfinished event should be abandoned when its last subscriber
+is removed. The default is `false`; custom wait events can opt in by returning
+`true` and implementing [`on_abandon`](@ref). An abandoned event cannot be
+scheduled, subscribed to, or yielded again, even after its queued event is processed.
+"""
+abandon_on_unobserved(::AbstractEvent) = false
+
+"""
+    on_abandon(event::AbstractEvent)
+
+Release registrations owned by an event that opted into [`abandon_on_unobserved`](@ref).
+Called once, after the event is marked abandoned. The default does nothing.
+Cleanup must not resume the event or mutate a callback vector being dispatched.
+"""
+on_abandon(::AbstractEvent) = nothing
+
+has_subscribers(ev::AbstractEvent) = !isempty(ev.bev.callbacks)
+
+function check_not_abandoned(ev::AbstractEvent)
+  ev.bev.abandoned && throw(EventAbandoned(ev))
+  nothing
 end
 
 function show(io::IO, ev::AbstractEvent)
@@ -47,6 +83,7 @@ function state(ev::AbstractEvent) :: EVENT_STATE
 end
 
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
+  check_not_abandoned(ev)
   ev.bev.state === processed && throw(EventProcessed(ev))
   cb = ()->func(ev, args...)
   push!(ev.bev.callbacks, cb)
@@ -59,11 +96,20 @@ macro callback(expr::Expr)
 end
 
 function remove_callback(cb::Function, ev::AbstractEvent)
+  # Processed callbacks may still be dispatching. They are no longer subscribers.
+  state(ev) === processed && return nothing
   i = findfirst(x -> x == cb, ev.bev.callbacks)
-  i != 0 && deleteat!(ev.bev.callbacks, i)
+  i === nothing && return nothing
+  deleteat!(ev.bev.callbacks, i)
+  if !ev.bev.abandoned && abandon_on_unobserved(ev) && !has_subscribers(ev)
+    ev.bev.abandoned = true
+    on_abandon(ev)
+  end
+  nothing
 end
 
 function schedule(ev::AbstractEvent, delay::Number=0; priority=0, value=nothing)
+  check_not_abandoned(ev)
   state(ev) === processed && throw(EventProcessed(ev))
   env = environment(ev)
   bev = ev.bev
