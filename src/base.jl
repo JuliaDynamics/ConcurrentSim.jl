@@ -82,10 +82,16 @@ function state(ev::AbstractEvent) :: EVENT_STATE
   ev.bev.state
 end
 
+# Each registration needs its own identity, even for identical functions and arguments.
+mutable struct EventCallback{F} <: Function
+  func :: F
+end
+(cb::EventCallback)() = cb.func()
+
 function append_callback(func::Function, ev::AbstractEvent, args::Any...) :: Function
   check_not_abandoned(ev)
   ev.bev.state === processed && throw(EventProcessed(ev))
-  cb = ()->func(ev, args...)
+  cb = EventCallback(()->func(ev, args...))
   push!(ev.bev.callbacks, cb)
   cb
 end
@@ -98,7 +104,7 @@ end
 function remove_callback(cb::Function, ev::AbstractEvent)
   # Processed callbacks may still be dispatching. They are no longer subscribers.
   state(ev) === processed && return nothing
-  i = findfirst(x -> x == cb, ev.bev.callbacks)
+  i = findfirst(x -> x === cb, ev.bev.callbacks)
   i === nothing && return nothing
   deleteat!(ev.bev.callbacks, i)
   if !ev.bev.abandoned && abandon_on_unobserved(ev) && !has_subscribers(ev)
