@@ -29,6 +29,7 @@ println("Starting tests with $(Threads.nthreads()) threads out of `Sys.CPU_THREA
 @doset "base"
 @doset "events"
 @doset "operators"
+@doset "abandonment"
 @doset "simulations"
 @doset "processes"
 @doset "resources_containers"

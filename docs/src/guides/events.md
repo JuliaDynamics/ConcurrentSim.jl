@@ -28,6 +28,32 @@ An event becomes processed when ConcurrentSim pops it from the event queue and c
 
 Events also have a value. The value can be set before or when the event is scheduled and can be retrieved via the function `value` or, within a process, by yielding the event (`value = @yield event`).
 
+## Conditions and abandoned waits
+
+Conditions built with `|`, `&`, `AnyOf`, or `AllOf` release their input
+subscriptions when the condition is processed, before its consumer callbacks run.
+Events processed before that boundary still contribute to the condition's result.
+An event with another subscriber remains observed.
+
+Ordinary events, processes, and resource operations continue after a condition
+stops observing them. Conditions containing only ordinary events also continue
+and retain their results for a later yield.
+
+A custom event can opt into cleanup by defining
+[`abandon_on_unobserved`](@ref) to return `true` and implementing
+[`on_abandon`](@ref). If its last subscriber is removed while the event is
+unfinished, ConcurrentSim marks it abandoned before invoking the cleanup hook.
+A condition containing an opted-in input also opts in; abandoning it releases
+its input subscriptions recursively. Creating an event without subscribers does
+not itself abandon it.
+
+An abandoned event or condition cannot be reused: attaching a callback,
+scheduling it, or yielding it throws [`EventAbandoned`](@ref). Create a fresh
+wait instead. A normally completed event can still be yielded again. Cleanup
+does not undo effects that happened before abandonment, such as consuming a
+queued notification. Removing a callback that is absent or already processed
+does nothing, so cleanup cannot alter a callback vector being dispatched.
+
 ## Adding callbacks to an event
 
 “What? Callbacks? I’ve never seen no callbacks!”, you might think if you have worked your way through the tutorial.
